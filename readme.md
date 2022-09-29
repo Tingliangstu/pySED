@@ -1,6 +1,6 @@
 # pySED
 --------------------------
-To implement the phonon SED (spectral energy desity) method in 2010, phonon lifetime can be calculated.  
+**To implement the phonon SED (spectral energy desity) method in 2010, phonon lifetime can be calculated.** 
 
 ## Main features
 -------------
