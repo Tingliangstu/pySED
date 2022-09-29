@@ -1,8 +1,8 @@
-#pySED
+# pySED
 ===========
 To implement the phonon SED (spectral energy desity) method in 2010, phonon lifetime can be calculated.  
 
-##Main features
+## Main features
 -------------
 - Output SED image 
 - Using Lorentz to fitting the SED peak 
@@ -10,7 +10,7 @@ To implement the phonon SED (spectral energy desity) method in 2010, phonon life
 - Simple and easy to use
 - Phonon lifetime can only be obtained qualitatively
 
-#Installation instructions
+# Installation instructions
 --------------------------
 
 1) From source code
@@ -28,7 +28,7 @@ If one can reproduce the case in the example, one should use the program.
 
 If I have the time, I might provide a detailed tutorial manual.
 
-##References
+## References
 
 * J. M. Larkin, Ph.D. thesis, Carnegie Mellon University, 2013
 * Larkin, et al., *Phys. Rev. B* **81**, 081411(R) (2010)
@@ -36,7 +36,7 @@ If I have the time, I might provide a detailed tutorial manual.
 * A. J. H. McGaughey and M. Kaviany, *Phys. Rev. B* **69**, 094303 (2004).
 
 
-##Contact info
+## Contact info
 ---------------------------------------------------------
 Ting Liang
 liangting.zj@gmail.com

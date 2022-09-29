@@ -43,7 +43,7 @@ if __name__ == "__main__":
     generate_required_files(file_name, supercell)
 ```
 
-- [x] **1. Goto the lammps_run folder and run lammps to generate the pos.dat and vels.dat** 
+- [x] **2. Goto the lammps_run folder and run lammps to generate the pos.dat and vels.dat** 
 
 Maybe one can modify the **in.vels**
 
