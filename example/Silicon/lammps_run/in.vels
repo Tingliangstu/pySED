@@ -1,0 +1,35 @@
+## *************** For SED run *****************
+atom_style      atomic
+units           metal
+dimension       3
+boundary        p p p
+
+read_data       lammps_data
+pair_style      tersoff				
+pair_coeff      *  *  SiCGe.tersoff Si(D) 
+
+timestep        0.00075				                 ## 0.75 fs
+
+variable        T equal 500
+velocity        all create ${T} 123456 mom yes rot yes dist gaussian
+fix             NVT  all   nvt  temp  ${T}   ${T}  0.1 
+
+# *********************  thermo output  ************************
+thermo	        2000
+thermo_style    custom step temp lx ly lz press vol pxx pyy pzz pe ke etotal
+run           	1000000
+unfix           NVT
+
+fix             NVE all nve
+variable        dt_dump   equal 32
+dump            vels  all  custom  ${dt_dump}  vels.dat  id  type  vx  vy  vz
+dump_modify     vels  format  line "%d  %d  %0.8g  %0.8g  %0.8g"
+dump_modify     vels  sort  id
+dump            pos   all  custom  ${dt_dump}  pos.dat   id  type  x  y  z
+dump_modify     pos   format  line  "%d  %d  %0.8g  %0.8g  %0.8g"
+dump_modify     pos   sort  id
+
+run             2097152 			# 2**21
+unfix           NVE
+
+

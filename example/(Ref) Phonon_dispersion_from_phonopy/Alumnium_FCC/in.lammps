@@ -1,0 +1,57 @@
+##Initialization#basis
+units                          metal
+dimension                        3
+boundary                     p   p   p
+atom_style                     atomic
+
+# ---------- Create Atoms --------------------- 
+lattice 	fcc 4.065
+region	box block 0 1 0 1 0 1 units lattice
+create_box	1 box
+
+lattice	 fcc 4.065  orient  x  1  0  0  orient  y  0  1  0  orient  z  0  0  1  
+create_atoms 1  box
+replicate    1  1  1 
+
+mass	  	  1  26.98 
+
+# ---------- Define Interatomic Potential --------------------- 
+pair_style     eam/alloy 
+pair_coeff     *  *  Al99.eam.alloy  Al
+
+#neighbor         2.0    nsq
+#neigh_modify     every  1  delay  0  check  yes
+
+thermo_style      custom step temp ke pe etotal lx ly lz
+thermo_modify     lost warn
+thermo            1
+timestep          0.001
+
+min_style         cg
+fix               relax all box/relax aniso  0.0 vmax 1.0e-03  # for CNT or Si NW, 
+min_modify        dmax 1.0e-03 line quadratic                  # the vmax and dmax can be changed to be optimmized
+
+minimize          0.0 0.0 1000 1000
+minimize          0.0 0.0 1000 1000
+minimize          0.0 0.0 1000 1000
+minimize          0.0 0.0 1000 1000
+minimize          0.0 0.0 1000 1000
+minimize          0.0 0.0 1000 1000
+minimize          0.0 0.0 1000 1000
+minimize          0.0 0.0 1000 1000
+
+unfix             relax
+
+min_style         hftn
+minimize          0.0 0.0 1000 1000
+minimize          0.0 0.0 1000 1000
+minimize          0.0 0.0 1000 1000
+minimize          0.0 0.0 1000 1000
+minimize          0.0 0.0 1000 1000
+minimize          0.0 0.0 1000 1000
+minimize          0.0 0.0 1000 1000
+minimize          0.0 0.0 1000 1000
+
+reset_timestep    0
+
+run               0

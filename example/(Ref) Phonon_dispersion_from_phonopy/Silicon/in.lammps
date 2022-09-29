@@ -1,0 +1,53 @@
+##Initialization#basis
+units                          metal
+dimension                        3
+boundary                     p   p   p
+atom_style                     atomic
+
+#read graphite  
+read_data  					         data.si
+
+#amass
+# First layer
+mass               1          28.0855000000 		
+
+#potential        function
+pair_style        tersoff
+pair_coeff        * *  SiCGe.tersoff  Si(D)
+
+#neighbor         2.0    nsq
+#neigh_modify     every  1  delay  0  check  yes
+
+thermo_style      custom step temp ke pe etotal lx ly lz
+thermo_modify     lost warn
+thermo            1
+timestep          0.001
+
+min_style         cg
+fix               relax all box/relax aniso  0.0 vmax 1.0e-03  # for CNT or Si NW, 
+min_modify        dmax 1.0e-03 line quadratic                  # the vmax and dmax can be changed to be optimmized
+
+minimize          0.0 0.0 1000 1000
+minimize          0.0 0.0 1000 1000
+minimize          0.0 0.0 1000 1000
+minimize          0.0 0.0 1000 1000
+minimize          0.0 0.0 1000 1000
+minimize          0.0 0.0 1000 1000
+minimize          0.0 0.0 1000 1000
+minimize          0.0 0.0 1000 1000
+
+unfix             relax
+
+min_style         hftn
+minimize          0.0 0.0 1000 1000
+minimize          0.0 0.0 1000 1000
+minimize          0.0 0.0 1000 1000
+minimize          0.0 0.0 1000 1000
+minimize          0.0 0.0 1000 1000
+minimize          0.0 0.0 1000 1000
+minimize          0.0 0.0 1000 1000
+minimize          0.0 0.0 1000 1000
+
+reset_timestep    0
+
+run               0

@@ -1,0 +1,49 @@
+### ********************* For Calculate SED input file **************
+# ************** Post-processing and plotting ***********************
+# ************** Read previous calculation for plotting **************
+# ************** Will look for output files and plot them, then exit. *******
+
+### ************ MD simulation parameters **************
+num_atoms = 4800                    # number of atoms in structure
+total_num_steps = 2097152          # MD simulation steps
+time_step = 0.75                   # femtoseconds (fs)
+output_data_stride = 32            # data only printed every 32 steps in the LAMMPS simulation, see the input file.
+
+### ************ Divide up the data for averaging **************
+num_splits = 64                     # number of blocks to average. If DEBUG = 1, this is overridden as 1.
+
+### ************ Deal the lammps dump velocity file or not **************
+compress = 1
+
+### ************ Input and output files **************
+out_files_name = '668'
+basis_lattice_file = 'basis.in'
+vels_file = 'vels.dat'
+pos_file = 'pos.dat'
+output_hdf5 = 'vel_pos_compress.hdf5'
+file_format  = 'lammps'                     # leave this alone unless you know what you are doing! :)
+
+### ************ Crystal lattice ************
+lat_params = 3.643811 7.287622 10.6291                                # crystal lattice constants. (equal to the box length in lammps unitcell data)
+prim_unitcell  = 1.0 0.0 0.0  0.0 1.0 0.0  0.0 0.0 1.0     # primitive lattice vectors.
+
+### ************  Q-points info ************
+num_qpaths  = 1                             # number of dispersion paths to include
+
+# number of q-points in the disperion paths (Contains the number of points in each Q path)
+num_qpoints = 50                            # For example: num_qpaths=2, num_qpoint = 9  9
+q_path = 0.0 0.0 0.0  0.5 0.0 0.0           # end points of the dispersion path in red. reciprocal coords.
+
+# ************ Will look for output files and plot them, then exit ************
+plot_SED = 1                                # plot the dispersion  (Set to 0 to calculate SED, run SED mode)
+plot_slice = 1                              # plot a q-slice yes or not (bool)
+qpoint_slice_index = 1                      # the q-point to plot (starts from 0 thanks to python slicing...)
+if_show_figures = 1                         # Shows figures for eyes
+
+# https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html (see the usage)
+# ************ Do Lorentz fitting ************
+lorentz = 1                                 # whether to fit peaks
+re_output_total_freq_lifetime = 1           # This parameter allows you to re-adjust the single peak of a single Q point and re-output the phonon lifetime
+peak_height = 5.0e-6                        # The lowest height of Lorenz fitting (scipy.signal.find_peaks) -- Important
+peak_prominence = 7.0e-6                    # A minimal prominence of 9.0e-5
+lorentz_fit_all_qpoint = 1                  # Fit all qpoints peak and output the phonon lifetime for the systems in the unit of ps
