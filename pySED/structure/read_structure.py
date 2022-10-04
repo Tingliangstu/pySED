@@ -224,11 +224,11 @@ def get_structure_from_lammps(lammps_input_file, show_log = False):
 
 if __name__ == "__main__":
 
-    file_name = 'in.lammps'                              ## The in file for lammps
+    file_name = 'HKUST-1_cubic.vasp'                              ## The in file for lammps
 
-    structure = get_structure_from_lammps(file_name)
+    # structure = get_structure_from_lammps(file_name)
 
-    structure = read_from_file_structure_poscar()
-    print(structure['symbols'])
+    structure = read_from_file_structure_poscar(file_name=file_name)
+    print(structure['masses'])
 
 

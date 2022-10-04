@@ -43,6 +43,7 @@ class structure_maker(object):
                         self.unitcell_positions[i, 2] * self.cell[2, :])
 
         self.unitcell_num_atoms = self.unitcell_positions.shape[0]
+
         self.masses = structure['masses']
         self.basis_atoms_symbols = structure['symbols']
 
@@ -111,6 +112,8 @@ class structure_maker(object):
 
         # For atom types
         self.unique_types = list(np.unique(self.basis_atoms_symbols))
+        self.masses_for_lammps_output = [read_structure.symbol_to_mass(i) for i in self.unique_types]
+
         self.num_types = len(self.unique_types)
 
         # Get lammps unit for generate lammps data
@@ -138,7 +141,7 @@ class structure_maker(object):
             # Masses
             fid.write('Masses\n\n')
             for i in range(self.num_types):
-                fid.write('{0} {1:20.10f} \n'.format(i + 1, self.masses[i]))
+                fid.write('{0} {1:20.10f}  # {2}\n'.format(i + 1, self.masses_for_lammps_output[i], self.unique_types[i]))
 
             fid.write('\nAtoms\n\n')
 
@@ -181,10 +184,10 @@ class structure_maker(object):
 
 if __name__ == "__main__":
 
-    file_name = 'POSCAR'                              ## The in file for lammps
+    file_name = 'HKUST-1_cubic.vasp'                              ## The in file for lammps
 
     si = structure_maker(structure_file_name = file_name)
-    si.replicate_supercell(supercell = (30, 2, 2))
+    si.replicate_supercell(supercell = (1, 1, 60))
     si.write_xyz()
     si.write_lammps_data(lammps_data_types = 'metal')
     si.write_lattice_basis_file()
