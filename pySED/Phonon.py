@@ -70,9 +70,10 @@ class spectral_energy_density:
     def _loop_over_qpoints(self, params, lattice_info):
         for q in range(sum(lattice_info.num_qpoints)):
             self.q_index = q
+            # Output reduced_qoints for views (but use real qoints)
             print('\tNow calculate on q-point {0}/{1}:\tq = ({2:.4f}, {3:.4f}, {4:.4f})'
-                  .format(q + 1, sum(lattice_info.num_qpoints), lattice_info.qpoints[q, 0],
-                          lattice_info.qpoints[q, 1], lattice_info.qpoints[q, 2]))
+                  .format(q + 1, sum(lattice_info.num_qpoints), lattice_info.reduced_qpoints[q, 0],
+                          lattice_info.reduced_qpoints[q, 1], lattice_info.reduced_qpoints[q, 2]))
 
             self.exp_fac = np.tile(lattice_info.qpoints[q, :], (self.num_unit_cells, 1))
             self.exp_fac = np.exp(1j * np.multiply(self.exp_fac, self.cell_vecs).sum(axis=1))
