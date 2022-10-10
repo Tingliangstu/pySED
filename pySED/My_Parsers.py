@@ -178,7 +178,7 @@ class get_parse_input(object):
 
             elif txt[0] == 'plot_interval':
                 try:
-                    self.plot_interval  = int(int(txt[txt.index('=') + 1]))
+                    self.plot_interval = float(txt[txt.index('=') + 1])
                 except:
                     print_error('plot_interval')
 
