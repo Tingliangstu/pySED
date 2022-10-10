@@ -35,7 +35,9 @@ class get_parse_input(object):
         self.file_format = 'lammps'
 
         self.plot_lorentz = False
-        self.peak_max_hwhm = 1e6   # default
+        self.plot_cutoff_freq = None
+        self.plot_interval = 5            # Thz
+        self.peak_max_hwhm = 1e6          # default
 
         ## ********** eigenvector from phonopy for further development
         self.with_eigs = None
@@ -167,6 +169,18 @@ class get_parse_input(object):
                     self.plot_SED = bool(int(txt[txt.index('=') + 1]))
                 except:
                     print_error('plot_SED')
+                    
+            elif txt[0] == 'plot_cutoff_freq':
+                try:
+                    self.plot_cutoff_freq = int(int(txt[txt.index('=') + 1]))
+                except:
+                    print_error('plot_cutoff_freq')
+
+            elif txt[0] == 'plot_interval':
+                try:
+                    self.plot_interval  = int(int(txt[txt.index('=') + 1]))
+                except:
+                    print_error('plot_interval')
 
             elif txt[0] == 'plot_slice':
                 try:

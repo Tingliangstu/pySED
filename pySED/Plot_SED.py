@@ -18,8 +18,13 @@ def plot_bands(data, params):
     log = True
     color = 'jet'                           # 'inferno'
     interp = 'hanning'                      # 'hanning'
-    df = 5                                  # Scale interval for drawing
+    df = params.plot_interval               # Scale interval for drawing
 
+    # For plot scale
+    max_thz = max(thz)
+    max_sed_y = np.size(sed_avg, 0)
+    scale_factor = max_sed_y / max_thz
+     
     # ******************** Whether to apply log scaling data ********************
     if log:
         sed_avg = np.log(sed_avg)
@@ -68,14 +73,15 @@ def plot_bands(data, params):
     ax.set_ylabel(r'Frequency (THz)',labelpad = 3.0,fontweight='normal',fontsize='x-large')
 
     fig.suptitle(r'$\Phi$($\bfq$,$\omega)$',y = 0.95,fontsize='x-large')
-    # plt.xlim(0, 0.5)
-    # plt.ylim(0, 20)
+
+    # ax.set_xlim()
+    if params.plot_cutoff_freq:
+        ax.set_ylim([0, params.plot_cutoff_freq * scale_factor])
 
     plt.savefig('{}-SED.png'.format(params.out_files_name), format='png', dpi = 600, bbox_inches='tight')
 
     if params.if_show_figures:
         plt.show()
-
 
 def lorentzian(xarr, center, amplitude, hwhm):
     return amplitude / (1 + ((xarr - center) / hwhm) ** 2)
