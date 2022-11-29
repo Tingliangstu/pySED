@@ -35,7 +35,7 @@ num_qpoints = 50                            # For example: num_qpaths=2, num_qpo
 q_path = 0.0 0.0 0.0  0.5 0.0 0.0           # end points of the dispersion path in red. reciprocal coords.
 
 # ************ Will look for output files and plot them, then exit ************
-plot_SED = 1                         # plot the dispersion  (Set to 1 to calculate SED, run SED mode)
+plot_SED = 1                         # plot the dispersion (Set to 0 to calculate SED--run SED mode, set 1 to plot and fitting mode)
 #plot_cutoff_freq = 5                # if not set, SED will plot all-range frequency according the FFT, if set frequency will cutoff (THz)
 plot_interval = 5                    # For a good look SED picture, interval for y-axis (default = 5 THz)
 plot_slice = 1                       # plot a q-slice yes or not (bool)
@@ -44,8 +44,17 @@ if_show_figures = 0                  # Shows figures for eyes
 
 # https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html (see the usage)
 # ************ Do Lorentz fitting ************
-lorentz = 1                                 # whether to fit peaks
-re_output_total_freq_lifetime = 1           # This parameter allows you to re-adjust the single peak of a single Q point and re-output the phonon lifetime
-peak_height = 5.0e-6                        # The lowest height of Lorenz fitting (scipy.signal.find_peaks) -- Important
-peak_prominence = 7.0e-6                    # A minimal prominence of 9.0e-5
-lorentz_fit_all_qpoint = 1                  # Fit all qpoints peak and output the phonon lifetime for the systems in the unit of ps
+lorentz = 1                           # whether to fit peaks
+re_output_total_freq_lifetime = 1     # This parameter allows you to re-adjust the single peak of a single Q point and re-output the phonon lifetime
+peak_height = 5.0e-6                  # The lowest height of Lorenz fitting (scipy.signal.find_peaks) -- Important
+peak_prominence = 7.0e-6              # A minimal prominence of 9.0e-5
+#lorentz_fit_cutoff = 2               # if not set, lorentz fitting figure will plot all-range frequency according the FFT, if set frequency will cutoff (THz), one can set plot_cutoff_freq = lorentz_fit_cutoff (maybe very useful for some strong anharmonicity systems)
+modulate_factor =  10                 # If set (int), the fitting of a single peak will shrink the fitting range of the X-axis (THz) toward the middle, which helps to get a better phonon lifetime (default=0)        
+lorentz_fit_all_qpoint = 1            # Fit all qpoints peak and output the phonon lifetime for the systems in the unit of ps
+
+# Tips
+# 1. The prominence of a peak measures how much a peak stands out from the surrounding baseline
+#    of the signal and is defined as the vertical distance between the peak and its lowest contour line.
+# 2. Using 'lorentz_fit_cutoff', 'modulate_factor' flag will help a lot for fitting phonon lifetime
+# 3. If it is not fitting well for single Q point, one can use the 're_output_total_freq_lifetime' flag and adjust
+     'peak_height' and 'peak_prominence', and pySED will reoutput the TOTAL-LORENTZ-Qpoints.Fre_lifetime file.
