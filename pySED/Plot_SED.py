@@ -163,6 +163,9 @@ def plot_slice(data, params):
     fig.suptitle(r'$\bfq$ = ({:.3f}, {:.3f}, {:.3f})'.format(
         qpoints[q_index, 0], qpoints[q_index, 1], qpoints[q_index, 2]), y=0.80, fontsize='x-large')
 
+    if params.lorentz_fit_cutoff:
+        ax.set_xlim([0, params.lorentz_fit_cutoff])
+
     if save_flag:
         plt.savefig('LORENTZ-fitting-{}-qpoint.png'.format(params.q_slice_index), format='png',dpi = 600, bbox_inches='tight')
     else:
