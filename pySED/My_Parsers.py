@@ -37,6 +37,8 @@ class get_parse_input(object):
         self.plot_lorentz = False
         self.plot_cutoff_freq = None
         self.plot_interval = 5            # Thz
+        self.lorentz_fit_cutoff = None
+        self.modulate_factor = 0
         self.peak_max_hwhm = 1e6          # default
 
         ## ********** eigenvector from phonopy for further development
@@ -172,7 +174,7 @@ class get_parse_input(object):
                     
             elif txt[0] == 'plot_cutoff_freq':
                 try:
-                    self.plot_cutoff_freq = int(int(txt[txt.index('=') + 1]))
+                    self.plot_cutoff_freq = float(txt[txt.index('=') + 1])
                 except:
                     print_error('plot_cutoff_freq')
 
@@ -230,7 +232,19 @@ class get_parse_input(object):
                     self.peak_max_hwhm = float(txt[txt.index('=') + 1])  # The index of label('=') plus 1
                 except:
                     print_error('peak_max_hwhm')
-
+                    
+            elif txt[0] == 'lorentz_fit_cutoff':
+                try:
+                    self.lorentz_fit_cutoff = float(txt[txt.index('=') + 1])  # The index of label('=') plus 1
+                except:
+                    print_error('lorentz_fit_cutoff')
+            
+            elif txt[0] == 'modulate_factor':
+                try:
+                    self.modulate_factor = int(txt[txt.index('=') + 1]) # The index of label('=') plus 1
+                except:
+                    print_error('modulate_factor')
+            
             elif txt[0] == 'lorentz_fit_all_qpoint':
                 try:
                     self.lorentz_fit_all_qpoint = bool(int(txt[txt.index('=') + 1]))
