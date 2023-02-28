@@ -36,6 +36,9 @@ If I have the time, I might provide a detailed tutorial manual.
 * A. J. H. McGaughey and M. Kaviany, *Phys. Rev. B* **69**, 094303 (2004).
 * [https://github.com/tyst3273/phonon-sed](https://github.com/tyst3273/phonon-sed)
 
+## If you use **pySED**, the following citations are highly recommended:
+
+[Li, J., Ying, P., Liang, T., Du, Y., Zhou, J., & Zhang, J. (2023)](https://doi.org/10.1039/D2CP05673A)
 
 ## Contact info
 ---------------------------------------------------------
