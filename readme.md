@@ -39,6 +39,7 @@ If I have the time, I might provide a detailed tutorial manual.
 ## If you use **pySED**, the following citations are highly recommended:
 
 * [Li, J., Ying, P., Liang, T., Du, Y., Zhou, J., & Zhang, J. (2023)](https://doi.org/10.1039/D2CP05673A)
+* [Penghua Ying, Ting Liang, Ke Xu, Jin Zhang, Jianbin Xu, Zheng Zhong, and Zheyong Fan (2023)] (https://pubs.acs.org/doi/10.1021/acsami.3c07770)
 
 ## Contact info
 ---------------------------------------------------------
