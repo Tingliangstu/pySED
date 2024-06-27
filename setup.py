@@ -26,7 +26,7 @@ setup(name='pySED',
       python_requires=">=3.7",
       install_requires=[
             "numpy>=1.15.0",
-            "matplotlib==3.5.2",
+            "matplotlib>=3.5.2",
             "h5py",
             "scipy"],
       license='MIT License'

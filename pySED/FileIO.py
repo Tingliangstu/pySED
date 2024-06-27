@@ -20,7 +20,7 @@ class load_data(object):
         self.qpoints = np.loadtxt(params.out_files_name + '.Qpts')
         self.freq_fft = np.loadtxt(params.out_files_name + '.THz')
 
-def write_lorentz(lorentz,params):
+def write_lorentz(lorentz, params):
     np.savetxt(params.out_files_name + '_LORENTZ-{}.params'.format(params.q_slice_index), lorentz.popt)
     np.savetxt(params.out_files_name + '_LORENTZ-{}.error'.format(params.q_slice_index), lorentz.pcov)
     print('**************** The specific parameters of the fit are successfully written ***************')
@@ -31,6 +31,10 @@ def write_phonon_lifetime(lorentz, params):
     out_lifetime_file += "First_line: Frequency (THz)  Second_line: Phonon Lifetime (ps)\n"
 
     for i in range(len(lorentz.popt)):
+
+        if lorentz.popt[i][2] == 0:  # don't output fitting fail frequency
+            continue
+
         out_lifetime_file += '{0:.4f} {1:.8f} \n'.format(lorentz.popt[i][0], 1/(2 * lorentz.popt[i][2]))
         # write the file
 
@@ -50,7 +54,7 @@ def deal_total_fre_lifetime(params):
 
         try:
             load_file_name = 'LORENTZ-{}-th-Qpoints.Fre_lifetime'.format(i)
-            Freq, lifetime = np.loadtxt(load_file_name, skiprows = 2, unpack = True)
+            Freq, lifetime = np.loadtxt(load_file_name, skiprows=2, unpack=True)
 
             for j in range(len(Freq)):
                 out_lifetime_file += '{0:.4f} {1:.8f}\n'.format(Freq[j], lifetime[j])

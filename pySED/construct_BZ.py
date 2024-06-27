@@ -9,7 +9,7 @@ import os
 import numpy as np
 
 class BZ_methods(object):
-    def __init__(self, params, qpoints_info = True):
+    def __init__(self, params, qpoints_info=False):
         self.params = params
         self.qpoints_info = qpoints_info
         # read the unitcell and basis positions from a file
@@ -17,7 +17,7 @@ class BZ_methods(object):
         self.cell_ref_ids = np.argwhere(self.basis_index == 1)
         self.cell_ref_ids = self.cell_ref_ids.reshape(len(self.cell_ref_ids))
 
-        # calculate direct lattice vectors (for orthogonal lattice vectors)
+        # calculate direct lattice vectors (for orthogonal or triclinic lattice vectors)
         dir_lat = params.prim_unitcell
         dir_lat[:, 0] = dir_lat[:, 0] * params.lat_params[0]
         dir_lat[:, 1] = dir_lat[:, 1] * params.lat_params[1]
@@ -38,9 +38,9 @@ class BZ_methods(object):
 
         # print list of q-points to screen
         if self.qpoints_info:
-            print('\n************* There are {} q-points to be calculated *************:\n'.format(sum(params.num_qpoints)))
+            #print('\n************* There are {} q-points to be calculated *************:\n'.format(sum(params.num_qpoints)))
             for i in range(sum(params.num_qpoints)):
-                print('\t\t(reduced) q = ({0:.5f}, {1:.5f}, {2:.5f})'
+                print('\t    (reduced) q = ({0:.5f}, {1:.5f}, {2:.5f})'
                       .format(self.reduced_qpoints[i, 0], self.reduced_qpoints[i, 1],
                               self.reduced_qpoints[i, 2]))
 
@@ -66,6 +66,7 @@ class BZ_methods(object):
 
         self.num_qpoints = params.num_qpoints
         self.num_qpaths = params.num_qpaths
+
         # Controls the user's input parameters (seems never reach here)
         if self.num_qpaths != len(self.num_qpoints):
             raise ValueError('You must specify the number of Q points on each path')
