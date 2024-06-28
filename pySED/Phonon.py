@@ -30,11 +30,11 @@ class spectral_energy_density:
             print('\n****** Using velocity unit of A/ps in lammps (metal), the unit for SED is convert to J*s *****')
 
         elif params.file_format == 'lammps' and params.lammps_unit == 'real':  ## convert velocity from A/fs to m/s
-            self.scaling_velocity = 10000
+            self.scaling_velocity = 100000
             print('\n****** Using velocity unit of A/fs in lammps (real), the unit for SED is convert to J*s *****')
 
-        elif params.file_format == 'gpumd':  ## convert velocity from A/ps to m/s (for gpumd)
-            self.scaling_velocity = 10000
+        elif params.file_format == 'gpumd':  ## convert velocity from A/fs to m/s (for gpumd)
+            self.scaling_velocity = 100000
             print('\n****** Using velocity unit of A/fs in GPUMD, the unit for SED is convert to J*s ******')
 
         # Obtaining frequencies for fourier transform
