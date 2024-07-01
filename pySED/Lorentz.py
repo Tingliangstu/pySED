@@ -23,7 +23,7 @@ class lorentz:
         def lorentzian(xarr, center, amplitude, hwhm):
             return amplitude / (1 + ((xarr - center) / hwhm) ** 2)
 
-        def smooth_data(y, window_len=1):  # (hanning windows)
+        def smooth_data(y, window_len=3):  # (hanning windows)
             window = windows.hann(window_len)
             y_padded = np.pad(y, (window_len // 2, window_len // 2), mode='reflect')
             y_smooth = np.convolve(y_padded, window / window.sum(), mode='valid')
@@ -120,7 +120,9 @@ class lorentz:
 
         # Control params
         params.popt = self.popt
-        print(self.popt[:, 2])
+
+        print("\n**** The fitting hwhm is {}, Please check it. ****".format(self.popt[:, 2]))
+        
         params.plot_lorentz = True
         Plot_SED.plot_slice(data, params)
 
