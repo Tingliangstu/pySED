@@ -28,18 +28,29 @@ class get_parse_input(object):
         self.output_data_stride = 0
 
         ### ************ Input and output files **************
+        self.lat_params = [1, 1, 1]
         self.vels_file = 'vels.dat'
         self.pos_file = 'pos.dat'
+        self.dump_xyz_file = 'dump.xyz'
         self.basis_lattice_file = 'basis.in'
         self.output_hdf5 = 'vel_pos_compress.hdf5'
-        self.file_format = 'lammps'
+        self.file_format = 'gpumd'            # gpumd or lammps
+        self.lammps_unit = 'metal'            # lammps unit for unit conversion (support metal or real)
 
+        # multithread for computing SED (not finish yet)
+        self.use_parallel = True           # use parallel
+        self.max_cores = 4              # Means use the max cores in one's machine
+
+        # Plot and lorentz fitting
         self.plot_lorentz = False
         self.plot_cutoff_freq = None
-        self.plot_interval = 5            # Thz
+        self.plot_interval = 5                        # Thz
         self.lorentz_fit_cutoff = None
         self.modulate_factor = 0
-        self.peak_max_hwhm = 1e6          # default
+        self.initial_guess_hwhm = 0.01               # default
+        self.peak_max_hwhm = 1e6                     # default
+        self.re_output_total_freq_lifetime = 1       # default
+        self.lorentz_fit_all_qpoint = 0              # default
 
         ## ********** eigenvector from phonopy for further development
         self.with_eigs = None
@@ -141,6 +152,12 @@ class get_parse_input(object):
                 except:
                     print_error('vels_file')
 
+            elif txt[0] == 'dump_xyz_file':
+                try:
+                    self.dump_xyz_file = str(txt[txt.index('=') + 1].strip('\''))
+                except:
+                    print_error('dump_xyz_file')
+
             elif txt[0] == 'pos_file':
                 try:
                     self.pos_file = str(txt[txt.index('=') + 1].strip('\''))
@@ -164,6 +181,25 @@ class get_parse_input(object):
                     self.file_format = str(txt[txt.index('=') + 1].strip('\''))
                 except:
                     print_error('file_format')
+
+            elif txt[0] == 'lammps_unit':
+                try:
+                    self.lammps_unit = str(txt[txt.index('=') + 1].strip('\''))
+                except:
+                    print_error('lammps_unit')
+
+            # for parallel
+            elif txt[0] == 'use_parallel':
+                try:
+                    self.use_parallel = bool(int(txt[txt.index('=') + 1]))
+                except:
+                    print_error('use_parallel')
+
+            elif txt[0] == 'max_cores':
+                try:
+                    self.max_cores = bool(int(txt[txt.index('=') + 1]))
+                except:
+                    print_error('max_cores')
 
             # plotting
             elif txt[0] == 'plot_SED':
@@ -226,7 +262,13 @@ class get_parse_input(object):
                     self.peak_prominence = float(txt[txt.index('=') + 1])  # The index of label('=') plus 1
                 except:
                     print_error('peak_prominence')
-                    
+
+            elif txt[0] == 'initial_guess_hwhm':
+                try:
+                    self.initial_guess_hwhm = float(txt[txt.index('=') + 1])  # The index of label('=') plus 1
+                except:
+                    print_error('initial_guess_hwhm')
+
             elif txt[0] == 'peak_max_hwhm':
                 try:
                     self.peak_max_hwhm = float(txt[txt.index('=') + 1])  # The index of label('=') plus 1

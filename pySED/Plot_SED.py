@@ -69,10 +69,10 @@ def plot_bands(data, params):
     # plt.tick_params(axis = 'x', which = 'both', labelbottom = False)
 
     # ******************** set the figure labels ********************
-    ax.set_xlabel(r'$\bfq$',labelpad = 5.0,fontweight='normal',fontsize='x-large')
+    ax.set_xlabel(r'$\mathbf{q}$',labelpad = 5.0,fontweight='normal',fontsize='x-large')
     ax.set_ylabel(r'Frequency (THz)',labelpad = 3.0,fontweight='normal',fontsize='x-large')
 
-    fig.suptitle(r'$\Phi$($\bfq$,$\omega)$',y = 0.95,fontsize='x-large')
+    fig.suptitle(r'$\Phi(\mathbf{q}, \omega)$',y = 0.95,fontsize='x-large')
 
     # ax.set_xlim()
     if params.plot_cutoff_freq:
@@ -160,8 +160,8 @@ def plot_slice(data, params):
 
     # ax.set_xlabel(r'$\omega$ (THz)', labelpad=3.0, fontweight='normal', fontsize='large')
 
-    fig.suptitle(r'$\bfq$ = ({:.3f}, {:.3f}, {:.3f})'.format(
-        qpoints[q_index, 0], qpoints[q_index, 1], qpoints[q_index, 2]), y=0.80, fontsize='x-large')
+    fig.suptitle(r'$\mathbf{{q}}$ = ({0:.3f}, {1:.3f}, {2:.3f})'.format(qpoints[q_index, 0], qpoints[q_index, 1],
+                                                               qpoints[q_index, 2]), y=0.80, fontsize='x-large')
 
     if params.lorentz_fit_cutoff:
         ax.set_xlim([0, params.lorentz_fit_cutoff])
