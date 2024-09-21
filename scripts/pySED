@@ -20,9 +20,18 @@ from pySED import (My_Parsers,
                    Lorentz)
 
 # ******************************** Show pySED imformation ************************
-print('\n***************************************************************************************')
-print('******************************** pySED (v-0.4.0) **************************************')
-print('**************** Now, v-0.4.0 pySED can interface with GPUMD **************************')
+logo_lines = [
+ "                    _ __   _   _    _____  ______  _____",
+ "                   | '_ \\ | | | |  / ____||  ____||  __ \\",
+ "                   | |_) || |_| | | (___  | |__   | |  | |",
+ "                   | .__/  \__, |  \___ \ |  __|  | |  | |",
+ "                   | |      __/ | ____) | | |____ | |__| |",
+ "                   |_|     |___/ |_____/  |______||_____/",
+ "                                              v-1.0.0"
+ ]
+for line in logo_lines:
+    print(line)
+print('**************** Now, v-1.0.0 pySED can interface with GPUMD **************************')
 print('******* To implement the SED method in 2010, phonon lifetime can be calculated ********')
 print('************************ Author: liangting.zj@gmail.com *******************************')
 print('***************************************************************************************')
@@ -61,22 +70,17 @@ if params.plot_SED:
 
 else:
     ### *********************** Compress the velocity and position data to hdf5  ***********************
-    print('\n****************** You are in the SED-Computing mode ********************')
+    print('\n******************* You are in the SED-Computing mode ********************')
     if params.compress:
     	# print(params.output_hdf5 + ' file already exists, and there is no need to compression !!')
         if os.path.exists(params.output_hdf5):
-           pass 
+            print('\n*************** ' + params.output_hdf5 + ' file will be used ! ****************')
         else:
             Compressor.compress(params)
-            print('******** Compress the velocity and position data to hdf5 is DONE! *********')
-    
-    try:
-        ### Open the hdf5 database
-        params.database = h5py.File(params.output_hdf5, 'r')
-        print('\n********** ' + params.output_hdf5 + ' file is reading done !! **********')
-    except:
-        raise EOFError('********** Can\'t not open **********' + params.output_hdf5)
-        
+            print('\n******** Compress the velocity and position data to hdf5 is DONE! ********')
+    else:
+        raise EOFError('**** Please set "compress = 1" in input file to compress the velocity and position data ****')
+
     # ***************************** For implement SED Method *******************************
     ## Construct BZ
     BZ_lattice_info = construct_BZ.BZ_methods(params)
@@ -84,16 +88,15 @@ else:
     ## compute SED
     phonons = Phonon.spectral_energy_density(params)
     phonons.compute_sed(params, BZ_lattice_info)
-    print('\n******* Qpoints is compute ALL Done, Now saving files and you can use data to plot figures *******')
 
     ### Save the data to output files
     FileIO.write_output(phonons, params, BZ_lattice_info)
 
-    print('\n************* SED-Computing mode is running ALL Done, Now you can run plotting mode **************')
+    print('\n********** SED-Computing mode is running done for all Q-points, Now you can run plotting mode **********\n')
     exit()
 
 # ***************************** Finished SED compute, For plotting *******************************
-# ********** If found params.lorentz_fit_all_qpoint, just fitting all q points *******************
+# ********** If found params.lorentz_fit_all_qpoint, just fitting all Q points *******************
 
 if params.lorentz_fit_all_qpoint:
     print('\n************************* You are in the ALL plotting mode !!! ************************\n')
@@ -106,18 +109,23 @@ if params.lorentz_fit_all_qpoint:
         print('***************************************************************************************')
         print('***************** Now processing {}-th Qpoint SED Lorentz fitting **********************'.format(j))
         data = FileIO.load_data(params)
-        Plot_SED.plot_slice(data, params)
+        #Plot_SED.plot_slice(data, params)              # no need to output here
         Lorentz.lorentz(data, params)
         print('***************************************************************************************')
         print('***************************************************************************************\n')
 
     FileIO.deal_total_fre_lifetime(params)
+    print('\n****************************** pySED PLOTTING ALL DONE !!!!! ****************************')
+    print('*****************************************************************************************')
+    print(' If some Q-points don\'t fit well enough, one can rerun the single fitting mode by setting:')
+    print(' \"qpoint_slice_index = XX, re_output_total_freq_lifetime = 1, lorentz_fit_all_qpoint = 0\"')
+    print('*****************************************************************************************\n')
     exit()
-    print('\n****************************** pySED PLOTTING ALL DONE !!!!! ***************************\n')
 
+# ************************* Doing lorentz fitting for single Q-point *****************************
 if params.plot_SED:
     if params.plot_SED:
-        print('\n**** You are in the single SED-qpoint plotting mode, and doing lorentz fitting for single Q point ****\n')
+        print('\n***** You are in the single SED-qpoint plotting mode, plot SED for single Q-point *****\n')
         data = FileIO.load_data(params)
         Plot_SED.plot_bands(data, params)
 
@@ -126,12 +134,17 @@ if params.plot_SED:
 
      ### Fit to a Lorentz function
     if params.lorentz:
+       print('\n******************* You are doing lorentz fitting for single Q-point ******************\n')
        data = FileIO.load_data(params)
        Lorentz.lorentz(data, params)
-       print('\n*************************** Single Lorentz fitting ALL DONE! **************************')
+       print('\n************************** Single Lorentz fitting ALL DONE! ***************************')
 
-    # This parameter allows you to re-adjust the single peak of a single Q point and re-output the total phonon lifetime
+    # This parameter allows you to re-adjust the single peak of a single Q-point and re-output the total phonon lifetime
     if params.re_output_total_freq_lifetime:
         FileIO.deal_total_fre_lifetime(params)
 
-    print('\n****************************** pySED PLOTTING ALL DONE !!!!! ***************************\n')
+    print('\n************************** pySED SINGLE-PLOTTING ALL DONE !!!!! ***********************\n')
+    print('***************************************************************************************')
+    print('  If single Q-point fitting works well, one can fit all Q-point directly by setting:')
+    print('                              \"lorentz_fit_all_qpoint = 1\"')
+    print('***************************************************************************************\n')

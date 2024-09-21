@@ -4,9 +4,16 @@
         liangting.zj@gmail.com --- Refer from Ty Sterling's script
 ************************ 2021/5/15 23:03:21 **********************
 '''
-
+from pylab import *
+import seaborn as sns
 import numpy as np
-import matplotlib.pyplot as plt
+
+# *************************** Set Seaborn style for good look*************************
+sns.set(style="ticks")
+# Customize axis line, tick, and label properties
+sns.set_context("paper", rc={"axes.linewidth": 0.8, "xtick.major.width": 0.8, "ytick.major.width": 0.8,
+                             "axes.labelsize": 15, "xtick.labelsize": 13.0, "ytick.labelsize": 13.0})
+# *************************** Set Seaborn style *************************
 
 def plot_bands(data, params):
     # Get data
@@ -15,8 +22,7 @@ def plot_bands(data, params):
     thz = data.freq_fft
 
     # ******************** Control plotting params ********************
-    log = True
-    color = 'jet'                           # 'inferno'
+    color = 'RdBu_r'                        # 'jet', 'inferno'
     interp = 'hanning'                      # 'hanning'
     df = params.plot_interval               # Scale interval for drawing
 
@@ -24,61 +30,53 @@ def plot_bands(data, params):
     max_thz = max(thz)
     max_sed_y = np.size(sed_avg, 0)
     scale_factor = max_sed_y / max_thz
-     
+    vmin = None   # -8 for test
+    vmax = None   # -20 for test
+
     # ******************** Whether to apply log scaling data ********************
-    if log:
-        sed_avg = np.log(sed_avg)
-
+    sed_avg = np.log(sed_avg)
     ### ******************** Creat a figure, set its size ********************
+
     fig, ax = plt.subplots()
-    fig.set_size_inches(4, 6, forward=True)  # Control the size of the output image
-    fig.tight_layout(pad=5)                  #
-    vmin = np.trunc(sed_avg.min())
-    vmax = np.trunc(sed_avg.max())
+    fig.set_size_inches(4.5+(params.num_qpaths/2-0.5), 5)  # Control the size of the output image          #
 
-    im = ax.imshow(sed_avg, cmap = color, interpolation = interp, aspect = 'auto', origin = 'lower', vmax=vmax, vmin=vmin)
+    if not vmin:
+        vmin = np.trunc(sed_avg.min())
+    if not vmax:
+        vmax = np.trunc(sed_avg.max())
 
-    fig.colorbar(im, ax=ax, label = r'log($\Phi$($\omega)$)  (J.s)')
-    # configure the plot
-    for axis in ['top','bottom','left','right']:
-        ax.spines[axis].set_linewidth(2)
+    im = ax.imshow(sed_avg, cmap=color, interpolation=interp, aspect='auto', origin='lower', vmax=vmax, vmin=vmin)
+    # colarbar
+    ticks = np.arange(vmin, vmax, 2)
+    bar = fig.colorbar(im, ax=ax)
+    bar.set_ticks(ticks)
+    bar.set_ticklabels([str(int(t)) for t in ticks])
+    bar.outline.set_visible(False)
+    bar.ax.tick_params(labelsize=8, width=0, length=0, pad=0.6)
+    bar.set_label(r'log($\Phi$($\mathbf{q}$, $\omega$)) (J $\cdot$ s)', fontsize=13)
 
-    freqs = np.arange(0, thz.max(), df)
-    nf = len(freqs)
-    ids = np.zeros(nf)
-    for i in range(nf):
-        ids[i] = np.argwhere(thz <= freqs[i]).max()
-    ax.set_yticks(ids)
-    ax.set_yticklabels(list(map(str, freqs)))
-
-    xticks = [0, len(qpoints)-1]
+    ## Set xticks
+    xticks = [-0.5, len(qpoints) - 0.5]
     ax.set_xticks(xticks)
-    xlabels = ['']*len(xticks)
-    for i in range(len(xticks)):
-        xlabels[i] = '({:.1f},{:.1f},{:.1f})'.format(qpoints[xticks[i], 0],
-                qpoints[xticks[i], 1], qpoints[xticks[i], 2])
+    ax.set_xticklabels([r'$\Gamma$', r'A'], fontsize=15)
 
-    ax.set_xticklabels(xlabels)
+    # yticks
+    freqs = np.arange(0, np.ceil(thz.max())+0.01, df)
+    ids = np.zeros(len(freqs))
+    for i in range(len(ids)):
+        ids[i] = np.argwhere(thz <= freqs[i]).max()
 
-    ax.minorticks_on()
-    ax.tick_params(which = 'both', axis='y', width=1, labelsize='large')
-    ax.tick_params(which = 'both', axis='x', width=1, labelsize='large',
-            labelrotation = 0.0,pad = 5.0)
-    ax.tick_params(which = 'major', length = 5)
-    ax.tick_params(which = 'minor', length = 3, color='k')
-    # plt.tick_params(axis = 'x', which = 'both', labelbottom = False)
+    ax.set_yticks(ids)
+    ax.tick_params(which='major', length=4)
+    ax.set_yticklabels(['{:.1f}'.format(x) for x in freqs], fontsize=13)
 
-    # ******************** set the figure labels ********************
-    ax.set_xlabel(r'$\mathbf{q}$',labelpad = 5.0,fontweight='normal',fontsize='x-large')
-    ax.set_ylabel(r'Frequency (THz)',labelpad = 3.0,fontweight='normal',fontsize='x-large')
-
-    fig.suptitle(r'$\Phi(\mathbf{q}, \omega)$',y = 0.95,fontsize='x-large')
+    ax.set_ylabel('Frequency (THz)', fontsize=15)
 
     # ax.set_xlim()
     if params.plot_cutoff_freq:
         ax.set_ylim([0, params.plot_cutoff_freq * scale_factor])
 
-    plt.savefig('{}-SED.png'.format(params.out_files_name), format='png', dpi = 600, bbox_inches='tight')
+    plt.savefig('{}-SED.png'.format(params.out_files_name), format='png', dpi=650, bbox_inches='tight')
 
     if params.if_show_figures:
         plt.show()
@@ -93,83 +91,46 @@ def plot_slice(data, params):
     thz = data.freq_fft
     q_index = params.q_slice_index
 
-    # ******************** Whether to apply log scaling data ********************
-    log = True
-
-    df = 5                                              # Scale interval for drawing
-    freqs = np.arange(0, thz.max(), df)
-    nf = len(freqs)
-    ids = np.zeros(nf)
-
-    for i in range(nf):
-        ids[i] = np.argwhere(thz <= freqs[i]).max()
-
     ### ******************** creat a figure, set its size ********************
     fig, ax = plt.subplots()
-    fig.set_size_inches(10, 6, forward=True)
-    fig.tight_layout(pad=10)
-
-    # ******************** Configure the plot ********************
-    for axis in ['top','bottom','left','right']:
-        ax.spines[axis].set_linewidth(2)
+    fig.set_size_inches(8, 4)
 
     # ******************** For saving different files ********************
     save_flag = False
+    # Plot
+    alpha = 0.6
 
-    if log:
-        ax.semilogy(thz, sed_avg[:, q_index], ls='-', lw=1.5, color='k', marker = 'x', ms =3, mec='lightcoral')
-        if params.plot_lorentz:
-            save_flag = True
-            total = np.zeros(len(sed_avg[:, q_index]))
-            for i in range(len(params.popt[:, 0])):
-                if params.popt[i, 2] == 0:
-                    continue
-                ax.semilogy(thz, lorentzian(thz,params.popt[i, 0], params.popt[i, 1], params.popt[i, 2]),
-                    ls = '-', lw = 2, color = 'm')
+    ax.semilogy(thz, sed_avg[:, q_index], ls='-', lw=1.4, color="#aa3474", marker='o', ms=5.5, fillstyle='full', alpha=alpha)
 
-                total = total + (lorentzian(thz, params.popt[i, 0], params.popt[i, 1], params.popt[i, 2]))
+    if params.plot_lorentz:
+        save_flag = True
+        total = np.zeros(len(sed_avg[:, q_index]))
+        for i in range(len(params.popt[:, 0])):
+            if params.popt[i, 2] == 0:
+                continue
+            ax.semilogy(thz, lorentzian(thz, params.popt[i, 0], params.popt[i, 1], params.popt[i, 2]),
+                        ls='-', lw=1.5, color='C2', alpha=alpha)
 
-            ax.semilogy(thz, total, ls = '--', lw = 1, color = 'k')
+            total = total + (lorentzian(thz, params.popt[i, 0], params.popt[i, 1], params.popt[i, 2]))
 
-    else:
-        ax.plot(sed_avg[:, q_index], ls='-', lw=1, color='k', marker='o', ms=2, mfc='b', mec='k', mew=1)
-
-        if params.plot_lorentz:
-            total = np.zeros(len(sed_avg[:, q_index]))
-            for i in range(len(params.popt[:, 0])):
-                if params.popt[i, 2] == 0:
-                    continue
-                ax.plot(lorentzian(np.arange(len(sed_avg[:, q_index])),
-                                   params.popt[i, 0], params.popt[i, 1], params.popt[i, 2]),
-                        ls='-', lw=1, marker='o', mfc='r', mec='r', ms=1, mew=0, color='r')
-                total = total + (lorentzian(np.arange(len(sed_avg[:, q_index])),
-                                            params.popt[i, 0], params.popt[i, 1], params.popt[i, 2]))
-            ax.plot(total, ls='-', lw=0.5, marker='o', mfc='b', mec='b',
-                    ms=0.5, mew=0, color='b')
-
-    ax.minorticks_on()
-    ax.tick_params(which='both', width=1, labelsize = 'x-large')
-    ax.tick_params(which='major', length=5)
-    ax.tick_params(which='minor', length=3, color='k')
-    # plt.tick_params(axis='x',which='both',labelbottom=False)
+        ax.semilogy(thz, total, ls='--', lw=1.5, color='grey', alpha=alpha+0.2)
 
     # ******************** set the figure labels ********************
-    ax.set_ylabel(r'log($\Phi$($\omega)$)', labelpad=35.0, fontweight='normal',
-                  fontsize='x-large', rotation='horizontal')
-    ax.set_xlabel('Frequency (THz)', labelpad=3.0, fontweight='normal', fontsize='x-large')
-
-    # ax.set_xlabel(r'$\omega$ (THz)', labelpad=3.0, fontweight='normal', fontsize='large')
-
+    ax.set_ylabel(r'log($\Phi$($\omega)$) (J $\cdot$ s)')
+    ax.set_xlabel('Frequency (THz)')
     fig.suptitle(r'$\mathbf{{q}}$ = ({0:.3f}, {1:.3f}, {2:.3f})'.format(qpoints[q_index, 0], qpoints[q_index, 1],
-                                                               qpoints[q_index, 2]), y=0.80, fontsize='x-large')
+                                                               qpoints[q_index, 2]), y=0.95, fontsize=15)
 
     if params.lorentz_fit_cutoff:
         ax.set_xlim([0, params.lorentz_fit_cutoff])
+    else:
+        ax.set_xlim([0, np.ceil(thz.max())+0.01])
 
     if save_flag:
-        plt.savefig('LORENTZ-fitting-{}-qpoint.png'.format(params.q_slice_index), format='png',dpi = 600, bbox_inches='tight')
+        plt.savefig('LORENTZ-fitting-{}-qpoint.png'.format(params.q_slice_index), format='png', dpi=650, bbox_inches='tight')
+
     else:
-        plt.savefig('SED-{}-qpoint.png'.format(params.q_slice_index), format='png', dpi=600, bbox_inches='tight')
+        plt.savefig('SED-{}-qpoint.png'.format(params.q_slice_index), format='png', dpi=650, bbox_inches='tight')
 
     if params.if_show_figures:
         plt.show()

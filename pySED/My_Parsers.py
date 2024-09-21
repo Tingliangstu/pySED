@@ -6,8 +6,6 @@
 '''
 
 import numpy as np
-import os
-import h5py
 
 def print_error(txt):
     print('\nERROR: Value for input paramater {} seems wrong or not exist, see README.\n'.format(txt))
@@ -18,7 +16,7 @@ class get_parse_input(object):
 
         self.input_file = input_file
         ## ************ Control parameters ************
-        self.compress = False
+        self.compress = True
         self.num_splits = 1
 
         ### ************ MD simulation parameters **************
@@ -38,18 +36,18 @@ class get_parse_input(object):
         self.lammps_unit = 'metal'            # lammps unit for unit conversion (support metal or real)
 
         # multithread for computing SED (not finish yet)
-        self.use_parallel = True           # use parallel
-        self.max_cores = 4              # Means use the max cores in one's machine
+        self.use_parallel = False        # use parallel or not
+        self.max_cores = 4               # Means use the max cores in one's machine
 
         # Plot and lorentz fitting
         self.plot_lorentz = False
         self.plot_cutoff_freq = None
-        self.plot_interval = 5                        # Thz
+        self.plot_interval = 5                       # Thz
         self.lorentz_fit_cutoff = None
         self.modulate_factor = 0
         self.initial_guess_hwhm = 0.01               # default
         self.peak_max_hwhm = 1e6                     # default
-        self.re_output_total_freq_lifetime = 1       # default
+        self.re_output_total_freq_lifetime = 0       # default
         self.lorentz_fit_all_qpoint = 0              # default
 
         ## ********** eigenvector from phonopy for further development
@@ -197,7 +195,7 @@ class get_parse_input(object):
 
             elif txt[0] == 'max_cores':
                 try:
-                    self.max_cores = bool(int(txt[txt.index('=') + 1]))
+                    self.max_cores = int(txt[txt.index('=')+1])
                 except:
                     print_error('max_cores')
 
