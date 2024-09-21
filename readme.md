@@ -21,10 +21,10 @@
 For convenience, you may want to copy (or link) the files inside scripts
 folder to a location included in $PATH environment variable
 
-2) From pip install (in anaconda environment)
+2) From pip install (Not currently recommended)
 
 ```python
-# pip install pySED
+# pip install pySED-phonon
 ```
 
 ## Usage
