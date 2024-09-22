@@ -48,7 +48,7 @@ html_context = {
     'display_github': True,  # Enable the display of the GitHub link
     'github_user': 'Tingliangstu',  # Replace with your GitHub username
     'github_repo': 'pySED',  # Replace with your repository name
-    'github_version': 'master',  # Your main branch name (usually 'main' or 'master')
+    'github_version': 'main',  # Your main branch name (usually 'main' or 'master')
     'conf_py_path': '/docs/source/',  # Path to your conf.py file
 }
 

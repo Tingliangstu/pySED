@@ -55,3 +55,11 @@ html.writer-html5 .rst-content dl[class]:not(.option-list):not(.field-list):not(
     background: #ffeee0;
     color: black;
 }
+
+/* Move "Read the Docs" link to the bottom left corner */
+.rtd-footer {
+    position: absolute;  
+    left: 20px;         
+    bottom: 20px;       
+    text-align: left;  
+}
