@@ -16,6 +16,7 @@ To implement the SED method in 2010, phonon lifetime can be calculated
    requirements
    installation
    starting
-   advanced
+   tutorials
+   example
    api
    troubleshooting
