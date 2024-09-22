@@ -8,14 +8,12 @@ version: 2
 # Set the OS, Python version and other tools you might need
 build:
   os: ubuntu-22.04
+  tools:
+    - sphinx  # Specify Sphinx as a required tool
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
   configuration: docs/conf.py
-
-# Build documentation with MkDocs
-#mkdocs:
-#  configuration: mkdocs.yml
 
 # Optionally build your docs in additional formats such as PDF
 formats:
