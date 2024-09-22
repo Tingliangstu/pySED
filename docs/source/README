@@ -1,4 +1,4 @@
-This is phonoLAMMPS documentation written using sphinx
+This is pySED documentation written using sphinx
 
 To compile this documentation sphinx should be installed in your system.
 You can use pip to install it:
