@@ -81,8 +81,8 @@ class BZ_methods(object):
             for j in range(3):
                 self.qpoints[start:end, j] = np.linspace(self.q_path[i, j],
                                                          self.q_path[(i + 1), j], self.num_qpoints[i],
-                                                         endpoint = False)
+                                                         endpoint=False)
                 self.reduced_qpoints[start:end, j] = np.linspace(params.q_path[i, j],
                                                                  params.q_path[(i + 1), j], self.num_qpoints[i],
-                                                                 endpoint = False)
+                                                                 endpoint=False)
             start = start + self.num_qpoints[i]

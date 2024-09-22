@@ -1,15 +1,15 @@
 # pySED
 --------------------------
 **To implement the phonon SED (spectral energy desity) method in 2010, phonon lifetime can be calculated.** 
-**Now, pySED can read [GPUMD](https://gpumd.org/) output**
 
 ## Main features
 -------------
-- Output SED image 
+- Output a very nice SED image 
 - Using Lorentz to fitting the SED peak 
 - Fit all peaks at once and output phonon lifetimes, or can fit them individually
 - Simple and easy to use
 - Phonon lifetime can only be obtained qualitatively
+- Can be used in parallel and get SED results quickly
 
 # Installation instructions
 --------------------------
@@ -18,9 +18,14 @@
 ```python
 # python setup.py install --user --prefix=
 ```
-
 For convenience, you may want to copy (or link) the files inside scripts
 folder to a location included in $PATH environment variable
+
+2) From pip install (Not currently recommended)
+
+```python
+# pip install pySED-phonon
+```
 
 ## Usage
 --------------------------
@@ -41,7 +46,6 @@ If I have the time, I might provide a detailed tutorial manual.
 
 * [Li, J., Ying, P., Liang, T., Du, Y., Zhou, J., & Zhang, J. (2023)](https://doi.org/10.1039/D2CP05673A)
 * [Penghua Ying, Ting Liang, Ke Xu, Jin Zhang, Jianbin Xu, Zheng Zhong, and Zheyong Fan (2023)](https://pubs.acs.org/doi/10.1021/acsami.3c07770)
-* [Zeng Jianhui, Liang Ting, Zhang Jingjing, et al. (2023)](https://doi.org/10.1002/smll.202309338)
 
 ## Contact info
 ---------------------------------------------------------

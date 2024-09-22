@@ -8,6 +8,9 @@
 import time
 import numpy as np
 from scipy.fftpack import fft, fftfreq
+from concurrent.futures import ProcessPoolExecutor, as_completed
+import os
+import h5py
 
 class spectral_energy_density:
     def __init__(self, params):
@@ -48,6 +51,16 @@ class spectral_energy_density:
 
     def compute_sed(self, params, lattice_info):
 
+        # For multi-threading
+        self.use_parallel = params.use_parallel
+        self.max_cores = params.max_cores
+        if self.use_parallel and self.max_cores is None:
+            self.max_cores = os.cpu_count()
+
+        if self.use_parallel and self.max_cores > 1:
+            print('\n****************** Using {0} cores parallelism for computing SED *****************'.format(
+                self.max_cores))
+
         start_time = time.time()
 
         # note that velocites are in A/ps
@@ -65,7 +78,7 @@ class spectral_energy_density:
         self.freq_fft = self.freq_fft[:max_freq]
 
         end_time = time.time()
-        print(f"\n************ Time for SED computing taken: {end_time - start_time} seconds. ************")
+        print(f"\n************ Time for SED computing taken: {end_time - start_time:.2f} seconds. ************")
 
     def _loop_over_splits(self, params, lattice_info, if_get_memory=True):
 
@@ -74,41 +87,63 @@ class spectral_energy_density:
             process = psutil.Process()
             initial_memory = process.memory_info().rss
             single_thread_memory_usage = initial_memory / 1e6
-            estimated_memory_usage = single_thread_memory_usage
+            estimated_memory_usage = single_thread_memory_usage * (self.max_cores if self.use_parallel else 1)
             print('\n**************** Estimated computing memory usage: {:.2f} MB. ***************'.format(estimated_memory_usage))
-
-        self.qdot = np.zeros((self.num_frame_per_split, sum(lattice_info.num_qpoints)))
 
         for i in range(self.num_loops):
             print('\n**************** Now calculate on averaging blocks {}/{} ... ****************\n'.format(i + 1,
                                                                                                         self.num_loops))
             self.loop_index = i
-            self._get_simulation_data(params, lattice_info)
-            self._loop_over_qpoints(lattice_info)
+            self.qdot = np.zeros((self.num_frame_per_split, sum(lattice_info.num_qpoints)))
+            vels, cell_vecs = self._get_simulation_data(params, lattice_info)
+            self._loop_over_qpoints(lattice_info, vels, cell_vecs)
 
             self.scaling_const = 1 / (4 * np.pi * self.t_o * self.num_unit_cells)
             # self.qdot in kg*m^2, then /self.t_o, so convert to kg*m^2/s, and finally convert to J * s (J=m^2·kg·s-2)
             self.sed[i, :, :] = self.qdot * self.scaling_const  # scale
 
-    def _loop_over_qpoints(self, lattice_info):
-        for q in range(sum(lattice_info.num_qpoints)):
-            self.q_index = q
-            # Output reduced_qoints for views (but use real qoints)
-            print('\tNow calculate on q-point {0}/{1}:\tq = ({2:.4f}, {3:.4f}, {4:.4f})'
-                  .format(q + 1, sum(lattice_info.num_qpoints), lattice_info.reduced_qpoints[q, 0],
-                          lattice_info.reduced_qpoints[q, 1], lattice_info.reduced_qpoints[q, 2]))
+    def _loop_over_qpoints(self, lattice_info, vels, cell_vecs):
 
-            self.exp_fac = np.tile(lattice_info.qpoints[q, :], (self.num_unit_cells, 1))
-            self.exp_fac = np.exp(1j * np.multiply(self.exp_fac, self.cell_vecs).sum(axis=1))
-            self._loop_over_basis(lattice_info)
+        num_qpoints = sum(lattice_info.num_qpoints)
+        q_indices = list(range(num_qpoints))
 
-    def _loop_over_basis(self, lattice_info):
+        if self.use_parallel and self.max_cores > 1:
+            args_list = [(q, lattice_info, vels, cell_vecs) for q in q_indices]
+            with ProcessPoolExecutor(max_workers=self.max_cores) as executor:
+                futures = [executor.submit(self.process_q_point, *args) for args in args_list]
+                for future in as_completed(futures):
+                    q_index, qdot_q = future.result()
+                    self.qdot[:, q_index] = qdot_q
+        else:                                             # use one core for windows system
+            for q in q_indices:
+                q_index, qdot_q = self.process_q_point(q, lattice_info, vels, cell_vecs)
+                self.qdot[:, q_index] = qdot_q
+
+    def process_q_point(self, q_index, lattice_info, vels, cell_vecs):
+
+        print('\tNow calculating q-point {0}/{1}:\tq = ({2:.4f}, {3:.4f}, {4:.4f})'
+              .format(q_index + 1, sum(lattice_info.num_qpoints),
+                      lattice_info.reduced_qpoints[q_index, 0],
+                      lattice_info.reduced_qpoints[q_index, 1],
+                      lattice_info.reduced_qpoints[q_index, 2]))
+
+        exp_fac = np.tile(lattice_info.qpoints[q_index, :], (self.num_unit_cells, 1))
+        exp_fac = np.exp(1j * np.multiply(exp_fac, cell_vecs).sum(axis=1))
+
+        qdot_q = self._loop_over_basis(vels, exp_fac, lattice_info)
+
+        return q_index, qdot_q
+
+    def _loop_over_basis(self, vels, exp_fac, lattice_info):
+
+        qdot_q = np.zeros(vels.shape[0])
+
         for i in range(self.num_basis):
             basis_ids = np.argwhere(lattice_info.basis_index == (i + 1)).reshape(self.num_unit_cells)
             mass = lattice_info.masses[i]
-            vx = fft(np.squeeze(self.vels[:, basis_ids, 0]) * self.exp_fac, axis=0)
-            vy = fft(np.squeeze(self.vels[:, basis_ids, 1]) * self.exp_fac, axis=0)
-            vz = fft(np.squeeze(self.vels[:, basis_ids, 2]) * self.exp_fac, axis=0)
+            vx = fft(np.squeeze(vels[:, basis_ids, 0]) * exp_fac, axis=0)
+            vy = fft(np.squeeze(vels[:, basis_ids, 1]) * exp_fac, axis=0)
+            vz = fft(np.squeeze(vels[:, basis_ids, 2]) * exp_fac, axis=0)
             # Sum over all the unit cells after the FFT, before computing the modulus squared
             vx_sum = vx.sum(axis=1)
             vy_sum = vy.sum(axis=1)
@@ -117,21 +152,30 @@ class spectral_energy_density:
             # Compute the sum of the squares of the modulus of the summed FFT components
             mod_squared = np.abs(vx_sum) ** 2 + np.abs(vy_sum) ** 2 + np.abs(vz_sum) ** 2
 
-            # Scale the result by the mass of the basis and update the spectral energy density (qdot)
-            self.qdot[:, self.q_index] += mod_squared * mass * self.amu_2_kg  # Unit conversion (from amu to Kg)
+            # Scale the result by the mass of the basis and update the spectral energy density (qdot-sum over basis)
+            qdot_q += mod_squared * mass * self.amu_2_kg  # Unit conversion (from amu to Kg)
+        return qdot_q
 
     ################################################################################################
     ### read vels and pos from the hdf5 file
 
     def _get_simulation_data(self, params, lattice_info):
+        try:
+            # Open the HDF5 file in read-only mode
+            with h5py.File(params.output_hdf5, 'r') as database:
+                vels = database['velocity'][self.loop_index * self.num_frame_per_split:
+                                            (self.loop_index + 1) * self.num_frame_per_split, :, :]
 
-        self.vels = params.database['velocity'][self.loop_index * self.num_frame_per_split:
-                                                (self.loop_index + 1) * self.num_frame_per_split, :, :]
+                vels = vels * self.scaling_velocity  # From A/ps to m/s or from A/fs to m/s
 
-        self.vels = self.vels * self.scaling_velocity  # from A/ps to m/s or from A/fs to m/s
+                pos = database['position'][self.loop_index * self.num_frame_per_split:
+                                           (self.loop_index + 1) * self.num_frame_per_split, :, :]
 
-        self.pos = params.database['position'][self.loop_index * self.num_frame_per_split:
-                                               (self.loop_index + 1) * self.num_frame_per_split, :, :]
+            # Time average the positions
+            cell_vecs = pos[:, lattice_info.cell_ref_ids, :].mean(axis=0)
 
-        # time average the positions (for now, maybe can do corr. between pos and vels)
-        self.cell_vecs = self.pos[:, lattice_info.cell_ref_ids, :].mean(axis=0)
+            return vels, cell_vecs
+
+        except Exception as e:
+            raise EOFError(f'******* Can\'t open {params.output_hdf5}\nError: {e}, please check its integrity. *******')
+
