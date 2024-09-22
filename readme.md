@@ -29,10 +29,10 @@ folder to a location included in $PATH environment variable
 
 ## Usage
 --------------------------
-Here three example are provided to show how to use **pySED**. 
+The example file have so many case provided to show how to use **pySED**. 
 If one can reproduce the case in the example, one should use the program.
 
-If I have the time, I might provide a detailed tutorial manual.
+[Online manual](https://pysed.readthedocs.io/en/latest/) (https://pysed.readthedocs.io/en/latest/)
 
 ## References
 --------------------------
