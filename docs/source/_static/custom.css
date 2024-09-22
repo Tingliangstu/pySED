@@ -1,0 +1,57 @@
+@import url("css/theme.css");
+
+.toggle .header {
+    display: block;
+    clear: both;
+    padding-top: -10px;
+    padding-bottom: 20px;
+}
+
+.toggle .header:after {
+    content: " ▼";
+}
+
+.toggle .header.open:after {
+    content: " ▲";
+}
+
+/* Custom colors */
+
+.wy-side-nav-search,
+.wy-nav-top {
+    /* above navigation, behind logo */
+    background: #2c2c2c;
+}
+
+.icon.icon-home {
+    /* link above logo */
+    color: #ff763b;
+}
+
+.version {
+    /* version spec under logo */
+    color: #ff763b !important;
+}
+
+.highlight {
+    /* code blocks */
+    background: #ffeee0;
+}
+
+.admonition-title {
+    /* notes, title */
+    background: #ff763b !important;
+}
+
+.admonition {
+    /* notes */
+    background: #ffeee0 !important;
+}
+
+html.writer-html5 .rst-content dl[class]:not(.option-list):not(.field-list):not(.footnote):not(.glossary):not(.simple)>dt {
+    /* Class definitions */
+    border-top: solid 3px #955e47;
+    border-left: none;
+    background: #ffeee0;
+    color: black;
+}
