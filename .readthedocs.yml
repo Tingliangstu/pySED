@@ -26,8 +26,7 @@ sphinx:
 
 # Optional but recommended, declare the Python requirements required
 # to build your documentation
-# Optionally set the version of Python and requirements required to build your docs
+# See https://docs.readthedocs.io/en/stable/guides/reproducible-builds.html
 python:
-  version: 3.7
-  install:
+    install:
     - requirements: docs/requirements.txt
