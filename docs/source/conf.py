@@ -39,8 +39,17 @@ html_theme_options = {
     'logo_only': False,           # Show project name alongside logo
     'display_version': True,      # Display the version number
     'prev_next_buttons_location': 'bottom',
-    'style_external_links': False,
+    'style_external_links': True,
     # Add other options as needed
+}
+
+# GitHub context for the edit link
+html_context = {
+    'display_github': True,  # Enable the display of the GitHub link
+    'github_user': 'Tingliangstu',  # Replace with your GitHub username
+    'github_repo': 'pySED',  # Replace with your repository name
+    'github_version': 'master',  # Your main branch name (usually 'main' or 'master')
+    'conf_py_path': '/docs/source/',  # Path to your conf.py file
 }
 
 # Custom CSS files
