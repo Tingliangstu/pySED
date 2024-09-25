@@ -13,7 +13,7 @@ class structure_maker(object):
     def __init__(self, structure_file_name='POSCAR',
                        lammps_data_flag=False,
                        lammps_infile_name=None,
-                       description='Create LAMMPS data for SED method by using LT_Codes'):
+                       description='Create LAMMPS or GPUMD data for SED method by using LT_Codes'):
         """
         Generate the required file for SED projects (including lammps data for running lammps and basis.in for Reciprocal space)
         :param structure_file_name: input file for primitive structure (POSCAR file is recommended).
