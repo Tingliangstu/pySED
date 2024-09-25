@@ -10,9 +10,12 @@ import numpy as np
 def print_error(txt):
     print('\nERROR: Value for input paramater {} seems wrong or not exist, see README.\n'.format(txt))
     exit()
+def control_input(txt1, txt2):
+    print('\nERROR: Value for input paramater {0} should be smaller than {1}, pls check it.\n'.format(txt1, txt2))
+    exit()
 
 class get_parse_input(object):
-    def __init__(self, input_file = 'input_SED.in'):
+    def __init__(self, input_file='input_SED.in'):
 
         self.input_file = input_file
         ## ************ Control parameters ************
@@ -227,7 +230,11 @@ class get_parse_input(object):
             elif txt[0] == 'qpoint_slice_index':
                 try:
                     self.q_slice_index = int(txt[txt.index('=') + 1])
-                except:
+                    if self.q_slice_index >= self.num_qpoints:
+                        control_input('qpoint_slice_index', 'num_qpoints')
+                except ValueError as e:
+                    print_error(e)
+                except Exception:
                     print_error('qpoint_slice_index')
 
             ## Lorentz fitting
