@@ -1,3 +1,6 @@
+![pySED Logo](https://github.com/Tingliangstu/pySED/blob/main/docs/source/_static/logo.png)
+[![Documentation Status](https://readthedocs.org/projects/pysed/badge/?version=latest)](https://pysed.readthedocs.io/en/latest/)
+
 # pySED
 --------------------------
 **To implement the phonon SED (spectral energy desity) method in 2010, phonon lifetime can be calculated.** 
@@ -32,7 +35,7 @@ folder to a location included in $PATH environment variable
 The example file have so many case provided to show how to use **pySED**. 
 If one can reproduce the case in the example, one should use the program.
 
-[Online manual](https://pysed.readthedocs.io/en/latest/) (https://pysed.readthedocs.io/en/latest/)
+**Online manual** [https://pysed.readthedocs.io](https://pysed.readthedocs.io/en/latest/)
 
 ## References
 --------------------------
@@ -51,4 +54,6 @@ If one can reproduce the case in the example, one should use the program.
 ---------------------------------------------------------
 Ting Liang
 liangting.zj@gmail.com
+Wenwu Jiang
+wwjiang96@163.com
 
