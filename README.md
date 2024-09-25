@@ -1,5 +1,5 @@
-![pySED Logo](https://github.com/Tingliangstu/pySED/blob/main/docs/source/_static/logo.png)
 [![Documentation Status](https://readthedocs.org/projects/pysed/badge/?version=latest)](https://pysed.readthedocs.io/en/latest/)
+![pySED Logo](https://github.com/Tingliangstu/pySED/blob/main/docs/source/_static/logo.png)
 
 # pySED
 --------------------------
@@ -53,7 +53,7 @@ If one can reproduce the case in the example, one should use the program.
 ## Contact info
 ---------------------------------------------------------
 Ting Liang
-liangting.zj@gmail.com
+liangting.zj@gmail.com;
 Wenwu Jiang
 wwjiang96@163.com
 
