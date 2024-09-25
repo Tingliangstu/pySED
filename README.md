@@ -17,7 +17,7 @@
 # Installation instructions
 --------------------------
 
-1) From source code
+1) From source code (Highly recommended)
 ```python
 # python setup.py install --user --prefix=
 ```
