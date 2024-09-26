@@ -2,7 +2,7 @@ Installation
 ============
 **pySED** can be installed directly from the source code (python package) or via PyPI repository.
 
-1) From source code ::
+1) From source code (**Highly recommended**) ::
 
     python setup.py install --user --prefix=
 
