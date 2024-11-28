@@ -16,5 +16,5 @@ dump_position  50000
 run            500000
 
 ensemble       nve
-dump_exyz      10     1
+dump_exyz      50     1
 run            500000
