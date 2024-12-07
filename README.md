@@ -21,7 +21,7 @@
 ```python
 # python setup.py install --user --prefix=
 ```
-or
+   or one can use:
 ```python
 # pip install .
 ```
