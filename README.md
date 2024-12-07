@@ -21,6 +21,10 @@
 ```python
 # python setup.py install --user --prefix=
 ```
+or
+```python
+# pip install .
+```
 For convenience, you may want to copy (or link) the files inside scripts
 folder to a location included in $PATH environment variable
 
