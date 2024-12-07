@@ -51,8 +51,9 @@ If one can reproduce the case in the example, one should use the program.
 
 ## If you use **pySED**, the following citations are highly recommended:
 
-* [Li, J., Ying, P., Liang, T., Du, Y., Zhou, J., & Zhang, J. (2023)](https://doi.org/10.1039/D2CP05673A)
+* [Zeng J, Liang T, Zhang J, et al. (2023)](https://onlinelibrary.wiley.com/doi/abs/10.1002/smll.202309338)
 * [Penghua Ying, Ting Liang, Ke Xu, Jin Zhang, Jianbin Xu, Zheng Zhong, and Zheyong Fan (2023)](https://pubs.acs.org/doi/10.1021/acsami.3c07770)
+* [Li, J., Ying, P., Liang, T., Du, Y., Zhou, J., & Zhang, J. (2023)](https://doi.org/10.1039/D2CP05673A)
 
 ## Contact info
 ---------------------------------------------------------
