@@ -19,11 +19,11 @@
 
 1) From source code (Highly recommended)
 ```python
-# python setup.py install --user --prefix=
+python setup.py install --user --prefix=
 ```
    or one can use:
 ```python
-# pip install .
+pip install .
 ```
 For convenience, you may want to copy (or link) the files inside scripts
 folder to a location included in $PATH environment variable
@@ -31,7 +31,7 @@ folder to a location included in $PATH environment variable
 2) From pip install (Not currently recommended)
 
 ```python
-# pip install pySED-phonon
+pip install pySED-phonon
 ```
 
 ## Usage
