@@ -9,8 +9,18 @@ import numpy as np
 
 def write_output(phonons, params, lattice):
     np.savetxt(params.out_files_name + '.SED', phonons.sed_avg)
-    np.savetxt(params.out_files_name + '.Qpts', lattice.reduced_qpoints, fmt='%.6f')
-    np.savetxt(params.out_files_name + '.THz', phonons.freq_fft, fmt='%.6f')
+    np.savetxt(params.out_files_name + '.Qpts', lattice.reduced_qpoints, fmt='%.8f')
+    np.savetxt(params.out_files_name + '.THz', phonons.freq_fft, fmt='%.8f')
+
+    with open(params.out_files_name + '.Q_distances_and_labels', 'w') as f:
+        # q_distances
+        f.write("Global distances along the paths:\n")
+        f.write(" ".join(f"{d:.8f}" for d in lattice.q_distances) + "\n\n")
+
+        # q_labels
+        f.write("High-symmetry points and their distances:\n")
+        for distance, label in lattice.q_labels.items():
+            f.write(f"{float(distance):.8f} {label}\n")
 
 class load_data(object):
 
@@ -19,6 +29,19 @@ class load_data(object):
         self.sed_avg = np.loadtxt(params.out_files_name + '.SED')
         self.qpoints = np.loadtxt(params.out_files_name + '.Qpts')
         self.freq_fft = np.loadtxt(params.out_files_name + '.THz')
+
+        self.q_distances = []
+        self.q_labels = {}
+        with open(params.out_files_name + '.Q_distances_and_labels', 'r') as f:
+            lines = f.readlines()
+            # q_distances
+            if lines[0].strip() == "Global distances along the paths:":
+                self.q_distances = [float(x) for x in lines[1].split()]
+            # q_labels
+            if lines[3].strip() == "High-symmetry points and their distances:":
+                for line in lines[4:]:
+                    distance, label = line.split(maxsplit=1)
+                    self.q_labels[float(distance)] = label.strip()
 
 def write_lorentz(lorentz, params):
     np.savetxt(params.out_files_name + '_LORENTZ-{}.params'.format(params.q_slice_index), lorentz.popt)
@@ -35,7 +58,7 @@ def write_phonon_lifetime(lorentz, params):
         if lorentz.popt[i][2] == 0:  # don't output fitting fail frequency
             continue
 
-        out_lifetime_file += '{0:.4f} {1:.8f} \n'.format(lorentz.popt[i][0], 1/(2 * lorentz.popt[i][2]))
+        out_lifetime_file += '{0:.6f} {1:.8f} \n'.format(lorentz.popt[i][0], 1/(2 * lorentz.popt[i][2]))
         # write the file
 
     f = open('LORENTZ-{}-th-Qpoints.Fre_lifetime'.format(params.q_slice_index), 'w')
@@ -57,7 +80,7 @@ def deal_total_fre_lifetime(params):
             Freq, lifetime = np.loadtxt(load_file_name, skiprows=2, unpack=True)
 
             for j in range(len(Freq)):
-                out_lifetime_file += '{0:.4f} {1:.8f}\n'.format(Freq[j], lifetime[j])
+                out_lifetime_file += '{0:.6f} {1:.8f}\n'.format(Freq[j], lifetime[j])
                 total_num_Fre_lifetime += 1
 
         except:

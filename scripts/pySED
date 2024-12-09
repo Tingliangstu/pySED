@@ -3,8 +3,8 @@
 '''
 @author:
 **************************  LiangTing ***************************
-        liangting.zj@gmail.com --- Refer from Ty Sterling's script
-************************ 2021/4/25 23:03:21 *********************
+                    liangting.zj@gmail.com
+************************ 2024/12/07 23:03:21 ********************
 '''
 
 # Python modules
@@ -30,11 +30,11 @@ def main():
      "                   | .__/  \__, |  \___ \ |  __|  | |  | |",
      "                   | |      __/ | ____) | | |____ | |__| |",
      "                   |_|     |___/ |_____/  |______||_____/",
-     "                                              v-1.0.0"
+     "                                              v-2.0.0"
      ]
     for line in logo_lines:
         print(line)
-    print('**************** Now, v-1.0.0 pySED can interface with GPUMD **************************')
+    print('**************** Now, v-2.0.0 pySED can interface with GPUMD **************************')
     print('******* To implement the SED method in 2010, phonon lifetime can be calculated ********')
     print('************************ Author: liangting.zj@gmail.com *******************************')
     print('***************************************************************************************')
@@ -80,7 +80,7 @@ def main():
                 print('\n*************** ' + params.output_hdf5 + ' file will be used ! ****************')
             else:
                 Compressor.compress(params)
-                print('\n******** Compress the velocity and position data to hdf5 is DONE! ********')
+                print('******** Compress the velocity and position data to hdf5 is DONE! ********')
         else:
             raise EOFError('**** Please set "compress = 1" in input file to compress the velocity and position data ****')
 
@@ -101,7 +101,7 @@ def main():
     # ***************************** Finished SED compute, For plotting *******************************
     # ********** If found params.lorentz_fit_all_qpoint, just fitting all Q points *******************
 
-    if params.lorentz_fit_all_qpoint:
+    if params.lorentz_fit_all_qpoint and params.lorentz:
         print('\n************************* You are in the ALL plotting mode !!! ************************\n')
         for j in range(sum(params.num_qpoints)):
             # Control parameters for all Qpoints

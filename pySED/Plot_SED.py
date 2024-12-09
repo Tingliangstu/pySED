@@ -2,7 +2,7 @@
 @author:
 **************************  LiangTing ****************************
         liangting.zj@gmail.com --- Refer from Ty Sterling's script
-************************ 2021/5/15 23:03:21 **********************
+************************ 2024/12/6 23:03:21 **********************
 '''
 from pylab import *
 import seaborn as sns
@@ -11,8 +11,8 @@ import numpy as np
 # *************************** Set Seaborn style for good look*************************
 sns.set(style="ticks")
 # Customize axis line, tick, and label properties
-sns.set_context("paper", rc={"axes.linewidth": 0.8, "xtick.major.width": 0.8, "ytick.major.width": 0.8,
-                             "axes.labelsize": 15, "xtick.labelsize": 13.0, "ytick.labelsize": 13.0})
+sns.set_context("paper", rc={"axes.linewidth": 0.75, "xtick.major.width": 0.75, "ytick.major.width": 0.75,
+                             "axes.labelsize": 16, "xtick.labelsize": 13.5, "ytick.labelsize": 13.5})
 # *************************** Set Seaborn style *************************
 
 def plot_bands(data, params):
@@ -20,6 +20,8 @@ def plot_bands(data, params):
     sed_avg = data.sed_avg
     qpoints = data.qpoints
     thz = data.freq_fft
+    q_distances = data.q_distances
+    q_labels = data.q_labels
 
     # ******************** Control plotting params ********************
     color = 'RdBu_r'                        # 'jet', 'inferno'
@@ -38,14 +40,30 @@ def plot_bands(data, params):
     ### ******************** Creat a figure, set its size ********************
 
     fig, ax = plt.subplots()
-    fig.set_size_inches(4.5+(params.num_qpaths/2-0.5), 5)  # Control the size of the output image          #
+    fig.set_size_inches(5.5+(params.num_qpaths/2-0.5), 5)  # Control the size of the output image          #
 
     if not vmin:
         vmin = np.trunc(sed_avg.min())
     if not vmax:
         vmax = np.trunc(sed_avg.max())
 
-    im = ax.imshow(sed_avg, cmap=color, interpolation=interp, aspect='auto', origin='lower', vmax=vmax, vmin=vmin)
+    """
+    #Choose the plotting method based on the number of qpaths
+    Set yticks (This part of the code is redundant, maybe I will remove the params.num_qpaths == 1,
+     for now just to better repeat the previous results.)
+    """
+    if params.num_qpaths > 1 or params.use_contourf:
+        im = ax.contourf(q_distances, thz, sed_avg, cmap=color, levels=350)
+        # Draw vertical grey lines for q_labels (excluding endpoints)
+        keys = list(q_labels.keys())
+        for x in keys[1:-1]:            # Exclude first and last points
+            ax.axvline(x, color='grey', linestyle='--', linewidth=0.8)
+
+    else:
+        print("You are using imshow method for SED plotting since single Qpaths, "
+              "it can be change to contourf by setting \'use_contourf = 1\' in the input.in.")
+        im = ax.imshow(sed_avg, cmap=color, interpolation=interp, aspect='auto', origin='lower', vmax=vmax, vmin=vmin)
+
     # colarbar
     ticks = np.arange(vmin, vmax, 2)
     bar = fig.colorbar(im, ax=ax)
@@ -53,28 +71,49 @@ def plot_bands(data, params):
     bar.set_ticklabels([str(int(t)) for t in ticks])
     bar.outline.set_visible(False)
     bar.ax.tick_params(labelsize=8, width=0, length=0, pad=0.6)
-    bar.set_label(r'log($\Phi$($\mathbf{q}$, $\omega$)) (J $\cdot$ s)', fontsize=13)
+    bar.set_label(r'log($\Phi$($\mathbf{q}$, $\omega$)) (J $\cdot$ s)', fontsize=13.5)
 
-    ## Set xticks
-    xticks = [-0.5, len(qpoints) - 0.5]
+    # Set xticks and xticklabels
+    if params.num_qpaths > 1 or params.use_contourf:
+        xticks = list(q_labels.keys())
+
+    else:
+        ax.set_xlim([0, len(qpoints)-1])
+        xticks = [0, len(qpoints)-1]
+
+    xticklabels = [r'$\Gamma$' if label == 'G' else label for label in q_labels.values()]  # Replace 'G' with '$\Gamma$'
     ax.set_xticks(xticks)
-    ax.set_xticklabels([r'$\Gamma$', r'A'], fontsize=15)
+    ax.set_xticklabels(xticklabels, fontsize=16)
 
-    # yticks
-    freqs = np.arange(0, np.ceil(thz.max())+0.01, df)
-    ids = np.zeros(len(freqs))
-    for i in range(len(ids)):
-        ids[i] = np.argwhere(thz <= freqs[i]).max()
+    """
+    Set yticks (This part of the code is redundant, maybe I will remove the params.num_qpaths == 1,
+     for now just to better repeat the previous results.)
+    """
+    if params.num_qpaths > 1 or params.use_contourf:
+        max_freq = params.plot_cutoff_freq if params.plot_cutoff_freq else thz.max()
+        num_ticks = int(np.ceil(max_freq / df)) + 1
+        freqs = np.linspace(0, max_freq, num_ticks)
 
-    ax.set_yticks(ids)
-    ax.tick_params(which='major', length=4)
-    ax.set_yticklabels(['{:.1f}'.format(x) for x in freqs], fontsize=13)
+        ax.set_yticks(freqs)
+        yticks_labels = [f'{f:.1f}'.rstrip('0').rstrip('.') for f in freqs]
+        ax.set_yticklabels(yticks_labels, fontsize=13.5)
+        ax.set_ylim([0, max_freq])
 
-    ax.set_ylabel('Frequency (THz)', fontsize=15)
+    else:
+        freqs = np.arange(0, np.ceil(thz.max()) + 0.01, df)
+        ids = np.zeros(len(freqs))
+        for i in range(len(ids)):
+            ids[i] = np.argwhere(thz <= freqs[i]).max()
 
-    # ax.set_xlim()
-    if params.plot_cutoff_freq:
-        ax.set_ylim([0, params.plot_cutoff_freq * scale_factor])
+        ax.set_yticks(ids)
+        yticks_labels = [f'{f:.1f}'.rstrip('0').rstrip('.') for f in freqs]
+        ax.set_yticklabels(yticks_labels, fontsize=13.5)
+
+        # ax.set_ylim()
+        if params.plot_cutoff_freq:
+            ax.set_ylim([0, params.plot_cutoff_freq * scale_factor])
+
+    ax.set_ylabel('Frequency (THz)', fontsize=16)
 
     plt.savefig('{}-SED.png'.format(params.out_files_name), format='png', dpi=650, bbox_inches='tight')
 

@@ -194,7 +194,8 @@ class structure_maker(object):
 
         print('************* ' + file_name + ' is written successfully' + ' ************\n')
 
-    def calculate_lattice_parameters(self, cell, supercell):
+    @staticmethod
+    def calculate_lattice_parameters(cell, supercell):
 
         a = np.linalg.norm(cell[0]) * supercell[0]
         b = np.linalg.norm(cell[1]) * supercell[1]

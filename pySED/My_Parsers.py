@@ -10,9 +10,6 @@ import numpy as np
 def print_error(txt):
     print('\nERROR: Value for input paramater {} seems wrong or not exist, see README.\n'.format(txt))
     exit()
-def control_input(txt1, txt2):
-    print('\nERROR: Value for input paramater {0} should be smaller than {1}, pls check it.\n'.format(txt1, txt2))
-    exit()
 
 class get_parse_input(object):
     def __init__(self, input_file='input_SED.in'):
@@ -29,7 +26,7 @@ class get_parse_input(object):
         self.output_data_stride = 0
 
         ### ************ Input and output files **************
-        self.lat_params = [1, 1, 1]
+        self.supercell_dim = [1, 1, 1]        # default
         self.vels_file = 'vels.dat'
         self.pos_file = 'pos.dat'
         self.dump_xyz_file = 'dump.xyz'
@@ -37,6 +34,8 @@ class get_parse_input(object):
         self.output_hdf5 = 'vel_pos_compress.hdf5'
         self.file_format = 'gpumd'            # gpumd or lammps
         self.lammps_unit = 'metal'            # lammps unit for unit conversion (support metal or real)
+        self.rescale_prim = 0                 # Reconstructed primitive unit cell from MD simulation cell
+        self.prim_axis = None     # For Fcc silicon or Al, np.array([[0.0, 0.5, 0.5], [0.5, 0.0, 0.5], [0.5, 0.5, 0.0]])
 
         # multithread for computing SED (not finish yet)
         self.use_parallel = False        # use parallel or not
@@ -52,6 +51,8 @@ class get_parse_input(object):
         self.peak_max_hwhm = 1e6                     # default
         self.re_output_total_freq_lifetime = 0       # default
         self.lorentz_fit_all_qpoint = 0              # default
+        self.q_path_name = 'GA'                      # default
+        self.use_contourf = 0                        # default (imshow method for SED plotting when single Qpaths)
 
         ## ********** eigenvector from phonopy for further development
         self.with_eigs = None
@@ -90,12 +91,15 @@ class get_parse_input(object):
                     print_error('output_data_stride')
 
             # Lattice dynamic
-            elif txt[0] == 'lat_params':
+            elif txt[0] == 'prim_axis':
                 try:
-                    self.lat_params = np.array(txt[(txt.index('=') + 1):
-                                                   (txt.index('=') + 4)]).astype(float)
+                    self.prim_axis = np.array(txt[(txt.index('=') + 1):
+                                                  (txt.index('=') + 10)]).astype(float)
+                    self.prim_axis = self.prim_axis.reshape(3, 3)
+
                 except:
-                    print_error('lat_params')
+                    print_error('prim_axis')
+
             elif txt[0] == 'prim_unitcell':
                 try:
                     self.prim_unitcell = np.array(txt[(txt.index('=') + 1):
@@ -112,9 +116,28 @@ class get_parse_input(object):
                 except:
                     print_error('num_qpaths')
 
+            elif txt[0] == 'supercell_dim':
+                try:
+                    supercell_values = txt[(txt.index('=') + 1):(txt.index('=') + 4)]
+                    if len(supercell_values) < 3:
+                        print_error('supercell_dim')
+                    else:
+                        self.supercell_dim = np.array(supercell_values).astype(int)
+                except:
+                    print_error('supercell_dim')
+
+            elif txt[0] == 'q_path_name':
+                try:
+                    self.q_path_name = txt[txt.index('=') + 1].strip('\'"')
+                    self.q_path_list = list(self.q_path_name)
+                    #self.q_path_name = [r'$\Gamma$' if point == 'G' else point for point in self.q_path_list]
+                except:
+                    print_error('q_path_name')
+
             elif txt[0] == 'num_qpoints':
                 try:
-                    self.num_qpoints = np.array(txt[(txt.index('=')+1):(txt.index('=')+self.num_qpaths+1)]).astype(int)
+                    print('\nWARNING: num_qpoints parameter is deprecated, pySED automatically'
+                          ' determines the number of q-points based on the supercell number')
                 except:
                     print_error('num_qpoints')
 
@@ -133,6 +156,13 @@ class get_parse_input(object):
                     self.compress = bool(int(txt[txt.index('=') + 1]))
                 except:
                     print_error('compress')
+
+            # Reconstructed primitive unit cell from MD simulation cell
+            elif txt[0] == 'rescale_prim':
+                try:
+                    self.rescale_prim = bool(int(txt[txt.index('=') + 1]))
+                except:
+                    print_error('rescale_prim')
 
             # number of blocks to average.
             elif txt[0] == 'num_splits':
@@ -227,14 +257,16 @@ class get_parse_input(object):
                 except:
                     print_error('plot_slice')
 
+            elif txt[0] == 'use_contourf':
+                try:
+                    self.use_contourf = bool(int(txt[txt.index('=') + 1]))
+                except:
+                    print_error('use_contourf')
+
             elif txt[0] == 'qpoint_slice_index':
                 try:
                     self.q_slice_index = int(txt[txt.index('=') + 1])
-                    if self.q_slice_index >= self.num_qpoints:
-                        control_input('qpoint_slice_index', 'num_qpoints')
-                except ValueError as e:
-                    print_error(e)
-                except Exception:
+                except:
                     print_error('qpoint_slice_index')
 
             ## Lorentz fitting

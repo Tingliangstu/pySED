@@ -17,6 +17,9 @@ class spectral_energy_density:
         self.num_frame = params.total_num_steps // params.output_data_stride
         self.num_frame_per_split = self.num_frame // params.num_splits
 
+        print('\nThe number of frames used to calculate SED is {0}.'.format(self.num_frame))
+        print('\nThe {0} frame trajectories were divided into {1} blocks for averaging.'.format(self.num_frame, params.num_splits))
+
         # Frequency velocities are printed (Default)
         # Its reciprocal divided by 2 is roughly the maximum frequency attainable.
         self.dt = params.time_step * params.output_data_stride / 1e15  # from fs to second
@@ -69,7 +72,7 @@ class spectral_energy_density:
         self.num_loops = params.num_splits
 
         # do the calculation without eigenvectors
-        self.sed = np.zeros((params.num_splits, self.num_frame_per_split, sum(params.num_qpoints)))
+        self.sed = np.zeros((params.num_splits, self.num_frame_per_split, lattice_info.num_qpoints))
         self._loop_over_splits(params, lattice_info)
         self.sed_avg = self.sed.sum(axis=0) / self.num_loops
 
@@ -94,7 +97,7 @@ class spectral_energy_density:
             print('\n**************** Now calculate on averaging blocks {}/{} ... ****************\n'.format(i + 1,
                                                                                                         self.num_loops))
             self.loop_index = i
-            self.qdot = np.zeros((self.num_frame_per_split, sum(lattice_info.num_qpoints)))
+            self.qdot = np.zeros((self.num_frame_per_split, lattice_info.num_qpoints))
             vels, cell_vecs = self._get_simulation_data(params, lattice_info)
             self._loop_over_qpoints(lattice_info, vels, cell_vecs)
 
@@ -104,8 +107,7 @@ class spectral_energy_density:
 
     def _loop_over_qpoints(self, lattice_info, vels, cell_vecs):
 
-        num_qpoints = sum(lattice_info.num_qpoints)
-        q_indices = list(range(num_qpoints))
+        q_indices = list(range(lattice_info.num_qpoints))
 
         if self.use_parallel and self.max_cores > 1:
             args_list = [(q, lattice_info, vels, cell_vecs) for q in q_indices]
@@ -122,13 +124,14 @@ class spectral_energy_density:
     def process_q_point(self, q_index, lattice_info, vels, cell_vecs):
 
         print('\tNow calculating q-point {0}/{1}:\tq = ({2:.4f}, {3:.4f}, {4:.4f})'
-              .format(q_index + 1, sum(lattice_info.num_qpoints),
+              .format(q_index + 1, lattice_info.num_qpoints,
                       lattice_info.reduced_qpoints[q_index, 0],
                       lattice_info.reduced_qpoints[q_index, 1],
                       lattice_info.reduced_qpoints[q_index, 2]))
 
-        exp_fac = np.tile(lattice_info.qpoints[q_index, :], (self.num_unit_cells, 1))
-        exp_fac = np.exp(1j * np.multiply(exp_fac, cell_vecs).sum(axis=1))
+        #exp_fac = np.tile(lattice_info.qpoints[q_index, :], (self.num_unit_cells, 1))
+        #exp_fac = np.exp(1j * np.multiply(exp_fac, cell_vecs).sum(axis=1))
+        exp_fac = np.exp(1.0j * np.dot(cell_vecs, lattice_info.qpoints[q_index, :]))   # for triclinic cell
 
         qdot_q = self._loop_over_basis(vels, exp_fac, lattice_info)
 
