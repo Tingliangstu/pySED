@@ -180,5 +180,5 @@ class spectral_energy_density:
             return vels, cell_vecs
 
         except Exception as e:
-            raise EOFError(f'******* Can\'t open {params.output_hdf5}\nError: {e}, please check its integrity. *******')
+            raise EOFError(f'******* Can\'t open {params.output_hdf5}\nError: {e}, please check its integrity and that of \'basis.in\' file. *******')
 
