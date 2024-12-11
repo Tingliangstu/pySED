@@ -14,8 +14,9 @@ from pySED.structure import generate_data
 
 
 class BZ_methods(object):
-    def __init__(self, params, qpoints_info=True):
+    def __init__(self, params, box_info=True, qpoints_info=True):
 
+        self.box_info = box_info
         self.qpoints_info = qpoints_info
 
         # Read the unitcell and basis positions from a file
@@ -90,29 +91,33 @@ class BZ_methods(object):
                                  [xy, yhi, 0.0],
                                  [xz, yz, zhi]])
 
-        print("\n************************** Structural information *****************************")
-        print("Primitive unit cell is (Angstrom):\n", params.prim_unitcell)
-        print("\nMD simulation cell is (Angstrom):\n", box_in_traj)
+        if self.box_info:
+            print("\n************************** Structural information *****************************")
+            print("Primitive unit cell is (Angstrom):\n", params.prim_unitcell)
+            print("\nMD simulation cell is (Angstrom):\n", box_in_traj)
 
         if np.any(np.abs(box_in_traj - expected_box) > 1e-4):
-
-            print(
-                "\nWarning: The cell in the trajectory is different from calculated by the primitive cell and supercell dimensions.")
-            print("\nIf NPT ensemble is used for structural optimization, and pySED can rescale the primitive cell by setting \'rescale_prim = 1\'.")
+            if self.box_info:
+                print(
+                    "\nWarning: The cell in the trajectory is different from calculated by the primitive cell and supercell dimensions.")
+                print("\nIf NPT ensemble is used for structural optimization, and pySED can rescale the primitive cell by setting \'rescale_prim = 1\'.")
 
             if params.rescale_prim:
                 # Attempt to reconstruct the primitive cell
                 params.prim_unitcell = self._reconstruct_primitive_cell(box_in_traj, params.supercell_dim)
-                print("\nNow, pySED have reconstructed primitive unit cell from MD simulation cell (Angstrom):")
-                print(params.prim_unitcell)
+                if self.box_info:
+                    print("\nNow, pySED have reconstructed primitive unit cell from MD simulation cell (Angstrom):")
+                    print(params.prim_unitcell)
 
         # https://phonopy.github.io/phonopy/setting-tags.html#primitive-axes
         if params.prim_axis is not None:
+
             params.prim_unitcell = params.prim_unitcell @ params.prim_axis
-            print("\nTransformation from the input unit cell to the primitive cell is performed according \'prim_axis\'.")
-            #print("If \'prim_axis\' is set, one must use NVT for MD simulation.")
-            print("Now primitive unit cell is transformed to (Angstrom):")
-            print(params.prim_unitcell)
+            if self.box_info:
+                print("\nTransformation from the input unit cell to the primitive cell is performed according \'prim_axis\'.")
+                #print("If \'prim_axis\' is set, one must use NVT for MD simulation.")
+                print("Now primitive unit cell is transformed to (Angstrom):")
+                print(params.prim_unitcell)
 
     def _construct_BZ_path(self, params):
 

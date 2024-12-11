@@ -102,7 +102,7 @@ def main():
     # ********** If found params.lorentz_fit_all_qpoint, just fitting all Q points *******************
 
     if params.lorentz_fit_all_qpoint and params.lorentz:
-        BZ_lattice_info = construct_BZ.BZ_methods(params, qpoints_info=False)
+        BZ_lattice_info = construct_BZ.BZ_methods(params, box_info=False, qpoints_info=False)
         print('\n************************* You are in the ALL plotting mode !!! ************************\n')
         for j in range(BZ_lattice_info.num_qpoints):
             # Control parameters for all Qpoints
