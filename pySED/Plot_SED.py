@@ -47,7 +47,7 @@ def plot_bands(data, params):
     if not vmax:
         vmax = np.trunc(sed_avg.max())
 
-    levels = np.linspace(vmin, vmax, 500)
+    #levels = np.linspace(vmin, vmax, 500)
 
     """
     #Choose the plotting method based on the number of qpaths
@@ -55,7 +55,7 @@ def plot_bands(data, params):
      for now just to better repeat the previous results.)
     """
     if params.num_qpaths > 1 or params.use_contourf:
-        im = ax.contourf(q_distances, thz, sed_avg, cmap=color, levels=levels, vmin=vmin, vmax=vmax)
+        im = ax.contourf(q_distances, thz, sed_avg, cmap=color, levels=350, vmin=vmin, vmax=vmax)
         # Draw vertical grey lines for q_labels (excluding endpoints)
         keys = list(q_labels.keys())
         for x in keys[1:-1]:            # Exclude first and last points
@@ -67,7 +67,8 @@ def plot_bands(data, params):
         im = ax.imshow(sed_avg, cmap=color, interpolation=interp, aspect='auto', origin='lower', vmax=vmax, vmin=vmin)
 
     # colarbar
-    ticks = np.arange(vmin, vmax+0.01, 2)
+    #ticks = np.arange(vmin, vmax+0.01, 2)
+    ticks = np.arange(vmin, vmax, 2)
     bar = fig.colorbar(im, ax=ax)
     bar.set_ticks(ticks)
     bar.set_ticklabels([str(int(t)) for t in ticks])
