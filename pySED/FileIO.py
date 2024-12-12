@@ -73,10 +73,18 @@ def deal_total_fre_lifetime(params, total_qpoints):
     out_lifetime_file += "First_line: Frequency (THz)  Second_line: Phonon Lifetime (ps)\n"
 
     total_num_Fre_lifetime = 0
-    for i in range(total_qpoints):
 
+    for i in range(total_qpoints):
+        load_file_name = 'LORENTZ-{}-th-Qpoints.Fre_lifetime'.format(i)
         try:
-            load_file_name = 'LORENTZ-{}-th-Qpoints.Fre_lifetime'.format(i)
+            with open(load_file_name, 'r') as f:
+                lines = [line.strip() for line in f.readlines()]
+                # Check if the file only contains the header lines
+                if len(lines) <= 2 or all(line == '' for line in lines[2:]):
+                    print(f'\nWarning: {load_file_name} does not contain fitted phonon lifetimes, skipping.')
+                    continue
+
+            # Load the numerical data
             Freq, lifetime = np.loadtxt(load_file_name, skiprows=2, unpack=True)
 
             for j in range(len(Freq)):
@@ -84,8 +92,8 @@ def deal_total_fre_lifetime(params, total_qpoints):
                 total_num_Fre_lifetime += 1
 
         except:
-            raise FileNotFoundError('*************** File LORENTZ-{}-th-Qpoints.Fre_lifetime reading ERROR ***************'
-                                    .format(i))
+            raise FileNotFoundError(
+                '*************** File LORENTZ-{}-th-Qpoints.Fre_lifetime reading ERROR ***************'.format(i))
 
     f = open('TOTAL-LORENTZ-Qpoints.Fre_lifetime', 'w')
     f.write(out_lifetime_file)
