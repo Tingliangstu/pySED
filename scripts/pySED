@@ -145,7 +145,8 @@ def main():
 
         # This parameter allows you to re-adjust the single peak of a single Q-point and re-output the total phonon lifetime
         if params.re_output_total_freq_lifetime:
-            FileIO.deal_total_fre_lifetime(params)
+            BZ_lattice_info = construct_BZ.BZ_methods(params, box_info=False, qpoints_info=False)
+            FileIO.deal_total_fre_lifetime(params, BZ_lattice_info.num_qpoints)
 
         print('\n************************** pySED SINGLE-PLOTTING ALL DONE !!!!! ***********************\n')
         print('***************************************************************************************')
