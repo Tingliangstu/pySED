@@ -110,20 +110,19 @@ def main():
             params.if_show_figures = False
             params.plot_lorentz = False
 
-            print('***************************************************************************************')
+            print('\n***************************************************************************************')
             print('***************** Now processing {}-th Qpoint SED Lorentz fitting **********************'.format(j))
             data = FileIO.load_data(params)
             #Plot_SED.plot_slice(data, params)              # no need to output here
             Lorentz.lorentz(data, params)
             print('***************************************************************************************')
-            print('***************************************************************************************\n')
 
         FileIO.deal_total_fre_lifetime(params, BZ_lattice_info.num_qpoints)
         print('\n****************************** pySED PLOTTING ALL DONE !!!!! ****************************')
         print('*****************************************************************************************')
         print(' If some Q-points don\'t fit well enough, one can rerun the single fitting mode by setting:')
         print(' \"qpoint_slice_index = XX, re_output_total_freq_lifetime = 1, lorentz_fit_all_qpoint = 0\"')
-        print('*****************************************************************************************\n')
+        print('*****************************************************************************************')
         exit()
 
     # ************************* Doing lorentz fitting for single Q-point *****************************

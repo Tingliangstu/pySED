@@ -93,14 +93,14 @@ def deal_total_fre_lifetime(params, total_qpoints):
 
         except:
             raise FileNotFoundError(
-                '*************** File LORENTZ-{}-th-Qpoints.Fre_lifetime reading ERROR ***************'.format(i))
+                '\n*************** File LORENTZ-{}-th-Qpoints.Fre_lifetime reading ERROR ***************'.format(i))
 
     f = open('TOTAL-LORENTZ-Qpoints.Fre_lifetime', 'w')
     f.write(out_lifetime_file)
     f.close()
 
     if not params.re_output_total_freq_lifetime:
-        print('**** TOTAL-LORENTZ-Qpoints.Fre_lifetime is written successfully (Total {} points) *****'
+        print('\n**** TOTAL-LORENTZ-Qpoints.Fre_lifetime is written successfully (Total {} points) *****'
                                                                                     .format(total_num_Fre_lifetime))
     else:
         print('\n*** TOTAL-LORENTZ-Qpoints.Fre_lifetime is Re-written successfully (Total {} points) ***'
