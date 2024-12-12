@@ -47,7 +47,7 @@ def plot_bands(data, params):
     if not vmax:
         vmax = np.trunc(sed_avg.max())
 
-    levels = np.linspace(vmin, vmax, 350)
+    levels = np.linspace(vmin, vmax, 800)
 
     """
     #Choose the plotting method based on the number of qpaths
