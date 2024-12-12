@@ -67,13 +67,13 @@ def write_phonon_lifetime(lorentz, params):
 
     print('************** LORENTZ-{}-th Qpoints.Fre_lifetime is written successfully **************'.format(params.q_slice_index))
 
-def deal_total_fre_lifetime(params):
+def deal_total_fre_lifetime(params, total_qpoints):
 
     out_lifetime_file = 'Generate by LT\'s codes, Email: liangting.zj@gmail.com\n'
     out_lifetime_file += "First_line: Frequency (THz)  Second_line: Phonon Lifetime (ps)\n"
 
     total_num_Fre_lifetime = 0
-    for i in range(sum(params.num_qpoints)):
+    for i in range(total_qpoints):
 
         try:
             load_file_name = 'LORENTZ-{}-th-Qpoints.Fre_lifetime'.format(i)

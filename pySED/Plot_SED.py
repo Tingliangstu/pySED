@@ -173,3 +173,5 @@ def plot_slice(data, params):
 
     if params.if_show_figures:
         plt.show()
+
+    plt.close(fig)

@@ -118,7 +118,7 @@ def main():
             print('***************************************************************************************')
             print('***************************************************************************************\n')
 
-        FileIO.deal_total_fre_lifetime(params)
+        FileIO.deal_total_fre_lifetime(params, BZ_lattice_info.num_qpoints)
         print('\n****************************** pySED PLOTTING ALL DONE !!!!! ****************************')
         print('*****************************************************************************************')
         print(' If some Q-points don\'t fit well enough, one can rerun the single fitting mode by setting:')
