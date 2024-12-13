@@ -102,9 +102,10 @@ def main():
     # ********** If found params.lorentz_fit_all_qpoint, just fitting all Q points *******************
 
     if params.lorentz_fit_all_qpoint and params.lorentz:
-        BZ_lattice_info = construct_BZ.BZ_methods(params, box_info=False, qpoints_info=False)
-        print('\n************************* You are in the ALL plotting mode !!! ************************\n')
-        for j in range(BZ_lattice_info.num_qpoints):
+        data = FileIO.load_data(params)
+        print('\n********** You are in the ALL plotting mode (total {} Qpoint to fitting) !!! **********\n'
+              .format(len(data.q_distances)))
+        for j in range(len(data.q_distances)):
             # Control parameters for all Qpoints
             params.q_slice_index = j
             params.if_show_figures = False
@@ -117,7 +118,7 @@ def main():
             Lorentz.lorentz(data, params)
             print('***************************************************************************************')
 
-        FileIO.deal_total_fre_lifetime(params, BZ_lattice_info.num_qpoints)
+        FileIO.deal_total_fre_lifetime(params, len(data.q_distances))
         print('\n****************************** pySED PLOTTING ALL DONE !!!!! ****************************')
         print('*****************************************************************************************')
         print(' If some Q-points don\'t fit well enough, one can rerun the single fitting mode by setting:')
@@ -144,8 +145,8 @@ def main():
 
         # This parameter allows you to re-adjust the single peak of a single Q-point and re-output the total phonon lifetime
         if params.re_output_total_freq_lifetime:
-            BZ_lattice_info = construct_BZ.BZ_methods(params, box_info=False, qpoints_info=False)
-            FileIO.deal_total_fre_lifetime(params, BZ_lattice_info.num_qpoints)
+            data = FileIO.load_data(params)
+            FileIO.deal_total_fre_lifetime(params, len(data.q_distances))
 
         print('\n************************** pySED SINGLE-PLOTTING ALL DONE !!!!! ***********************\n')
         print('***************************************************************************************')
