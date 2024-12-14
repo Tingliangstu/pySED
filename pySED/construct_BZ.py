@@ -145,7 +145,7 @@ class BZ_methods(object):
             # see https://gitlab.com/materials-modeling/dynasor/-/blob/master/dynasor/qpoints/tools.py?ref_type=heads
             qpoints_cart, _ = lattice.make_path(q_start, q_end)
             if not len(qpoints_cart):
-                warnings.warn(f'No commensurate q-points found along path segment {i}: from {q_start} to {q_end}')
+                warnings.warn(f'\nNo commensurate q-points found along path segment {i}: from {q_start} to {q_end}')
                 continue
 
             qpoints_list.append(qpoints_cart)
@@ -320,7 +320,7 @@ class Lattice(object):
         fracs = self._find_on_line(q_start, q_end, self.P.T)
 
         if not len(fracs):
-            warnings.warn('No q-points along path!')
+            warnings.warn('\nNo q-points along path!')
             return np.zeros((0, 3)), np.zeros((0,))
         points = np.array([q_start + float(f) * (q_end - q_start) for f in fracs])
         qpoints_cart = self.reduced_to_cartesian(points)
