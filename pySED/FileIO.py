@@ -50,7 +50,7 @@ def write_lorentz(lorentz, params):
 
 def write_phonon_lifetime(lorentz, params):
 
-    out_lifetime_file = 'Generate by LT\'s codes, Email: liangting.zj@gmail.com\n'
+    out_lifetime_file = 'Generate by pySED codes, Email: liangting.zj@gmail.com\n'
     out_lifetime_file += "First_line: Frequency (THz)  Second_line: Phonon Lifetime (ps)\n"
 
     for i in range(len(lorentz.popt)):
@@ -69,7 +69,7 @@ def write_phonon_lifetime(lorentz, params):
 
 def deal_total_fre_lifetime(params, total_qpoints):
 
-    out_lifetime_file = 'Generate by LT\'s codes, Email: liangting.zj@gmail.com\n'
+    out_lifetime_file = 'Generate by pySED codes, Email: liangting.zj@gmail.com\n'
     out_lifetime_file += "First_line: Frequency (THz)  Second_line: Phonon Lifetime (ps)\n"
 
     total_num_Fre_lifetime = 0

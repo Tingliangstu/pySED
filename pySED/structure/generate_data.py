@@ -13,7 +13,7 @@ class structure_maker(object):
     def __init__(self, structure_file_name='POSCAR',
                        lammps_data_flag=False,
                        lammps_infile_name=None,
-                       description='Create LAMMPS or GPUMD data for SED method by using LT_Codes'):
+                       description='Create LAMMPS or GPUMD data for SED method by using pySED Codes'):
         """
         Generate the required file for SED projects (including lammps data for running lammps and basis.in for Reciprocal space)
         :param structure_file_name: input file for primitive structure (POSCAR file is recommended).
@@ -100,7 +100,7 @@ class structure_maker(object):
             fid.write('{0:d}\n'.format(self.num_atoms))
 
             lattice_str = 'Lattice="{0:10.10f} {1:10.10f} {2:10.10f} {3:10.10f} {4:10.10f} {5:10.10f} {6:10.10f} ' \
-                          '{7:10.10f} {8:10.10f}" Properties=species:S:1:pos:R:3 config_type="SED by LT"'.format(
+                          '{7:10.10f} {8:10.10f}" Properties=species:S:1:pos:R:3 config_type="SED by pySED codes"'.format(
                            xhi, 0.0, 0.0, xy, yhi, 0.0, xz, yz, zhi)
 
             fid.write(lattice_str + f' pbc="{pbc}"' + '\n')
