@@ -87,6 +87,10 @@ def deal_total_fre_lifetime(params, total_qpoints):
             # Load the numerical data
             Freq, lifetime = np.loadtxt(load_file_name, skiprows=2, unpack=True)
 
+            if isinstance(Freq, np.float64):
+                Freq = np.array([Freq])
+                lifetime = np.array([lifetime])
+
             for j in range(len(Freq)):
                 out_lifetime_file += '{0:.6f} {1:.8f}\n'.format(Freq[j], lifetime[j])
                 total_num_Fre_lifetime += 1
