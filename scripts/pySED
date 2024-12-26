@@ -30,11 +30,11 @@ def main():
      "                   | .__/  \__, |  \___ \ |  __|  | |  | |",
      "                   | |      __/ | ____) | | |____ | |__| |",
      "                   |_|     |___/ |_____/  |______||_____/",
-     "                                              v-2.0.0"
+     "                                              v-2.0.1"
      ]
     for line in logo_lines:
         print(line)
-    print('**************** Now, v-2.0.0 pySED can interface with GPUMD **************************')
+    print('**************** Now, v-2.0.1 pySED can interface with GPUMD **************************')
     print('******* To implement the SED method in 2010, phonon lifetime can be calculated ********')
     print('************************ Author: liangting.zj@gmail.com *******************************')
     print('***************************************************************************************')
