@@ -158,7 +158,7 @@ def plot_slice(data, params):
         ax.semilogy(thz, total, ls='--', lw=1.5, color='grey', alpha=alpha+0.2)
 
     # ******************** set the figure labels ********************
-    ax.set_ylabel(r'log($\Phi$($\omega)$) (J $\cdot$ s)')
+    ax.set_ylabel(r'$\Phi$($\omega)$ (J $\cdot$ s)')
     ax.set_xlabel('Frequency (THz)')
     fig.suptitle(r'$\mathbf{{q}}$ = ({0:.3f}, {1:.3f}, {2:.3f})'.format(qpoints[q_index, 0], qpoints[q_index, 1],
                                                                qpoints[q_index, 2]), y=0.95, fontsize=15)
