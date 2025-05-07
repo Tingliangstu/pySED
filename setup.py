@@ -36,6 +36,7 @@ setup(
         "seaborn",
         "h5py",
         "scipy",
+        "dynasor>=2.0",
     ],
     license='MIT License',
 )
