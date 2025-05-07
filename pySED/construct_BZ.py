@@ -143,7 +143,9 @@ class BZ_methods(object):
 
             # Use Lattice.make_path to get commensurate qpoints along the path
             # see https://gitlab.com/materials-modeling/dynasor/-/blob/master/dynasor/qpoints/tools.py?ref_type=heads
-            from dynasor import Lattice
+            
+            from dynasor.qpoints.lattice import Lattice
+            
             qpoints_cart, _ = Lattice.make_path(q_start, q_end)
             if not len(qpoints_cart):
                 warnings.warn(f'\nNo commensurate q-points found along path segment {i}: from {q_start} to {q_end}')
