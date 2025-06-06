@@ -52,22 +52,16 @@ class lorentz:
             print("****************** WARNING: using smoothing SED data for fitting. ********************\n")
 
         ## ********* Using the scipy.signal.find_peaks find the peak in SED curve *********
-        params.extend_mirror_points = 5
-        if params.extend_mirror_points:
-            extended_sed = np.concatenate([self.sed[params.extend_mirror_points:0:-1], self.sed])
-            self.sed = extended_sed
-            self.thz = np.concatenate([self.thz[:params.extend_mirror_points][::-1], self.thz])
-
         peaks, amp_max = find_peaks(self.sed, height=params.peak_height, prominence=params.peak_prominence)
-        
+
         print('*** Found {} peaks in the SED-{}-th qpoint curve, Please compare with the actual peak ***'.format(
             len(peaks),
             params.q_slice_index))
-        
+
         print(
             '**** Peaks is as follows, one can tune fitting paras according them ****:\nFrequency: {0} THz\nPeak_height: {1} J*s\n'.format(
                 self.thz[peaks], self.sed[peaks]))
-                
+
         # some bounds on the fitting. Might need to tweak these
         dx = 1  # The size of the peak left and right offset during fitting
         maxfev = 1e15  # Should be the maximum number of fits
