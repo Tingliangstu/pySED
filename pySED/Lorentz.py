@@ -8,7 +8,7 @@
 import numpy as np
 from pySED import FileIO, Plot_SED
 from scipy.optimize import curve_fit
-from scipy.signal import find_peaks, windows
+from scipy.signal import find_peaks, windows, peak_widths
 import matplotlib.pyplot as plt
 
 class lorentz:
@@ -60,16 +60,17 @@ class lorentz:
 
         peaks, amp_max = find_peaks(self.sed, height=params.peak_height, prominence=params.peak_prominence)
         
-        print('*** Found {} peaks in the SED-{}-th qpoint curve, Please compare with the actual peak ***'.format(
+        results_half = peak_widths(self.sed, peaks, rel_height=0.5)
+        
+        print('*** Found {} peaks in the SED-{}-th qpoint curve, Please compare with the actual peak ***\n'.format(
             len(peaks),
             params.q_slice_index))
         
         print(
-            '**** Peaks is as follows, one can tune fitting paras according them ****:\nFrequency: {0} THz\nPeak_height: {1} J*s\n'.format(
+            '**** Peaks is as follows, one can tune fitting paras according them ****:\nFrequency: {0} THz\n\nPeak_height: {1} J*s\n'.format(
                 self.thz[peaks], self.sed[peaks]))
                 
         # some bounds on the fitting. Might need to tweak these
-        dx = 1  # The size of the peak left and right offset during fitting
         maxfev = 1e15  # Should be the maximum number of fits
 
         self.xarr = np.arange(len(self.sed))
@@ -79,8 +80,13 @@ class lorentz:
         # params.bounds = np.zeros((len(peaks), 2))
 
         for i in range(len(peaks)):
+
+            width_points = results_half[0][i]
+            dx = max(1, round(width_points / 2) + 2)      # The size of the peak left and right offset during fitting
+
             # Peak started index  # Record boundary
-            adjust_number = params.modulate_factor  # for better fitting (next version)
+            adjust_number = params.modulate_factor      # for better fitting (next version)
+            
             test = True   # for test
             if params.modulate_factor > 0 and test:
                 print("Shrinking the fitting range of the X-axis toward the middle for {0}-th peak,"
@@ -96,8 +102,8 @@ class lorentz:
             # start = peaks[i]-5
             # end = peaks[i]+5              # For dubug
             # Boundary for three parmas
-            lb = [self.thz[peaks[i] - dx], amp_max['peak_heights'][i], 1e-14]
-            ub = [self.thz[peaks[i] + dx], amp_max['peak_heights'][i] * 2, params.peak_max_hwhm]   # np.inf
+            lb = [self.thz[peaks[i] - dx], amp_max['peak_heights'][i] / 2, 1e-14]
+            ub = [self.thz[peaks[i] + dx], amp_max['peak_heights'][i] * 2, params.peak_max_hwhm]   # default for peak_max_hwhm = 1e6
 
             # Initial guesses for fitting parameters
             p0 = [self.thz[peaks[i]], self.sed[peaks[i]], params.initial_guess_hwhm]  # Adjusted initial guess for HWHM
