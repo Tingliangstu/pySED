@@ -58,7 +58,7 @@ def write_phonon_lifetime(lorentz, params):
         if lorentz.popt[i][2] == 0:  # don't output fitting fail frequency
             continue
 
-        out_lifetime_file += '{0:.6f} {1:.8f} \n'.format(lorentz.popt[i][0], 1/(2 * lorentz.popt[i][2]))
+        out_lifetime_file += '{0:.6f} {1:.8f} \n'.format(lorentz.popt[i][0], 1/(2 * np.pi * lorentz.popt[i][2]))
         # write the file
 
     f = open('LORENTZ-{}-th-Qpoints.Fre_lifetime'.format(params.q_slice_index), 'w')
