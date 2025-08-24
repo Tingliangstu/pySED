@@ -6,7 +6,7 @@
 
 ## 2025 (6)
 
-* Yuan Li, Kaibin Xiong, Yongxiao Qu, Xiaoyu Shi, Zhisen Zhang, Jianyang Wu, [SEffects of guest molecular occupancy and electric field on thermal conductivity of CO<sub>2</sub> hydrates](https://doi.org/10.1063/5.0286293), Journal of Chemical Physics. **163**, 084504 (2025)
+* Yuan Li, Kaibin Xiong, Yongxiao Qu, Xiaoyu Shi, Zhisen Zhang, Jianyang Wu, [Effects of guest molecular occupancy and electric field on thermal conductivity of CO<sub>2</sub> hydrates](https://doi.org/10.1063/5.0286293), Journal of Chemical Physics. **163**, 084504 (2025)
 
 * Wenwu Jiang, Ting Liang, Jianbin Xu, Wengen Ouyang, [Strain-Engineered Anisotropic Thermal Transport in Layered MoS<sub>2</sub> Structures](https://pubs.acs.org/doi/full/10.1021/acsami.5c06264), ACS Applied Materials \& Interfaces, **17**, 34833 (2025)
 
