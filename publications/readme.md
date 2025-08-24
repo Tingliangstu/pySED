@@ -6,7 +6,9 @@
 
 ## 2025 (6)
 
-* Wenwu Jiang, Ting Liang, Jianbin Xu, Wengen Ouyang, [Strain-Engineered Anisotropic Thermal Transport in Layered MoS2 Structures](https://pubs.acs.org/doi/full/10.1021/acsami.5c06264), ACS Applied Materials \& Interfaces, **17**, 34833 (2025)
+* Yuan Li, Kaibin Xiong, Yongxiao Qu, Xiaoyu Shi, Zhisen Zhang, Jianyang Wu, [SEffects of guest molecular occupancy and electric field on thermal conductivity of CO$_2$ hydrates](https://doi.org/10.1063/5.0286293), Journal of Chemical Physics. **163**, 084504 (2025)
+
+* Wenwu Jiang, Ting Liang, Jianbin Xu, Wengen Ouyang, [Strain-Engineered Anisotropic Thermal Transport in Layered MoS$_2$ Structures](https://pubs.acs.org/doi/full/10.1021/acsami.5c06264), ACS Applied Materials \& Interfaces, **17**, 34833 (2025)
 
 * Yichen Hou, Ruo-Yu Dong, [Comparative analyses of thermal transport in cellulose at crystalline, paracrystalline and amorphous states](https://www.sciencedirect.com/science/article/pii/S0144861725008483?via%3Dihub), Carbohydrate Polymers, **367**, 124063, (2025)
 
