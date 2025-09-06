@@ -28,7 +28,6 @@ setup(
     url='https://github.com/Tingliangstu/pySED',
     author_email='liangting.zj@gmail.com',
     packages=find_packages(),
-    scripts=['scripts/pySED'],
     python_requires=">=3.7",
     install_requires=[
         "numpy>=1.15.0",
@@ -38,4 +37,11 @@ setup(
         "scipy",
     ],
     license='MIT License',
+    entry_points={
+        'console_scripts': [
+            'pySED = pySED.main:main',
+            'pysed = pySED.main:main',
+        ],
+    },
 )
+
