@@ -16,30 +16,37 @@
 
 # Installation instructions
 
-
-1) From source code (Highly recommended)
-```python
-python setup.py install --user --prefix=
+1)  Download by git or from [source code](https://github.com/Tingliangstu/pySED)
+```bash
+git clone https://github.com/Tingliangstu/pySED.git
 ```
-   or one can use:
-```python
+2) Install
+```bash
+cd pySED
 pip install .
 ```
-For convenience, you may want to copy (or link) the files inside scripts
-folder to a location included in $PATH environment variable
-
-2) From pip install (Not currently recommended)
-
-```python
-pip install pySED-phonon
+   or one can use:
+```bash
+python setup.py install --user --prefix=
 ```
+
+3) Verify installation
+```bash
+pySED -h
+```
+or
+```bash
+pysed -h
+```
+This means that `pySED` or `pysed` can be run directly from the command line.
+
 
 ## Usage
 
 The [example files](https://github.com/Tingliangstu/pySED/tree/main/example) have so many case provided to show how to use **pySED**. 
 If one can reproduce the case in the example, one should use the program.
 
-For guidance on using the latest version of [pySED](https://github.com/Tingliangstu/pySED/tree/main), please refer to this [MoS$_2$ example](https://github.com/Tingliangstu/pySED/tree/main/example/MoS2_gpumd) for the time being.
+For guidance on using the latest version of [pySED](https://github.com/Tingliangstu/pySED/tree/main), please refer to this [MoS<sub>2</sub> example](https://github.com/Tingliangstu/pySED/tree/main/example/MoS2_gpumd) for the time being.
 I will update the manual as soon as I have time.
 
 **Online manual** [https://pysed.readthedocs.io](https://pysed.readthedocs.io/en/latest/)

@@ -35,6 +35,7 @@ setup(
         "seaborn",
         "h5py",
         "scipy",
+        "psutil",
     ],
     license='MIT License',
     entry_points={
