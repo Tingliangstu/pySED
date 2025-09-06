@@ -47,6 +47,10 @@ class BZ_methods(object):
         self.unitcell_index = self.unitcell_index.astype(int)
         self.basis_index = self.basis_index.astype(int)
         self.masses = self.masses.astype(float)
+        if params.num_atoms != self.atom_ids.max():
+            raise ValueError("\nInconsistent input: \"num_atoms = %d\" does not match \"Max atom_id = %d\" "
+                             "in basis.in file. Please carefully verify the input." %
+                             (params.num_atoms, self.atom_ids.max()))
 
     def _reconstruct_primitive_cell(self, supercell, supercell_dim):
         """
