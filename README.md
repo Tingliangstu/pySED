@@ -25,7 +25,7 @@ git clone https://github.com/Tingliangstu/pySED.git
 cd pySED
 pip install .
 ```
-    or one can use:
+  or one can use:
 ```bash
 python setup.py install --user --prefix=
 ```
@@ -34,7 +34,7 @@ python setup.py install --user --prefix=
 ```bash
 pySED -h
 ```
-    or
+  or
 ```bash
 pysed -h
 ```
