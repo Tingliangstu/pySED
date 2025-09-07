@@ -6,7 +6,7 @@
 
 ## 2025 (6)
 
-* DaiJi Tang, YuTao Liu, Han Song, Cheng Deng, Mengyuan Liu, TingHong Gao, Yongchao Liang, Qingquan Xiao, Yunjun Ruan, [Neuroevolution Potential-Driven Accurate and Efficient Discovery of Graphene/GaN Heterojunctions: From Ballistic-Diffusive Transition to Thermal Conductivity Enhancement](https://doi.org/10.1063/5.0286293), Physica E: Low-dimensional Systems and Nanostructures. (2025)
+* DaiJi Tang, YuTao Liu, Han Song, Cheng Deng, Mengyuan Liu, TingHong Gao, Yongchao Liang, Qingquan Xiao, Yunjun Ruan, [Neuroevolution Potential-Driven Accurate and Efficient Discovery of Graphene/GaN Heterojunctions: From Ballistic-Diffusive Transition to Thermal Conductivity Enhancement](https://doi.org/10.1016/j.physe.2025.116363), Physica E: Low-dimensional Systems and Nanostructures. (2025)
 
 * Yuan Li, Kaibin Xiong, Yongxiao Qu, Xiaoyu Shi, Zhisen Zhang, Jianyang Wu, [Effects of guest molecular occupancy and electric field on thermal conductivity of CO<sub>2</sub> hydrates](https://doi.org/10.1063/5.0286293), Journal of Chemical Physics. **163**, 084504 (2025)
 
