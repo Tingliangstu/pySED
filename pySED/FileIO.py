@@ -7,20 +7,20 @@
 
 import numpy as np
 
-def write_output(phonons, params, lattice):
+def write_output(phonons, params, BZ_lattice_info):
     np.savetxt(params.out_files_name + '.SED', phonons.sed_avg)
-    np.savetxt(params.out_files_name + '.Qpts', lattice.reduced_qpoints, fmt='%.8f')
+    np.savetxt(params.out_files_name + '.Qpts', BZ_lattice_info.reduced_qpoints, fmt='%.8f')
     np.savetxt(params.out_files_name + '.THz', phonons.freq_fft, fmt='%.8f')
 
     with open(params.out_files_name + '.Q_distances_and_labels', 'w') as f:
         # q_distances
         f.write("Global distances along the paths:\n")
-        f.write(" ".join(f"{d:.8f}" for d in lattice.q_distances) + "\n\n")
+        f.write(" ".join(f"{d:.10f}" for d in BZ_lattice_info.q_distances) + "\n\n")
 
         # q_labels
         f.write("High-symmetry points and their distances:\n")
-        for distance, label in lattice.q_labels.items():
-            f.write(f"{float(distance):.8f} {label}\n")
+        for distance, label in BZ_lattice_info.q_labels:
+            f.write(f"{float(distance):.10f}   {label}\n")
 
 class load_data(object):
 
