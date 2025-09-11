@@ -42,7 +42,7 @@ class lorentz:
                     break
             self.sed = self.sed[0:index]
             self.thz = self.thz[0:index]
-            print("****************** WARNING: Now the Frequency will cutoff to {0:5.3f} ********************\n".
+            print("***************** ⚠️WARNING: Now the Frequency will cutoff to {0:5.3f} *******************\n".
                   format(max(self.thz)))
 
         # smoothing data (hanning windows)
@@ -71,6 +71,7 @@ class lorentz:
                 self.thz[peaks], self.sed[peaks]))
                 
         # some bounds on the fitting. Might need to tweak these
+        dx = 1  # The size of the peak left and right offset during fitting
         maxfev = 1e15  # Should be the maximum number of fits
 
         self.xarr = np.arange(len(self.sed))
@@ -82,7 +83,7 @@ class lorentz:
         for i in range(len(peaks)):
 
             width_points = results_half[0][i]
-            dx = max(1, round(width_points / 2) + 2)      # The size of the peak left and right offset during fitting
+            #dx = max(1, round(width_points / 2) + 2)      # The size of the peak left and right offset during fitting
 
             # Peak started index  # Record boundary
             adjust_number = params.modulate_factor      # for better fitting (next version)
@@ -102,7 +103,7 @@ class lorentz:
             # start = peaks[i]-5
             # end = peaks[i]+5              # For dubug
             # Boundary for three parmas
-            lb = [self.thz[peaks[i] - dx], amp_max['peak_heights'][i] / 2, 1e-14]
+            lb = [self.thz[peaks[i] - dx], amp_max['peak_heights'][i], 1e-14]
             ub = [self.thz[peaks[i] + dx], amp_max['peak_heights'][i] * 2, params.peak_max_hwhm]   # default for peak_max_hwhm = 1e6
 
             # Initial guesses for fitting parameters
