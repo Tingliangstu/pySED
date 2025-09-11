@@ -62,8 +62,8 @@ def plot_bands(data, params):
             ax.axvline(x, color='grey', linestyle='--', linewidth=0.8)
 
     else:
-        print("You are using \'imshow\' method for SED plotting since single Qpaths, "
-              "it can be change to \'contourf\' by setting \'use_contourf = 1\' in the input.in.")
+        print("You are using \"imshow\" method for SED plotting since single Qpaths, "
+              "it can be change to \"contourf\" by setting \"use_contourf = 1\" in the input.in.")
         im = ax.imshow(sed_avg, cmap=color, interpolation=interp, aspect='auto', origin='lower', vmax=vmax, vmin=vmin)
 
     # colarbar
