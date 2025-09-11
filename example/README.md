@@ -41,11 +41,12 @@ This ensures you are familiar with the workflow and can verify your setup.
 ---
 
 ## 💡 Tips
-- Start with the **Silicon** or **Aluminum** examples to get familiar with the workflow.
+- Start with the **Graphene** or **Silicon** examples to get familiar with the workflow.
 - Use the reference phonon dispersion to cross-check your SED results.
 - Adjust parameters carefully when moving from example systems to your own material.
 
 ---
 
 **Author:** pySED Development Team (Ting Liang and Wenwu Jiang) 
+
 **Version:** v2.2.0 and above
