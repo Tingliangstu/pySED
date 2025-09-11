@@ -1,0 +1,67 @@
+### ********************* For Calculate SED input file **************
+# ************** Post-processing and plotting ***********************
+# ************** Read previous calculation for plotting **************
+# ************** Will look for output files and plot them, then exit. *******
+
+### ************ MD simulation parameters **************
+num_atoms = 17920                   # number of atoms in structure
+total_num_steps = 500000            # MD simulation steps
+time_step = 1                       # Femtoseconds (fs)
+output_data_stride = 8             # Data only output every 32 steps in the LAMMPS simulation, see the input file.
+
+### ************ Divide up the data for averaging **************
+num_splits = 5                      # Number of blocks to average.
+
+### ************ Deal the lammps dump velocity file or not **************
+compress = 1                        # It would save disk memory
+
+### ************ Input and output files **************
+out_files_name = 'CNT'
+basis_lattice_file = '../structure/basis.in'
+dump_xyz_file = '../gpumd_run/dump.xyz'                     # output from gpumd
+output_hdf5 = 'vel_pos_compress.hdf5'
+file_format  = 'gpumd'                         # Now, it support 'lammps' or 'gpumd'
+
+### ************** For multi-thread *****************
+use_parallel = 1                  # 0 Disable multithreading. 1 Enable multithreading. On windows, 0 is recommended 
+max_cores = 36                     # The number of cores used by multiple threads. Note that the more cores, the greater the memory overhead
+
+### ************ Crystal lattice ************
+prim_unitcell = 237.4331970215 0 0 0 237.4331970215 0 0 0 2.463436  # one can check it use ovito (POSCAR), can be left out, just for checking
+supercell_dim = 1 1 160             # supercell dimension for MD simulations (the larger supercell, the more q points, automatic determination)
+rescale_prim = 1                     # Reconstructed primitive unit cell from MD simulation cell if one use NPT
+
+### ************  Q-points info ************
+num_qpaths = 1                      # number of dispersion paths to include (if num_qpaths=1, only read one q_path)
+q_path_name = 'GA'                # q-point path name, used for plotting 
+q_path = 0.0 0.0 0.0  0.0 0.0 0.5 
+# end points of the dispersion path in red. reciprocal coords.
+
+# ************ Will look for output files and plot them, then exit ************
+# (Tips: plot_SED = 1 means one already have SED data exist, if not, firstly set the plot_SED = 0 to run SED)
+plot_SED = 1                        # plot the dispersion (Set to 1 to calculate SED--run SED mode, set 1 to plot and fitting mode)
+plot_cutoff_freq = 50.0               # if not set, SED will plot all-range frequency according the FFT, if set frequency will cutoff (THz)
+plot_interval = 10.0                # For a good look SED picture, interval for y-axis (default = 5 THz)
+qpoint_slice_index = 0             # the q-point to plot (starts from 0 thanks to python slicing...)
+plot_slice = 1                      # plot a q-slice yes or not, according to qpoint_slice_index (bool)
+if_show_figures = 0                 # Shows figures for eyes
+
+# https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html (see the usage)
+# https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html (find peak usage for peak_height and peak_prominence)
+# ************ Do Lorentz fitting ************
+lorentz = 1                        # whether to fit peaks (if set lorentz_fit_all_qpoint = 1, lorentz = 1 must set)
+lorentz_fit_cutoff = 5             # if not set, lorentz fitting figure will plot all-range frequency according the FFT, if set frequency will cutoff (THz), one can set plot_cutoff_freq = lorentz_fit_cutoff (maybe very useful for some strong anharmonicity systems)
+peak_height = 1.0e-5               # The lowest height of Lorenz fitting (scipy.signal.find_peaks) -- Important
+peak_prominence = 2.0e-5           # A minimal prominence of 9.0e-5
+initial_guess_hwhm = 0.005        # The maximum half height width of the Lorentz fit, which is very useful for some peaks where the fit fails (default=0.01)
+re_output_total_freq_lifetime = 0  # This parameter allows you to re-adjust the single peak of a single q point and re-output the TOTAL phonon lifetime (set lorentz_fit_all_qpoint=0)
+
+# ************ Do Lorentz fitting for all q points************
+lorentz_fit_all_qpoint = 1    # Fit all qpoints peak and output the phonon lifetime for the systems in the unit of ps
+
+# Tips
+# 1. The prominence of a peak measures how much a peak stands out from the surrounding baseline
+#    of the signal and is defined as the vertical distance between the peak and its lowest contour line.
+# 2. Using 'lorentz_fit_cutoff', 'modulate_factor' flag will help a lot for fitting phonon lifetime
+# 3. If it is not fitting well for single Q point, one can use the 're_output_total_freq_lifetime' flag and adjust
+#     'peak_height' and 'peak_prominence', and pySED will reoutput the TOTAL-LORENTZ-Qpoints.Fre_lifetime file.
