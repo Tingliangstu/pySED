@@ -9,6 +9,7 @@ import os
 import numpy as np
 import h5py
 from fractions import Fraction
+import math
 import warnings
 from pySED.structure import generate_data
 
@@ -31,6 +32,7 @@ class BZ_methods(object):
         # calculate direct lattice vectors (for orthogonal or triclinic lattice vectors)
         if params.with_eigs:  # use phonopy q-points
             pass
+
         else:  # create q-point list from input file (basis.in)
             # construct the BZ paths
             self._construct_BZ_path(params)
@@ -97,112 +99,168 @@ class BZ_methods(object):
 
         if self.box_info:
             print("\n************************** Structural information *****************************")
-            print("Primitive unit cell is (Angstrom):\n", params.prim_unitcell)
-            print("\nMD simulation cell is (Angstrom):\n", box_in_traj)
+            print("Primitive unit cell matrix is (Angstrom):")
+            for row in params.prim_unitcell:
+                print("  {: .8e}    {: .8e}    {: .8e}".format(row[0], row[1], row[2]))
+
+            print("\nMD simulation cell matrix is (Angstrom):")
+            for row in box_in_traj:
+                print("  {: .8e}    {: .8e}    {: .8e}".format(row[0], row[1], row[2]))
 
         if np.any(np.abs(box_in_traj - expected_box) > 1e-4):
             if self.box_info:
                 print(
-                    "\nWarning: The cell in the trajectory is different from calculated by the primitive cell and supercell dimensions.")
-                print("\nIf NPT ensemble is used for structural optimization, and pySED can rescale the primitive cell by setting \'rescale_prim = 1\'.")
+                    "\n⚠️Warning⚠️: The cell matrix in the trajectory is different from calculated "
+                    "by the primitive cell and supercell dimensions.")
+                print("This suggests that structural optimization is likely performed using the NPT ensemble.")
 
             if params.rescale_prim:
                 # Attempt to reconstruct the primitive cell
                 params.prim_unitcell = self._reconstruct_primitive_cell(box_in_traj, params.supercell_dim)
                 if self.box_info:
-                    print("\nNow, pySED have reconstructed primitive unit cell from MD simulation cell (Angstrom):")
-                    print(params.prim_unitcell)
+                    print("\nNow, pySED have reconstructed primitive unit cell matrix from MD simulation cell (Angstrom):")
+                    for row in params.prim_unitcell:
+                        print("  {: .8e}    {: .8e}    {: .8e}".format(row[0], row[1], row[2]))
+        else:
+            if self.box_info:
+                print(
+                    "\n⚠️pySED identified that structural optimization is likely performed using the NVT ensemble.")
 
-        # https://phonopy.github.io/phonopy/setting-tags.html#primitive-axes
+        # see ref: https://phonopy.github.io/phonopy/setting-tags.html#primitive-axes
         if params.prim_axis is not None:
-
             params.prim_unitcell = params.prim_unitcell @ params.prim_axis
             if self.box_info:
                 print("\nTransformation from the input unit cell to the primitive cell is performed according \'prim_axis\'.")
                 #print("If \'prim_axis\' is set, one must use NVT for MD simulation.")
                 print("Now primitive unit cell is transformed to (Angstrom):")
-                print(params.prim_unitcell)
+                for row in params.prim_unitcell:
+                    print("  {: .8e}    {: .8e}    {: .8e}".format(row[0], row[1], row[2]))
 
     def _construct_BZ_path(self, params):
 
         # Get q_path and number of q-paths
-        q_path = np.array(params.q_path)
+        q_path = np.array(params.q_path).reshape(-1, 3)
         num_qpaths = params.num_qpaths
 
-        # Create Lattice instance
-        lattice = Lattice(params.prim_unitcell, self.supercell)
+        BZ_Path = BZPathHelper(params.prim_unitcell, self.supercell)
 
-        # Initialize lists to store qpoints
         qpoints_list = []
         reduced_qpoints_list = []
-        q_segments = []                     # Will store q-points for each segment
+        q_distances = []
+        q_labels = []
 
-        # Loop over each path segment
+        label_map = {"G": "Γ"}
+
+        def fmt_vec(x):
+            return "(" + ", ".join(f"{v:.4f}" for v in x) + ")"
+
+        def shortest_distance(q1_cart, q2_cart):
+            """Shortest reciprocal distance between two q-points"""
+            q1_red = BZ_Path.cartesian_to_reduced(q1_cart.reshape(1, -1))[0]
+            q2_red = BZ_Path.cartesian_to_reduced(q2_cart.reshape(1, -1))[0]
+            dq_red = q2_red - q1_red
+            dq_red -= np.round(dq_red)                # wrap to [-0.5, 0.5)
+            dq_cart = BZ_Path.reduced_to_cartesian(dq_red.reshape(1, -1))[0]
+            return np.linalg.norm(dq_cart)  # The Euclidean norm (length) of the difference vector
+
         if self.qpoints_info:
             print("\n***************************** Q-point information *****************************")
 
+        cumulative_distance = 0.0
+        last_delta = 0.0
+        prev_end_label = None
+        prev_end_distance = None
+
         for i in range(num_qpaths):
+
             q_start = q_path[i]
             q_end = q_path[i + 1]
 
-            # Use Lattice.make_path to get commensurate qpoints along the path
-            # see https://gitlab.com/materials-modeling/dynasor/-/blob/master/dynasor/qpoints/tools.py?ref_type=heads
-            qpoints_cart, _ = lattice.make_path(q_start, q_end)
+            start_label = label_map.get(params.q_path_name[i], params.q_path_name[i])
+            end_label = label_map.get(params.q_path_name[i + 1], params.q_path_name[i + 1])
+
+            qpoints_cart, _ = BZ_Path.build_commensurate_path(q_start, q_end)
+
             if not len(qpoints_cart):
-                warnings.warn(f'\nNo commensurate q-points found along path segment {i}: from {q_start} to {q_end}')
+                print(f'\n⚠️Warnings⚠️: \nNo commensurate q-points found along path'
+                      f' segment {i}: from {start_label}: {fmt_vec(q_start)} to {end_label}: {fmt_vec(q_end)}')
+
+                if q_labels and prev_end_label is not None and prev_end_distance is not None:
+
+                    #next_start_distance = None
+                    # Peek directly at the global distance of the first point of the next paragraph (For test)
+                    #if (i + 1) < num_qpaths:
+                    #    q_start_next = q_path[i + 1]    # K
+                    #    q_end_next = q_path[i + 2]      # Γ
+                    #    qpoints_cart_next, _ = BZ_Path.build_commensurate_path(q_start_next, q_end_next)
+                    #    if len(qpoints_cart_next) > 0:
+                            # Calculate the global distance of point K
+                    #        first_step_len = shortest_distance(qpoints_cart_next[0], qpoints_cart_next[1]) if len(
+                    #            qpoints_cart_next) > 1 else 0.0
+                    #        next_start_distance = prev_end_distance + first_step_len
+
+                    #if next_start_distance is not None:
+                    #    midpoint_distance = 0.5 * (prev_end_distance + next_start_distance)
+                    #else:
+                    #    midpoint_distance = prev_end_distance
+
+                    merged_label = f"{prev_end_label}/{end_label}"
+                    q_labels[-1] = (prev_end_distance, merged_label)
+
+                    #prev_end_distance = midpoint_distance
+
+                prev_end_label = end_label
                 continue
 
-            qpoints_list.append(qpoints_cart)
-            reduced_qpoints = lattice.cartesian_to_reduced(qpoints_cart)
-            reduced_qpoints = np.where(np.isclose(reduced_qpoints, 0, atol=1e-16), 0.0, reduced_qpoints)
-            reduced_qpoints_list.append(reduced_qpoints)
-            q_segments.append(qpoints_cart)
+            # For distance
+            distances_segment = []
 
-            # Print the q-points if required
+            if end_label == "Γ":
+                if prev_end_label is not None and start_label != "Γ":
+                    cumulative_distance += last_delta
+                if q_labels:
+                    new_dist = cumulative_distance
+                    old_label = q_labels[-1][1]
+                    q_labels[-1] = (new_dist, old_label)
+
+            distances_segment.append(cumulative_distance)
+
+            for j in range(1, len(qpoints_cart)):
+                step = shortest_distance(qpoints_cart[j - 1], qpoints_cart[j])
+                cumulative_distance += step
+                distances_segment.append(cumulative_distance)
+
+            if len(distances_segment) >= 2:
+                last_delta = distances_segment[-1] - distances_segment[-2]
+
+            else:
+                last_delta = 0.0
+
+            # label for gamma begin
+            if i == 0:
+                q_labels.append((distances_segment[0], start_label))
+            q_labels.append((distances_segment[-1], end_label))
+
+            prev_end_label = end_label
+            prev_end_distance = distances_segment[-1]
+
+            # reduced coords
+            reduced_qpoints = BZ_Path.cartesian_to_reduced(qpoints_cart)
+            reduced_qpoints = np.where(np.isclose(reduced_qpoints, 0, atol=1e-16), 0.0, reduced_qpoints)
+            qpoints_list.append(qpoints_cart)
+            reduced_qpoints_list.append(reduced_qpoints)
+            q_distances.extend(distances_segment)
+
             if self.qpoints_info:
-                print(f'\nPath segment {i}: from {q_start} to {q_end}')
+                print(f'\nPath segment {i}: from {start_label}: {fmt_vec(q_start)} to {end_label}: {fmt_vec(q_end)}')
                 print(f'Number of q-points generated: {len(reduced_qpoints)}')
                 print('Reduced q-points:')
-                for j in range(len(reduced_qpoints)):
-                    print(
-                        f'\t(reduced) q = ({reduced_qpoints[j, 0]:.4f}, {reduced_qpoints[j, 1]:.4f}, {reduced_qpoints[j, 2]:.4f})')
+                for q in reduced_qpoints:
+                    print(f'\t(reduced) q = {fmt_vec(q)}')
 
-        # Combine all qpoints
         self.qpoints = np.vstack(qpoints_list)
         self.reduced_qpoints = np.vstack(reduced_qpoints_list)
-        self.num_qpoints = len(self.qpoints)                 # will be use in Phonon module
-
-        # Calculate q_distances using cumulative distances along the path
-        q_distances = [0.0]
-        q_labels = dict()
-        # Starting point
-        qr = 0.0
-        q_labels[qr] = params.q_path_name[0]        # Start label
-
-        # Collect labels and q-distances along the entire q-point path
-        idx = 0                                     # Index to track position in self.qpoints
-        num_segments = len(q_segments)
-        pending_label = None                        # Variable to store the label for delayed marking
-        for it, q_segment in enumerate(q_segments):
-            num_points_in_segment = len(q_segment)
-            # Calculate the distance increment based on q-point differences
-            for i in range(num_points_in_segment):
-                if idx > 0:
-                    delta_q = self.qpoints[idx] - self.qpoints[idx - 1]
-                    qr += np.linalg.norm(delta_q)
-                    q_distances.append(qr)
-                    if pending_label is not None:
-                        q_labels[qr] = pending_label  # Assign the label to the current distance
-                        pending_label = None          # Clear the delayed label
-                idx += 1
-            # Add the end label of the segment
-            if it < num_segments - 1:
-                # For non-final segments, set the next label to the start of the next segment
-                pending_label = params.q_path_name[it + 1]
-            else:
-                # For the final segment, mark the endpoint immediately
-                q_labels[qr] = params.q_path_name[-1]
-
+        self.num_qpoints = len(self.qpoints)
         self.q_distances = np.array(q_distances)
         self.q_labels = q_labels
 
@@ -210,182 +268,164 @@ class BZ_methods(object):
         if self.qpoints_info:
             print("\n**************** The total number of q-points generated is {}  ****************".format(self.num_qpoints))
 
-class Lattice(object):
+
+class BZPathHelper:
     """
-    The following class is borrowed from dynasor:
-    https://gitlab.com/materials-modeling/dynasor/-/blob/master/dynasor/qpoints/lattice.py
+    Helper class for handling the relationship between a primitive cell
+    and a supercell, and for generating commensurate k/q-point paths in reciprocal space.
+
+    see ref: https://gitlab.com/materials-modeling/dynasor/-/blob/master/dynasor/qpoints/lattice.py
+
+    Features:
+    - Compute an integer repetition matrix from primitive and supercell matrices
+    - Calculate reciprocal lattice vectors (including the 2π factor)
+    - Convert between Cartesian and reduced (fractional) reciprocal coordinates
+    - Generate commensurate q-points between two reduced coordinates
     """
+
     def __init__(self, primitive_cell, supercell_cell):
-
-        """Representation of a crystal supercell
-        The supercell S is given by the primitive cell p and a repetition
-        matrix P such that:
-
-              dot(P, p) = S
-
-        In this convention the cell vectors are row vectors of p and S as in
-        ASE. An inverse cell is defined as:
-
-              c_inv = inv(c).T
-
-        and the reciprocal cell is defined as:
-
-              c_rec = 2*pi*inv(c).T
-
-        Notice that the inverse cell here is defined with the tranpose so that
-        the lattic vectors of the inverse/reciprocal lattice are also row
-        vectors. The above also implies:
-
-              dot(P.T, S_inv) = p_inv
-
-        The inverse supercell S_inv defines a new lattice in reciprocal space.
-        Those inverse lattice points which resides inside the inverse primitive
-        cell p_inv are called commensurate lattice points. These are typically
-        the only points of interest in MD simulations from a crystallographic
-        and lattice dynamics point of view.
-
-        The convention taken here is that the reciprocal cell carries the 2pi
-        factor onto the cartesian q-points. This is consistent with e.g.
-        Kittel. The reduced coordinates are always with respect to the
-        reciprocal primitive cell.
-
+        """
         Parameters
         ----------
-        primitive
-             cell metric of the primitive cell with lattice vectors as rows.
-        supercell
-             cell metric of the supercell with lattice vectors as rows
+        primitive_cell : array-like, shape (3,3)
+            Lattice vectors of the primitive cell (rows are basis vectors).
+        supercell_cell : array-like, shape (3,3)
+            Lattice vectors of the supercell (rows are basis vectors)
         """
+        self._primitive_cell = np.array(primitive_cell, dtype=float)
+        self._supercell_cell = np.array(supercell_cell, dtype=float)
 
-        self._primitive_cell = np.array(primitive_cell)
-        self._supercell_cell = np.array(supercell_cell)
+        # Repetition matrix P such that: P @ primitive_cell = supercell_cell
+        self.P = self._compute_P_matrix()
 
-        # Compute P matrix such that P @ primitive_cell = supercell_cell
-        self.P = self._get_P_matrix()
-
+    # -------------------------
+    # Properties
+    # -------------------------
     @property
     def primitive(self):
-        """Returns the primitive cell with lattice vectors as rows"""
+        """Return the primitive cell lattice vectors as rows."""
         return self._primitive_cell
 
     @property
     def supercell(self):
-        """Returns the supercell with lattice vectors as rows"""
+        """Return the supercell lattice vectors as rows."""
         return self._supercell_cell
 
     @property
     def reciprocal_primitive(self):
-        """Returns inv(primitive).T so that the rows are the inverse lattice vectors"""
-        return 2 * np.pi * np.linalg.inv(self.primitive.T)  # inverse lattice as rows
+        """Return reciprocal lattice of primitive cell (rows as vectors, includes 2π)."""
+        return 2 * np.pi * np.linalg.inv(self.primitive.T)
 
-    @property
-    def reciprocal_supercell(self):
-        """Returns inv(super).T so that the rows are the inverse lattice vectors"""
-        return 2 * np.pi * np.linalg.inv(self.supercell.T)  # reciprocal lattice as rows
+    # =========================================================
+    # 1. Lattice matrix computations
+    # =========================================================
+    def _compute_P_matrix(self):
+        """Compute integer repetition matrix R where: R @ primitive = supercell."""
+        P_float = np.linalg.solve(self._primitive_cell.T, self._supercell_cell.T).T
+        P_int = np.rint(P_float).astype(int)
+        if not np.allclose(P_float, P_int, atol=1e-4):
+            raise ValueError("Supercell is not an integer multiple of primitive cell, please check them carefully.")
 
-    def _get_P_matrix(self):
-        """ P c = S  ->  c.T P.T = S.T
-        The P matrix must be an integer matrix
-        Solve P @ primitive_cell = supercell_cell
-        """
-        P = np.linalg.solve(self._primitive_cell.T, self._supercell_cell.T).T
-        P_rounded = np.rint(P).astype(int)
-        if not np.allclose(P, P_rounded, atol=1e-4):
-            raise ValueError('Supercell is not an integer multiple of primitive cell, please check them or setting \'rescale_prim = 1\'.')
-        return P_rounded
+        return P_int
 
+    # -------------------------
+    # Coordinate conversions
+    # -------------------------
     def cartesian_to_reduced(self, qpoints_cart):
-        # Convert cartesian qpoints to reduced coordinates
+        """Convert Cartesian q-points to reduced reciprocal coordinates."""
         return np.linalg.solve(self.reciprocal_primitive.T, qpoints_cart.T).T
 
     def reduced_to_cartesian(self, qpoints_red):
-        # Convert reduced qpoints to cartesian coordinates
+        """Convert reduced reciprocal coordinates to Cartesian q-points."""
         return qpoints_red @ self.reciprocal_primitive
 
-    def make_path(self, q_start, q_end):
-        """Takes qpoints in reduced coordinates and returns all points in between
-
-        Parameters
-        ----------
-        start
-            coordinate of starting point in reduced inverse coordinates.
-            e.g. a zone mode is given as (0.5, 0, 0), (0,0,0) == (1,0,0) etc.
-        stop
-            stop position
-
-        Returns
-        -------
-        qpoints
-            coordinates of commensurate points along path in cartesian reciprocals
-        dists
-            fractional distance along path
+    # =========================================================
+    # 3. Path generation
+    # =========================================================
+    def build_commensurate_path(self, start_frac, end_frac):
         """
+        Generate commensurate q-points along a path between two reduced coordinates.
 
-        fracs = self._find_on_line(q_start, q_end, self.P.T)
+        """
+        fractions_list = self._find_allowed_fractions(start_frac, end_frac)
 
-        if not len(fracs):
-            warnings.warn('\nNo q-points along path!')
+        if not fractions_list:
             return np.zeros((0, 3)), np.zeros((0,))
-        points = np.array([q_start + float(f) * (q_end - q_start) for f in fracs])
-        qpoints_cart = self.reduced_to_cartesian(points)
-        dists = np.array([float(f) for f in fracs])
-        return qpoints_cart, dists
 
-    def _find_on_line(self, start, stop, P_T):
-        """Find fractional distances between start and stop combatible with P
+        q_frac_points = np.array([
+            start_frac + float(f) * (end_frac - start_frac)
+            for f in fractions_list
+        ])
 
+        q_cart = self.reduced_to_cartesian(q_frac_points)
+        return q_cart, np.array([float(f) for f in fractions_list])
+
+    # =========================================================
+    # 4. Internal commensurate fraction finding
+    # =========================================================
+    def _find_allowed_fractions(self, start_frac, end_frac):
+        """
+        Find all fractional positions f in [0,1] that satisfy commensurability.
         A supercell is defined by P @ c = S for some repetition matrix P and we
         want to find fractions so that
 
-            [start + f * (stop - start)] @ P = n
+            [start_frac + f * (end_frac - start_frac)] @ P = n
+
+        where n is an integer multiple of the supercell size.
+
+        Returns
+        -------
+        list(Fraction)
+            List of allowed fractional positions f in [0,1] that satisfy commensurability.
 
         Parameters
         ----------
-        start
+        start_frac
             start of line in reduced supercell coordinates
-        stop
+        end_frac
             end of line in reduced supercell coordinates
-        P
-            repetion matrix defining the supercell
         """
 
-        if np.allclose(start, stop):
+        if np.allclose(start_frac, end_frac):
             return [Fraction(0, 1)]
 
-        start = np.array([Fraction(s).limit_denominator() for s in start])
-        stop = np.array([Fraction(s).limit_denominator() for s in stop])
+        s = np.array([Fraction(x).limit_denominator() for x in start_frac])
+        e = np.array([Fraction(x).limit_denominator() for x in end_frac])
 
-        A = start @ P_T
-        B = (stop - start) @ P_T
+        P_T = self.P.T
+        s_sc = s @ P_T
+        delta_sc = (e - s) @ P_T
 
-        fracs = None
-        for a, b in zip(A, B):
-            fs = self._solve_Diophantine(a, b)
-            if fs is None:  # "inf" solutions
-                continue
-            elif fs == []:  # No solutions
-                return []
-            fracs = set(fs) if fracs is None else fracs.intersection(fs)
-        return sorted(fracs)
+        possible = None
+        for a, b in zip(s_sc, delta_sc):
+            results = self._solve_linear_diophantine(a, b)
+            if results is None:
+                continue  # no restriction along this axis
+            if not results:
+                return []  # no solution at all
+            possible = set(results) if possible is None else possible & set(results)
+        return sorted(possible) if possible else []
 
-    def _solve_Diophantine(self, a, b):
-        """Solve n = a + xb for all n in Z and a,b in Q such that 0 <= x <= 1"""
+    def _solve_linear_diophantine(self, a, b):
+        """
+        Solve n = a + x*b for integers n, with a,b as Fractions and 0 <= x <= 1.
+
+        Returns
+        -------
+        list(Fraction) or None
+            All valid fractional x values, None if unrestricted along this axis.
+        """
 
         if b == 0:
-            if a.denominator == 1:
-                return None
-            else:
-                return []
+            return None if a.denominator == 1 else []
 
-        if b < 0:
-            right = np.ceil(a)
-            left = np.floor(a + b)
-        else:
-            left = np.floor(a)
-            right = np.ceil(a + b)
+        # Determine min/max range for possible integer n values depending on b sign
+        low, high = (a, a + b) if b > 0 else (a + b, a)
 
-        ns = np.arange(left, right + 1)
-        fracs = [Fraction(n - a, b) for n in ns]
-        fracs = [f for f in fracs if 0 <= f <= 1]
+        n_min = math.floor(float(low))
+        n_max = math.ceil(float(high))
 
-        return fracs
+        # List all integers in range and compute resulting fractions
+        fracs = [Fraction(n - a, b) for n in range(n_min, n_max + 1)]
+
+        return [f for f in fracs if 0 <= f <= 1]
