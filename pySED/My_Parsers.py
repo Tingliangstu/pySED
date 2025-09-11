@@ -51,11 +51,11 @@ class get_parse_input(object):
         self.output_hdf5 = 'vel_pos_compress.hdf5'
         self.file_format = 'gpumd'            # gpumd or lammps
         self.lammps_unit = 'metal'            # lammps unit for unit conversion (support metal or real)
-        self.rescale_prim = 0                 # Reconstructed primitive unit cell from MD simulation cell
+        self.rescale_prim = 1                 # Reconstructed primitive unit cell from MD simulation cell
         self.prim_axis = None     # For Fcc silicon or Al, np.array([[0.0, 0.5, 0.5], [0.5, 0.0, 0.5], [0.5, 0.5, 0.0]])
 
         # multithread for computing SED (not finish yet)
-        self.use_parallel = False        # use parallel or not
+        self.use_parallel = True        # use parallel or not
         self.max_cores = 4               # Means use the max cores in one's machine
 
         # Plot and lorentz fitting
@@ -64,7 +64,7 @@ class get_parse_input(object):
         self.plot_interval = 5                       # Thz
         self.lorentz_fit_cutoff = None
         self.modulate_factor = 0
-        self.initial_guess_hwhm = 0.01               # default
+        self.initial_guess_hwhm = 0.001               # default
         self.peak_max_hwhm = 1e6                     # default
         self.re_output_total_freq_lifetime = 0       # default
         self.lorentz_fit_all_qpoint = 0              # default
