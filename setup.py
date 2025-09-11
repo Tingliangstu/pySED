@@ -42,6 +42,7 @@ setup(
         'console_scripts': [
             'pySED = pySED.main:main',
             'pysed = pySED.main:main',
+            'PYSED = pySED.main:main',
         ],
     },
 )
