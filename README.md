@@ -42,49 +42,6 @@ pysed -h
 ```
 This means that `pySED` or `pysed` can be run directly from the command line.
 
-
-## Usage
-
-The [example files](https://github.com/Tingliangstu/pySED/tree/main/example) have so many case provided to show how to use **pySED**. 
-If you can successfully reproduce these cases, you are ready to apply `pySED` to your own research systems.  
-
----
-
-### 1D Systems
-- **Example**: Carbon Nanotube (CNT)  
-- Purpose: Learn how to set up and analyze SED for **one-dimensional materials**.  
-
-[CNT Example Folder](https://github.com/Tingliangstu/pySED/tree/main/example/CNT)  
-<p align="center">
-  <img src="https://github.com/Tingliangstu/pySED/blob/main/example/CNT/SED/CNT-SED.svg" alt="CNT SED" width="500">
-</p>
-
-### 2D Systems
-- **Examples**:  
-  - In-plane Graphene using GPUMD  
-- Purpose: Learn how to analyze SED for **two-dimensional materials**.  
-
-[Graphene Example Folder](https://github.com/Tingliangstu/pySED/tree/main/example/In_plane_graphene_gpumd)  
-<p align="center">
-  <img src="https://github.com/Tingliangstu/pySED/blob/main/example/In_plane_graphene_gpumd/SED/compare_LD/Graphene.png" alt="Graphene SED" width="500">
-</p>
-
----
-
-### 3D Systems
-- **Example**: Bulk Silicon  
-- Purpose: Learn how to perform SED analysis for **three-dimensional crystalline materials**.  
-
-[Silicon Example Folder](https://github.com/Tingliangstu/pySED/tree/main/example/Silicon_primitive_gpumd)  
-<p align="center">
-  <img src="https://github.com/Tingliangstu/pySED/blob/main/example/Silicon_primitive_gpumd/SED/silicon-SED.png" alt="Silicon SED" width="500">
-</p>
-
----
-
-
-**Online manual** [https://pysed.readthedocs.io](https://pysed.readthedocs.io/en/latest/)
-	
 ## Citations
 
 | Reference             | Cite for what?                    |
@@ -101,6 +58,46 @@ If you can successfully reproduce these cases, you are ready to apply `pySED` to
 ## Publications using pySED
 
 Please visit the [publications page](https://github.com/Tingliangstu/pySED/tree/main/publications).
+
+
+## Usage
+
+The [example files](https://github.com/Tingliangstu/pySED/tree/main/example) have so many case provided to show how to use **pySED**. 
+If you can successfully reproduce these cases, you are ready to apply `pySED` to your own research systems.  
+
+
+### 1D Systems
+- **Example**: Carbon Nanotube (CNT)  
+- Purpose: Learn how to set up and analyze SED for **one-dimensional materials**.  
+
+[CNT Example Folder](https://github.com/Tingliangstu/pySED/tree/main/example/CNT)  
+<p align="center">
+  <img src="https://github.com/Tingliangstu/pySED/blob/main/example/CNT/SED/CNT-SED.svg" alt="CNT SED" width="300">
+</p>
+
+### 2D Systems
+- **Examples**:  
+  - In-plane Graphene using GPUMD  
+- Purpose: Learn how to analyze SED for **two-dimensional materials**.  
+
+[Graphene Example Folder](https://github.com/Tingliangstu/pySED/tree/main/example/In_plane_graphene_gpumd)  
+<p align="center">
+  <img src="https://github.com/Tingliangstu/pySED/blob/main/example/In_plane_graphene_gpumd/SED/compare_LD/Graphene.png" alt="Graphene SED" width="300">
+</p>
+
+
+### 3D Systems
+- **Example**: Bulk Silicon  
+- Purpose: Learn how to perform SED analysis for **three-dimensional crystalline materials**.  
+
+[Silicon Example Folder](https://github.com/Tingliangstu/pySED/tree/main/example/Silicon_primitive_gpumd)  
+<p align="center">
+  <img src="https://github.com/Tingliangstu/pySED/blob/main/example/Silicon_primitive_gpumd/SED/silicon-SED.png" alt="Silicon SED" width="300">
+</p>
+
+
+**Online manual** [https://pysed.readthedocs.io](https://pysed.readthedocs.io/en/latest/)
+
 
 ## Contact info
 
