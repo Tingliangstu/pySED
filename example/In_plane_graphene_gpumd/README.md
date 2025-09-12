@@ -11,6 +11,7 @@ It is strongly recommended that you reproduce this tutorial **exactly** before a
 1. **Generate [model.xyz](https://gpumd.org/gpumd/input_files/model_xyz.html) structure file for gpumd and basis files for pySED**
 2. **Run GPUMD to produce trajectory files (`dump.exyz`)**
 3. **Run pySED to calculate the SED**
+4. **SED compare with lattice dynamic calculation**
  
 ## Usage
 
