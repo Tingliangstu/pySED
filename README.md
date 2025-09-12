@@ -100,7 +100,7 @@ and the practical aspects of the SED methods it presents.
 
 [Silicon Example Folder](https://github.com/Tingliangstu/pySED/tree/main/example/Silicon_primitive_gpumd)  
 <p align="center">
-  <img src="https://github.com/Tingliangstu/pySED/blob/main/example/Silicon_primitive_gpumd/SED/silicon-SED.png" alt="Silicon SED" width="500">
+  <img src="https://github.com/Tingliangstu/pySED/blob/main/example/Silicon_primitive_gpumd/SED/compare_LD/Silicon.png" alt="Silicon SED" width="500">
 </p>
 
 
