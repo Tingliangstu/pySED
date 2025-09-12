@@ -1,4 +1,4 @@
-Create LAMMPS or GPUMD data for SED method by using LT_Codes
+Create LAMMPS or GPUMD data for SED method by using pySED Codes
 atoms_ids unitcell_index basis_index mass_types
 1 1 1  95.960000
 2 1 2  95.960000

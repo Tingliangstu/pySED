@@ -30,6 +30,11 @@ This ensures you are familiar with the workflow and can verify your setup.
 - **`Silicon_primitive_gpumd`**  
   Example for bulk silicon.  
   Recommended for learning SED analysis of three-dimensional crystalline materials.
+  
+  
+### tutorials
+- **`tutorials`**  
+  Jupyter Tutorial for MoS<sub>2</sub>.  
 
 ---
 
