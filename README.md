@@ -14,7 +14,7 @@
 - Can be used in parallel and get SED results quickly
 - Can interface with [GPUMD](https://github.com/brucefan1983/GPUMD?tab=readme-ov-file) and [LAMMPS](https://www.lammps.org/#gsc.tab=0), capable of capturing quantum dynamics.
 
-# Installation instructions
+## Installation instructions
 
 1)  Download by git or from [source code](https://github.com/Tingliangstu/pySED)
 ```bash
@@ -64,6 +64,9 @@ Please visit the [publications page](https://github.com/Tingliangstu/pySED/tree/
 
 The [example files](https://github.com/Tingliangstu/pySED/tree/main/example) have so many case provided to show how to use **pySED**. 
 If you can successfully reproduce these cases, you are ready to apply `pySED` to your own research systems.  
+We would strongly encourage readers to browse through the [pySED paper](https://doi.org/10.1063/5.0278798), 
+as it contains a wealth of details that can greatly aid in understanding both the theoretical foundations 
+and the practical aspects of the SED methods it presents.
 
 
 ### 1D Systems
@@ -72,7 +75,7 @@ If you can successfully reproduce these cases, you are ready to apply `pySED` to
 
 [CNT Example Folder](https://github.com/Tingliangstu/pySED/tree/main/example/CNT)  
 <p align="center">
-  <img src="https://github.com/Tingliangstu/pySED/blob/main/example/CNT/SED/CNT-SED.svg" alt="CNT SED" width="300">
+  <img src="https://github.com/Tingliangstu/pySED/blob/main/example/CNT/SED/CNT-SED.svg" alt="CNT SED" width="500">
 </p>
 
 ### 2D Systems
@@ -82,7 +85,7 @@ If you can successfully reproduce these cases, you are ready to apply `pySED` to
 
 [Graphene Example Folder](https://github.com/Tingliangstu/pySED/tree/main/example/In_plane_graphene_gpumd)  
 <p align="center">
-  <img src="https://github.com/Tingliangstu/pySED/blob/main/example/In_plane_graphene_gpumd/SED/compare_LD/Graphene.png" alt="Graphene SED" width="300">
+  <img src="https://github.com/Tingliangstu/pySED/blob/main/example/In_plane_graphene_gpumd/SED/compare_LD/Graphene.png" alt="Graphene SED" width="500">
 </p>
 
 
@@ -92,7 +95,7 @@ If you can successfully reproduce these cases, you are ready to apply `pySED` to
 
 [Silicon Example Folder](https://github.com/Tingliangstu/pySED/tree/main/example/Silicon_primitive_gpumd)  
 <p align="center">
-  <img src="https://github.com/Tingliangstu/pySED/blob/main/example/Silicon_primitive_gpumd/SED/silicon-SED.png" alt="Silicon SED" width="300">
+  <img src="https://github.com/Tingliangstu/pySED/blob/main/example/Silicon_primitive_gpumd/SED/silicon-SED.png" alt="Silicon SED" width="500">
 </p>
 
 
