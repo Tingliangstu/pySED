@@ -64,6 +64,7 @@ Please visit the [publications page](https://github.com/Tingliangstu/pySED/tree/
 
 The [example files](https://github.com/Tingliangstu/pySED/tree/main/example) have so many case provided to show how to use **pySED**. 
 If you can successfully reproduce these cases, you are ready to apply `pySED` to your own research systems.  
+
 We would strongly encourage readers to browse through the [pySED paper](https://doi.org/10.1063/5.0278798), 
 as it contains a wealth of details that can greatly aid in understanding both the theoretical foundations 
 and the practical aspects of the SED methods it presents.
@@ -80,7 +81,8 @@ and the practical aspects of the SED methods it presents.
 
 ### 2D Systems
 - **Examples**:  
-  - In-plane Graphene using GPUMD  
+  - In-plane Graphene
+  - Out-of-plane MoS<sub>2</sub>
 - Purpose: Learn how to analyze SED for **two-dimensional materials**.  
 
 [Graphene Example Folder](https://github.com/Tingliangstu/pySED/tree/main/example/In_plane_graphene_gpumd)  
