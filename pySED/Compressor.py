@@ -8,6 +8,7 @@ import time
 import h5py
 import numpy as np
 import os
+from sys import exit
 import re
 
 def compress(params):
