@@ -1,6 +1,6 @@
-# pySED Tutorial: Calculating Spectral Energy Density (SED) for a CNT Example with GPUMD
+# pySED Tutorial: Calculating Spectral Energy Density (SED) for In-Plane Graphene Dispersion
 
-This guide walks you through using **pySED** to compute the **Spectral Energy Density (SED)** of a **Carbon Nanotube (CNT)** system entirely in **GPUMD**.
+This guide walks you through using **pySED** to compute the **Spectral Energy Density (SED)** of a **in-plane phonon dispersion in graphene** system entirely in **GPUMD**.
 
 It is strongly recommended that you reproduce this tutorial **exactly** before applying the method to your own system.
 
@@ -39,15 +39,15 @@ def generate_required_files(input_file, supercell):
     structure.replicate_supercell(supercell=supercell)
 
     # Write xyz files for gpumd
-    structure.write_xyz(filename='model.xyz', pbc="T T T")
+    structure.write_xyz(filename='model.xyz', pbc="T T F")
     
     # Write basis.in files for further used
     structure.write_lattice_basis_file()
 
 if __name__ == "__main__":
 
-    file_name = 'POSCAR_CNT'                              ## The in file for lammps
-    supercell = (1, 1, 160)
+    file_name = 'POSCAR_graphene'                              ## The in file for lammps
+    supercell = (40, 40, 1)
     generate_required_files(file_name, supercell)
 
 ```
@@ -59,25 +59,23 @@ Maybe one can modify the **[run.in]()**
 ```python
 
 potential      nep.txt
-dftd3          pbe  12  6
 velocity       300
 
-ensemble npt_mttk temp 300 300 z 0 0
-time_step      1
-dump_thermo    20000
-dump_position  50000
-run            500000
+#ensemble       npt_scr 300 300 100 0 0 0 0 0 0 20 20 20 20 20 20 1000
+#time_step      1
+#dump_thermo    10000
+#dump_position  100000
+#run            1000000
 
 ######### Nose-Hoover ###############
 ensemble       nvt_nhc   300    300   100
 time_step      1
 dump_thermo    20000
-dump_position  50000
-run            500000
+dump_position  100000
+run            1000000
 
 ensemble       nve
-dump_exyz      8     1
-#dump_netcdf   10     1
+dump_exyz      10     1
 run            500000
 
 ```
@@ -92,3 +90,14 @@ One can modify the **input_SED.in** and play with it.
 
 
 
+- [x] **4. Compare SED with Lattice Dynamics (LD) Calculations
+
+This example also provides a method to compare SED results with lattice dynamics (LD) calculations.
+
+The relevant scripts are located in the `SED/compare_LD/` directory:
+-   The `get_phonon_dispersion.py` script uses the **NEP** potential to calculate the phonon dispersion. This script utilizes both the `calorine` and `phonopy` packages.
+-   The `plot_phonon_dis_NEP_SED.py` script is used to plot and compare the SED results obtained from GPUMD with the phonon dispersion curves calculated from lattice dynamics.
+
+The final output figure (`Graphene.png`) should show an excellent agreement between the SED spectrum (background colormap) and the LD-calculated phonon branches (white dashed lines).
+
+![Comparison of SED and LD for Graphene](https://github.com/Tingliangstu/pySED/blob/main/example/In_plane_graphene_gpumd/SED/compare_LD/Graphene.png)
