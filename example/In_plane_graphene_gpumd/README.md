@@ -90,7 +90,7 @@ One can modify the **input_SED.in** and play with it.
 
 
 
-- [x] **4. Compare SED with Lattice Dynamics (LD) Calculations
+- [x] **4. Compare SED with Lattice Dynamics (LD) Calculations** 
 
 This example also provides a method to compare SED results with lattice dynamics (LD) calculations.
 
