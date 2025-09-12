@@ -70,6 +70,9 @@ as it contains a wealth of details that can greatly aid in understanding both th
 and the practical aspects of the SED methods it presents.
 
 
+**Online manual** [https://pysed.readthedocs.io](https://pysed.readthedocs.io/en/latest/)
+
+
 ### 1D Systems
 - **Example**: Carbon Nanotube (CNT)  
 - Purpose: Learn how to set up and analyze SED for **one-dimensional materials**.  
@@ -100,8 +103,6 @@ and the practical aspects of the SED methods it presents.
   <img src="https://github.com/Tingliangstu/pySED/blob/main/example/Silicon_primitive_gpumd/SED/silicon-SED.png" alt="Silicon SED" width="500">
 </p>
 
-
-**Online manual** [https://pysed.readthedocs.io](https://pysed.readthedocs.io/en/latest/)
 
 
 ## Contact info
