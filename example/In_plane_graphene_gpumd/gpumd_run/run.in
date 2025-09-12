@@ -1,11 +1,11 @@
 potential      nep.txt
 velocity       300
 
-#ensemble       npt_scr 300 300 100 0 0 0 0 0 0 20 20 20 20 20 20 1000
-#time_step      1
-#dump_thermo    10000
-#dump_position  100000
-#run            1000000
+ensemble       npt_scr 300 300 100 0 0 0 0 0 0 20 20 20 20 20 20 1000
+time_step      1
+dump_thermo    10000
+dump_position  100000
+run            1000000
 
 ######### Nose-Hoover ###############
 ensemble       nvt_nhc   300    300   100

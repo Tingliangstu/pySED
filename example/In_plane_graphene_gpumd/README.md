@@ -61,11 +61,11 @@ Maybe one can modify the **[run.in]()**
 potential      nep.txt
 velocity       300
 
-#ensemble       npt_scr 300 300 100 0 0 0 0 0 0 20 20 20 20 20 20 1000
-#time_step      1
-#dump_thermo    10000
-#dump_position  100000
-#run            1000000
+ensemble       npt_scr 300 300 100 0 0 0 0 0 0 20 20 20 20 20 20 1000
+time_step      1
+dump_thermo    10000
+dump_position  100000
+run            1000000
 
 ######### Nose-Hoover ###############
 ensemble       nvt_nhc   300    300   100
@@ -96,7 +96,7 @@ This example also provides a method to compare SED results with lattice dynamics
 
 The relevant scripts are located in the `SED/compare_LD/` directory:
 -   The `get_phonon_dispersion.py` script uses the **NEP** potential to calculate the phonon dispersion. This script utilizes both the `calorine` and `phonopy` packages.
--   The `plot_phonon_dis_NEP_SED.py` script is used to plot and compare the SED results obtained from GPUMD with the phonon dispersion curves calculated from lattice dynamics.
+-   The `plot_phonon_dis_NEP_SED.py` script is used to plot and compare the SED results obtained from pySED with the phonon dispersion curves calculated from lattice dynamics.
 
 The final output figure (`Graphene.png`) should show an excellent agreement between the SED spectrum (background colormap) and the LD-calculated phonon branches (white dashed lines).
 
