@@ -16,7 +16,7 @@
 
 ## Installation instructions
 
-1)  Download by git or from [source code](https://github.com/Tingliangstu/pySED)
+1)  Download by git or from [source code](https://github.com/Tingliangstu/pySED). **Installing from source is highly recommended, as it is frequently maintained**.
 ```bash
 git clone https://github.com/Tingliangstu/pySED.git
 ```
@@ -85,7 +85,7 @@ and the practical aspects of the SED methods it presents.
 ### 2D Systems
 - **Examples**:  
   - In-plane Graphene
-  - Out-of-plane MoS<sub>2</sub>
+  - [Out-of-plane MoS<sub>2</sub>](https://github.com/Tingliangstu/pySED/tree/main/example/MoS2_gpumd)
 - Purpose: Learn how to analyze SED for **two-dimensional materials**.  
 
 [Graphene Example Folder](https://github.com/Tingliangstu/pySED/tree/main/example/In_plane_graphene_gpumd)  
