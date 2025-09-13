@@ -112,3 +112,7 @@ liangting.zj@gmail.com;
 Wenwu Jiang
 wwjiang96@163.com
 
+Or one can raise questions and suggestion at qq group:
+<p align="center">
+  <img src="https://github.com/Tingliangstu/pySED/blob/main/docs/source/_static/qq.jpg" alt="Silicon SED" width="500">
+</p>
