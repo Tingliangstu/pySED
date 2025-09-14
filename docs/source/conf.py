@@ -7,7 +7,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'pySED'
-copyright = '2024, Ting Liang; Wenwu Jiang'
+copyright = '2025, Ting Liang; Wenwu Jiang'
 author = 'Ting Liang; Wenwu Jiang'
 release = '1.0.0'
 
@@ -26,7 +26,8 @@ exclude_patterns = []
 
 import sphinx_rtd_theme
 html_theme = "sphinx_rtd_theme"
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+
+#html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # Specify the path to the static files
 html_static_path = ['_static']
@@ -37,7 +38,7 @@ html_logo = '_static/logo.png'  # Ensure 'logo.png' is placed inside the '_stati
 # Theme options
 html_theme_options = {
     'logo_only': False,           # Show project name alongside logo
-    'display_version': True,      # Display the version number
+    #'display_version': True,      # Display the version number
     'prev_next_buttons_location': 'bottom',
     'style_external_links': True,
     # Add other options as needed
