@@ -15,6 +15,14 @@ This example is well integrated with the latest version of the software and serv
 You can find the :math:`\text{MoS}_2` example here: 
 `MoS2 SED Example <https://github.com/Tingliangstu/pySED/tree/main/example/MoS2_gpumd>`_
 
+
+And the :math:`\text{MoS}_2` example here: 
+`Graphene SED Example <https://github.com/Tingliangstu/pySED/tree/main/example/MoS2_gpumd>`_
+
+
+And the :math:`\text{MoS}_2` example here: 
+`Graphene SED Example <https://github.com/Tingliangstu/pySED/tree/main/example/MoS2_gpumd>`_
+
 You also can find the :math:`\text{MoS}_2` tutorial here: 
 `MoS2 tutorial <https://github.com/Tingliangstu/pySED/blob/main/example/tutorials/MoS2/SED_MoS2.ipynb>`_
 
