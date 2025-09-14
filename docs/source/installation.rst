@@ -4,7 +4,7 @@ Installation
 **pySED** can be installed either from the source code or via the PyPI repository.  
 Installing from source is **highly recommended**, as it is actively maintained and provides the latest updates.
 
-1. Download the Source Code
+Download the Source Code
 ---------------------------
 
 You can download the source code from GitHub:
@@ -16,7 +16,7 @@ You can download the source code from GitHub:
 Alternatively, you may download the package directly from the  
 `pySED GitHub repository <https://github.com/Tingliangstu/pySED>`_.
 
-2. Install pySED
+Install pySED
 ----------------
 
 Navigate to the downloaded directory and install using one of the following methods:
@@ -34,7 +34,7 @@ Navigate to the downloaded directory and install using one of the following meth
 
     python setup.py install --user --prefix=
 
-3. Add Scripts to PATH
+Add Scripts to PATH
 -----------------------
 
 For convenience, you may want to copy or link the files inside the `scripts` folder  
@@ -42,9 +42,9 @@ to a location included in your **$PATH** environment variable.
 
 .. note::
 
-    Depending on your operating system or environment configuration, this step may be done automatically.
+    Depending on your operating system or environment configuration, if you are using conda environment this step may be done automatically.
 
-4. Verify Installation
+Verify Installation
 ----------------------
 
 To confirm that pySED is installed correctly, run:

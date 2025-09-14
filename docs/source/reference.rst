@@ -1,19 +1,17 @@
-Installation
-============
-**pySED** can be installed directly from the source code (python package) or via PyPI repository.
+References
+==========
 
-1) From source code (**Highly recommended**) ::
+For users seeking the theoretical background of the Spectral Energy Density (SED) method, we recommend consulting the following key publications:
 
-    python setup.py install --user --prefix=
+[1] Ting Liang, Wenwu Jiang, Ke Xu, Hekai Bu, Zheyong Fan, Wengen Ouyang, Jianbin Xu,  
+`PYSED: A tool for extracting kinetic-energy-weighted phonon dispersion and lifetime from molecular dynamics simulations <https://doi.org/10.1063/5.0278798>`_,  
+*Journal of Applied Physics*, **138**, 075101 (2025).
 
+[2] J. A. Thomas, J. E. Turney, R. M. Iutzi, C. H. Amon, A. J. H. McGaughey,  
+`Predicting phonon dispersion relations and lifetimes from the spectral energy density <https://journals.aps.org/prb/abstract/10.1103/PhysRevB.81.081411>`_,  
+*Physical Review B*, **81**, 081411 (2010).
 
-2) From PyPI repository (**Not currently recommended**) ::
+Citation Notice
+---------------
 
-    pip install pySED-phonon --user
-
-For convenience, you may want to copy (or link) the files inside scripts
-folder to a location included in **$PATH** environment variable.
-
-.. Note::
-    Depending on your configuration or OS this may be done automatically.
-
+If you use the **pysed** package in your research or publications, please cite both references listed above to acknowledge the work and support continued development.
