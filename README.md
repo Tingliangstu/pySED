@@ -41,6 +41,7 @@ pySED -h
 pysed -h
 ```
 This means that `pySED` or `pysed` can be run directly from the command line.
+You can always use the `-h` flag to explore available options and understand how to prepare input files for `pySED`.
 
 ## Citations
 
@@ -102,7 +103,6 @@ and the practical aspects of the SED methods it presents.
 <p align="center">
   <img src="https://github.com/Tingliangstu/pySED/blob/main/example/Silicon_primitive_gpumd/SED/compare_LD/Silicon.png" alt="Silicon SED" width="500">
 </p>
-
 
 
 ## Contact info
