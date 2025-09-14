@@ -40,7 +40,7 @@ use_contourf = 1
 
 # ************ Will look for output files and plot them, then exit ************
 # (Tips: plot_SED = 1 means one already have SED data exist, if not, firstly set the plot_SED = 0 to run SED)
-plot_SED = 0                        # plot the dispersion (Set to 1 to calculate SED--run SED mode, set 1 to plot and fitting mode)
+plot_SED = 0                        # plot the dispersion (Set to 0 to calculate SED--run SED mode, set 1 to plot and fitting mode)
 plot_cutoff_freq = 50               # if not set, SED will plot all-range frequency according the FFT, if set frequency will cutoff (THz)
 plot_interval = 10                # For a good look SED picture, interval for y-axis (default = 5 THz)
 qpoint_slice_index = 0             # the q-point to plot (starts from 0 thanks to python slicing...)
