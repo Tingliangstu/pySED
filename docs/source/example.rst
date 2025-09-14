@@ -2,14 +2,15 @@ Examples
 ========
 
 **pySED** provides a rich set of examples to help users understand how to perform Spectral Energy Density (SED) analysis across different types of materials.
-These examples are designed to demonstrate best practices and guide users through the workflow using **pySED** in combination with **GPUMD**.
+These examples are designed to demonstrate best practices and guide users through the workflow using **pySED** in combination with To use **pySED**, molecular dynamics (MD) simulations must first be performed using either  
+`GPUMD <https://gpumd.org/index.html>`_ and `LAMMPS <https://www.lammps.org/>`_ .
 
 Recommended Starting Point
 --------------------------
 
 We recommend beginning with the following example:
 
-- **Material**: MoS\ :sub:`2` (Out-of-plane)
+- **Material**: math:`\mathrm{MoS_2}`
 - **Purpose**: Demonstrates how to generate SED data using pySED and GPUMD.
 - **Link**: `MoS2 SED Example <https://github.com/Tingliangstu/pySED/tree/main/example/MoS2_gpumd>`_
 
@@ -32,7 +33,7 @@ The examples are organized by material dimensionality.
 
 - **Examples**:
   - In-plane Graphene (`Graphene Example Folder <https://github.com/Tingliangstu/pySED/tree/main/example/In_plane_graphene_gpumd>`_)
-  - Out-of-plane MoS\ :sub:`2` (`MoS2 Example Folder <https://github.com/Tingliangstu/pySED/tree/main/example/MoS2_gpumd>`_)
+  - Out-of-plane math:`\mathrm{MoS_2}` (`MoS2 Example Folder <https://github.com/Tingliangstu/pySED/tree/main/example/MoS2_gpumd>`_)
 
 - **Purpose**: Learn how to analyze SED for two-dimensional materials.
 
