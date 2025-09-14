@@ -10,7 +10,7 @@ Recommended Starting Point
 
 We recommend beginning with the following example:
 
-- **Material**: math:`\mathrm{MoS_2}`
+- **Material**: :math:`\text{MoS}_2`
 - **Purpose**: Demonstrates how to generate SED data using pySED and GPUMD.
 - **Link**: `MoS2 SED Example <https://github.com/Tingliangstu/pySED/tree/main/example/MoS2_gpumd>`_
 
@@ -33,7 +33,7 @@ The examples are organized by material dimensionality.
 
 - **Examples**:
   - In-plane Graphene (`Graphene Example Folder <https://github.com/Tingliangstu/pySED/tree/main/example/In_plane_graphene_gpumd>`_)
-  - Out-of-plane math:`\mathrm{MoS_2}` (`MoS2 Example Folder <https://github.com/Tingliangstu/pySED/tree/main/example/MoS2_gpumd>`_)
+  - Out-of-plane :math:`\text{MoS}_2` (`MoS2 Example Folder <https://github.com/Tingliangstu/pySED/tree/main/example/MoS2_gpumd>`_)
 
 - **Purpose**: Learn how to analyze SED for two-dimensional materials.
 

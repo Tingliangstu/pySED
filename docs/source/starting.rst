@@ -16,10 +16,10 @@ For GPUMD users, we recommend starting with the :math:`\text{MoS}_2` example.
 This case is well-integrated with the latest version of pySED and serves as a comprehensive guide.
 
 - Example folder:  
-  `MoS? SED Example <https://github.com/Tingliangstu/pySED/tree/main/example/MoS2_gpumd>`_
+  `:math:`\text{MoS}_2` SED Example <https://github.com/Tingliangstu/pySED/tree/main/example/MoS2_gpumd>`_
 
 - Jupyter tutorial:  
-  `MoS? Tutorial Notebook <https://github.com/Tingliangstu/pySED/blob/main/example/tutorials/MoS2/SED_MoS2.ipynb>`_
+  `:math:`\text{MoS}_2` Tutorial Notebook <https://github.com/Tingliangstu/pySED/blob/main/example/tutorials/MoS2/SED_MoS2.ipynb>`_
 
 **Required GPUMD input format:**
 
