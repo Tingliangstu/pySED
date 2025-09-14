@@ -32,8 +32,8 @@ The examples are organized by material dimensionality.
 ~~~~~~~~~~
 
 - **Examples**:
-  - In-plane Graphene (`Graphene Example Folder <https://github.com/Tingliangstu/pySED/tree/main/example/In_plane_graphene_gpumd>`_)
-  - Out-of-plane :math:`\text{MoS}_2` (`MoS2 Example Folder <https://github.com/Tingliangstu/pySED/tree/main/example/MoS2_gpumd>`_)
+  In-plane Graphene (`Graphene Example Folder <https://github.com/Tingliangstu/pySED/tree/main/example/In_plane_graphene_gpumd>`_).
+  And Out-of-plane :math:`\text{MoS}_2` (`MoS2 Example Folder <https://github.com/Tingliangstu/pySED/tree/main/example/MoS2_gpumd>`_)
 
 - **Purpose**: Learn how to analyze SED for two-dimensional materials.
 
