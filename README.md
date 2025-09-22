@@ -30,9 +30,14 @@ pip install .
 python setup.py install --user --prefix=
 ```
 
+3) If one prefers a one-line installation without cloning manually:
+```bash
+pip install git+https://github.com/Tingliangstu/pySED.git
+```
+
 For convenience, you may want to copy (or link) the files inside scripts folder to a location included in $PATH environment variable.
 
-3) Verify installation
+4) Verify installation
 ```bash
 pySED -h
 ```
