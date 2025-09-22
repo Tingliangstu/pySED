@@ -60,7 +60,7 @@ def main():
 
         If no input_file is given, defaults to `input_SED.in` in current directory.
         
-    REFERENCE:
+    REFERENCES:
     [1] Journal of Applied Physics 138, 075101 (2025).
         https://doi.org/10.1063/5.0215411
         
