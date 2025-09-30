@@ -38,7 +38,6 @@ class structure_maker(object):
 
         else:
             structure = read_structure.read_from_file_structure_poscar(file_name=self.input_structure)
-            self.cell = structure['direct_cell']
 
         self.unitcell_positions = structure['positions']
         self.cell = structure['cell']
