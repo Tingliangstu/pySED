@@ -6,6 +6,7 @@
 '''
 
 import numpy as np
+import sys
 from pySED.structure import read_structure
 
 class structure_maker(object):
@@ -27,20 +28,20 @@ class structure_maker(object):
         self.input_structure = structure_file_name
 
         if self.lammps_data_flag:
-            structure = read_structure.get_structure_from_lammps(self.lammps_infile_name)
-            self.unitcell_positions = structure['positions']
-            self.cell = structure['cell']
+            if self.lammpsInfile is None:
+                print('*********** [ERROR] LAMMPS infile required! **********')
+                sys.exit(1)
+            structure = read_structure.get_structure_from_lammps(self.lammpsInfile, show_log=False)
+
+        elif self.input_structure.endswith('.xyz'):
+            structure = read_structure.read_from_file_structure_xyz(file_name=self.input_structure)
 
         else:
             structure = read_structure.read_from_file_structure_poscar(file_name=self.input_structure)
-            self.unitcell_positions = structure['scaled_positions']
             self.cell = structure['direct_cell']
-            # *********************** For VASP POSCAR *******************
-            for i in range(self.unitcell_positions.shape[0]):
-                self.unitcell_positions[i, :] = (
-                        self.unitcell_positions[i, 0] * self.cell[0, :] +
-                        self.unitcell_positions[i, 1] * self.cell[1, :] +
-                        self.unitcell_positions[i, 2] * self.cell[2, :])
+
+        self.unitcell_positions = structure['positions']
+        self.cell = structure['cell']
 
         self.unitcell_num_atoms = self.unitcell_positions.shape[0]
 
@@ -109,14 +110,27 @@ class structure_maker(object):
 
         print(f'\n************* {filename} is written successfully ************\n')
 
-    def write_lammps_data(self, file_name='lammps_data', lammps_data_types=None):
+    def write_lammps_data(self, file_name='lammps_data', lammps_data_types=None, atom_order=None):
 
         # Get lammps data boundary
         xhi, yhi, zhi, xy, xz, yz = self.calculate_lattice_parameters(self.cell, self.supercell)
         xlo, ylo, zlo = 0.0, 0.0, 0.0
 
         # For atom types
-        self.unique_types = list(np.unique(self.basis_atoms_symbols))
+        if atom_order is not None:
+            # Convert basis_atoms_symbols to a plain set of strings
+            missing = set(map(str, self.basis_atoms_symbols)) - set(map(str, atom_order))
+            if missing:
+                missing_str = ", ".join(missing)
+                raise ValueError(
+                    f"\n**************** The 'atom_order' list is missing the following atom types: {missing_str}. ****************\n"
+                    f"************* Please check your 'atom_order' and make sure all species are included. ************\n"
+                )
+            self.unique_types = list(atom_order)
+
+        else:
+            self.unique_types = list(np.unique(self.basis_atoms_symbols))
+
         self.masses_for_lammps_output = [read_structure.symbol_to_mass(i) for i in self.unique_types]
 
         self.num_types = len(self.unique_types)
@@ -128,11 +142,11 @@ class structure_maker(object):
 
         elif lammps_data_types is not None:
             self.unit = lammps_data_types
-            print('************* Lammps data is for {0} units *************'.format(self.unit))
+            print('\n************* Lammps data is for {0} units *************'.format(self.unit))
 
         else:
             self.unit = 'real'
-            print('*********** Lammps data units is {0} (using the default unit) *************'.format(self.unit))
+            print('\n*********** Lammps data units is {0} (using the default unit) *************'.format(self.unit))
 
         # write to file
         with open(file_name, 'w') as fid:
