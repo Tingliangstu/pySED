@@ -1,6 +1,6 @@
 """
 @author: Togo (here use for pySED)
-                    Get from phonopy's atom.py
+Get from phonopy's atom.py
 ************************ 2021/4/22 22:40:19 *********************
 """
 
