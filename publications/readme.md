@@ -4,11 +4,13 @@
 
 * Ting Liang, Ke Xu, Penghua Ying, Wenwu Jiang, Meng Han, Xin Wu, Wengen Ouyang, Yimin Yao, Xiaoliang Zeng, Zhenqiang Ye, Zheyong Fan, Jianbin Xu, [Probing the ideal limit of interfacial thermal conductance in two-dimensional van der Waals heterostructures](https://arxiv.org/abs/2502.13601)
 
-## 2025 (6)
+## 2025 (9)
 
-* DaiJi Tang, YuTao Liu, Han Song, Cheng Deng, Mengyuan Liu, TingHong Gao, Yongchao Liang, Qingquan Xiao, Yunjun Ruan, [Neuroevolution Potential-Driven Accurate and Efficient Discovery of Graphene/GaN Heterojunctions: From Ballistic-Diffusive Transition to Thermal Conductivity Enhancement](https://doi.org/10.1016/j.physe.2025.116363), Physica E: Low-dimensional Systems and Nanostructures. (2025)
+* Lei Zhang, Fei Tian, Ke Chen, Zhongbo Yan, Kun Cao, [Uniaxial stress tuning of interfacial thermal conductance in cubic BAs/4H-SiC heterostructures](https://journals.aps.org/prmaterials/abstract/10.1103/12z6-4kj4), Physical Review Materials, **9**, 094604 (2025)
 
-* Yuan Li, Kaibin Xiong, Yongxiao Qu, Xiaoyu Shi, Zhisen Zhang, Jianyang Wu, [Effects of guest molecular occupancy and electric field on thermal conductivity of CO<sub>2</sub> hydrates](https://doi.org/10.1063/5.0286293), Journal of Chemical Physics. **163**, 084504 (2025)
+* DaiJi Tang, YuTao Liu, Han Song, Cheng Deng, Mengyuan Liu, TingHong Gao, Yongchao Liang, Qingquan Xiao, Yunjun Ruan, [Neuroevolution Potential-Driven Accurate and Efficient Discovery of Graphene/GaN Heterojunctions: From Ballistic-Diffusive Transition to Thermal Conductivity Enhancement](https://doi.org/10.1016/j.physe.2025.116363), Physica E: Low-dimensional Systems and Nanostructures, **175**, 116363 (2025)
+
+* Yuan Li, Kaibin Xiong, Yongxiao Qu, Xiaoyu Shi, Zhisen Zhang, Jianyang Wu, [Effects of guest molecular occupancy and electric field on thermal conductivity of CO<sub>2</sub> hydrates](https://doi.org/10.1063/5.0286293), Journal of Chemical Physics, **163**, 084504 (2025)
 
 * Wenwu Jiang, Ting Liang, Jianbin Xu, Wengen Ouyang, [Strain-Engineered Anisotropic Thermal Transport in Layered MoS<sub>2</sub> Structures](https://pubs.acs.org/doi/full/10.1021/acsami.5c06264), ACS Applied Materials \& Interfaces, **17**, 34833 (2025)
 
