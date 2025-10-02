@@ -29,7 +29,7 @@ class get_parse_input(object):
             'lorentz', 'if_show_figures', 're_output_total_freq_lifetime',
             'peak_height', 'peak_prominence', 'initial_guess_hwhm',
             'peak_max_hwhm', 'lorentz_fit_cutoff', 'modulate_factor',
-            'lorentz_fit_all_qpoint', 'with_eigs'
+            'lorentz_fit_all_qpoint', 'with_eigs', 'plot_color', 'colorbar_min', 'colorbar_max'
         }
 
         ## ************ Control parameters ************
@@ -59,12 +59,18 @@ class get_parse_input(object):
         self.max_cores = 4               # Means use the max cores in one's machine
 
         # Plot and lorentz fitting
+        self.plot_SED = 0
+        self.plot_slice = 0
+        self.q_slice_index = 0
         self.plot_lorentz = False
         self.plot_cutoff_freq = None
         self.plot_interval = 5                       # Thz
         self.lorentz_fit_cutoff = None
+        self.plot_color = 'RdBu_r'                   # SED plot color map
+        self.colorbar_min  = None                    # SED plot colorbar min
+        self.colorbar_max  = None                    # SED plot colorbar max
         self.modulate_factor = 0
-        self.initial_guess_hwhm = 0.001               # default
+        self.initial_guess_hwhm = 0.001              # default
         self.peak_max_hwhm = 1e6                     # default
         self.re_output_total_freq_lifetime = 0       # default
         self.lorentz_fit_all_qpoint = 0              # default
@@ -349,6 +355,24 @@ class get_parse_input(object):
                     self.lorentz_fit_all_qpoint = bool(int(txt[txt.index('=') + 1]))
                 except:
                     print_error('lorentz_fit_all_qpoint', input_file)
+
+            elif txt[0] == 'plot_color':
+                try:
+                    self.plot_color = str(txt[txt.index('=') + 1].strip('\'"'))
+                except:
+                    print_error('plot_color', input_file)
+
+            elif txt[0] == 'colorbar_min':
+                try:
+                    self.colorbar_min = float(txt[txt.index('=') + 1])
+                except:
+                    print_error('colorbar_min', input_file)
+
+            elif txt[0] == 'colorbar_max':
+                try:
+                    self.colorbar_max = float(txt[txt.index('=') + 1])
+                except:
+                    print_error('colorbar_max', input_file)
 
 if __name__ == "__main__":
 

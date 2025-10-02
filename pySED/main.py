@@ -60,7 +60,7 @@ def main():
 
         If no input_file is given, defaults to `input_SED.in` in current directory.
         
-    REFERENCES:
+    REFERENCE:
     [1] Journal of Applied Physics 138, 075101 (2025).
         https://doi.org/10.1063/5.0215411
         
@@ -107,7 +107,7 @@ def main():
     ────────────────────────────────────────────────────────────
     [ Crystal Structure ]
         prim_unitcell           : Primitive unit cell parameters, one can check it use ovito (POSCAR).
-        supercell_dim           : Supercell dimensions. Default = [1,1,1]. Tips: the larger the supercell, the denser the commensurate q-point sampling.
+        supercell_dim           : Supercell dimensions. Tips: the larger the supercell, the denser the commensurate q-point sampling.
         rescale_prim            : Rescale primitive cell (1=yes, 0=no). Default = 1. Tips: for structural optimization using the NPT ensemble.
 
     ────────────────────────────────────────────────────────────
@@ -121,7 +121,10 @@ def main():
         plot_SED                : Plot/fitting mode (1) or compute mode (0). Default: plot_SED = 0.
         plot_cutoff_freq        : Max frequency for plot (THz). Default = None. Tips: if None, the max frequency is the max frequency in the SED data.
         plot_interval           : y-axis tick interval (THz). Default = 5.
-        qpoint_slice_index      : Index of q-point for single plot. Tips: start from 0.
+        plot_color              : SED plot color. Tips: Support 'RdBu_r', 'jet', 'Spectral' and so on. Check matplotlib colormap for more options.
+        colorbar_min            : Colorbar minimum value (log scale). Inspect the initial SED output plot to adjust values for optimal contrast.
+        colorbar_max            : Colorbar maximum value (log scale). Inspect the initial SED output plot to adjust values for optimal contrast.
+        qpoint_slice_index      : Index of q-point for single plot. Default = 0. Tips: set qpoint_slice_index = 0 to plot the first q-point.
         plot_slice              : Plot q-slice (1=yes, 0=no). Default = 0.
         if_show_figures         : Show figures on screen. Default = 0.
 

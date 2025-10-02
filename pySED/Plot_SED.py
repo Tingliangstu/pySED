@@ -24,7 +24,7 @@ def plot_bands(data, params):
     q_labels = data.q_labels
 
     # ******************** Control plotting params ********************
-    color = 'RdBu_r'                        # 'jet', 'inferno'
+    color = params.plot_color               # 'inferno', 'RdBu_r', 'jet', 'Spectral', 'RdYlGn' (https://matplotlib.org/stable/tutorials/colors/colormaps.html)
     interp = 'hanning'                      # 'hanning'
     df = params.plot_interval               # Scale interval for drawing
 
@@ -32,12 +32,14 @@ def plot_bands(data, params):
     max_thz = max(thz)
     max_sed_y = np.size(sed_avg, 0)
     scale_factor = max_sed_y / max_thz
-    vmin = None   # -8 for test
-    vmax = None   # -20 for test
+    
+    vmin = params.colorbar_min                  # -8 for test
+    vmax = params.colorbar_max                  # -20 for test
 
     # ******************** Whether to apply log scaling data ********************
     sed_avg = np.log(sed_avg)
-    ### ******************** Creat a figure, set its size ********************
+    
+    # ************************ Creat a figure, set its size *********************
 
     fig, ax = plt.subplots()
     fig.set_size_inches(5.5+(params.num_qpaths/2-0.5), 5)  # Control the size of the output image
@@ -47,28 +49,44 @@ def plot_bands(data, params):
     if not vmax:
         vmax = np.trunc(sed_avg.max())
 
-    #levels = np.linspace(vmin, vmax, 500)
+    # Refined section: Print custom messages with override tips
+    if params.colorbar_min is not None:
+        print(f"****** User-defined minimum value for SED colorbar (vmin, log scale): 🚀 {vmin} 🚀 *****\n")
+    else:
+        print(
+            f"*****  pySED-judged minimum value for SED colorbar (vmin, log scale): 🚀 {vmin} 🚀 *****\n"
+            f"*** User can check the SED output plot first, then fine-tune via \"colorbar_min\"! 📈 ***\n")
+
+    if params.colorbar_max is not None:
+        print(f"****** User-defined maximum value for SED colorbar (vmax, log scale): 🚀 {vmax} 🚀 *****")
+    else:
+        print(
+            f"*****  pySED-judged maximum value for SED colorbar (vmax, log scale): 🚀 {vmax} 🚀 *****\n"
+            f"*** User can check the SED output plot first, then fine-tune via \"colorbar_max\"! 📈 ***")
 
     """
-    #Choose the plotting method based on the number of qpaths
-    Set yticks (This part of the code is redundant, maybe I will remove the params.num_qpaths == 1,
-     for now just to better repeat the previous results.)
+    Choose the plotting method based on the number of qpaths
+    Set yticks (This part of the code is redundant, maybe I will remove the params.num_qpaths == 1, for now just to better repeat the previous results.)
     """
     if params.num_qpaths > 1 or params.use_contourf:
-        im = ax.contourf(q_distances, thz, sed_avg, cmap=color, levels=350, vmin=vmin, vmax=vmax)
+
+        sed_avg = np.clip(sed_avg, vmin, vmax)
+        levels = np.linspace(vmin, vmax, 350)
+    	  
+        im = ax.contourf(q_distances, thz, sed_avg, cmap=color, levels=levels, vmin=vmin, vmax=vmax)
+        
         # Draw vertical grey lines for q_labels (excluding endpoints)
         keys = list(q_labels.keys())
         for x in keys[1:-1]:            # Exclude first and last points
             ax.axvline(x, color='grey', linestyle='--', linewidth=0.8)
 
     else:
-        print("You are using \"imshow\" method for SED plotting since single Qpaths, "
-              "it can be change to \"contourf\" by setting \"use_contourf = 1\" in the input.in.")
+        print("\n********* You are using \"imshow\" method for SED plotting since single Qpaths. *********\n"
+              "**** It can be change to \"contourf\" by setting \"use_contourf = 1\" in the input.in. ****")
         im = ax.imshow(sed_avg, cmap=color, interpolation=interp, aspect='auto', origin='lower', vmax=vmax, vmin=vmin)
 
     # colarbar
-    #ticks = np.arange(vmin, vmax+0.01, 2)
-    ticks = np.arange(vmin, vmax, 2)
+    ticks = np.arange(vmin, vmax+0.01, 2)
     bar = fig.colorbar(im, ax=ax)
     bar.set_ticks(ticks)
     bar.set_ticklabels([str(int(t)) for t in ticks])
