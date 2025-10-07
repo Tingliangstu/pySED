@@ -4,7 +4,9 @@
 
 * Ting Liang, Ke Xu, Penghua Ying, Wenwu Jiang, Meng Han, Xin Wu, Wengen Ouyang, Yimin Yao, Xiaoliang Zeng, Zhenqiang Ye, Zheyong Fan, Jianbin Xu, [Probing the ideal limit of interfacial thermal conductance in two-dimensional van der Waals heterostructures](https://arxiv.org/abs/2502.13601)
 
-## 2025 (9)
+## 2025 (10)
+
+* Youtong Su, Shihan Yan, Kai Ren, Wenwu Jiang, Huasong Qin, [Optical phonon-driven modulation of interlayer thermal transport in stacked diamane](http://dx.doi.org/10.1063/5.0294012), Applied Physics Letters, **127**, 143101 (2025)
 
 * Lei Zhang, Fei Tian, Ke Chen, Zhongbo Yan, Kun Cao, [Uniaxial stress tuning of interfacial thermal conductance in cubic BAs/4H-SiC heterostructures](https://journals.aps.org/prmaterials/abstract/10.1103/12z6-4kj4), Physical Review Materials, **9**, 094604 (2025)
 
