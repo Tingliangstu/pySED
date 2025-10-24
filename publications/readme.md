@@ -4,7 +4,9 @@
 
 * Ting Liang, Ke Xu, Penghua Ying, Wenwu Jiang, Meng Han, Xin Wu, Wengen Ouyang, Yimin Yao, Xiaoliang Zeng, Zhenqiang Ye, Zheyong Fan, Jianbin Xu, [Probing the ideal limit of interfacial thermal conductance in two-dimensional van der Waals heterostructures](https://arxiv.org/abs/2502.13601)
 
-## 2025 (10)
+## 2025 (11)
+
+* Kaibin Xiong, Yuan Li, Ziyan Lin, Gaoyang Luo, Jianyang Wu, [Machine learning potential insights into mechanical response and heat transfer in CO<sub>2</sub> hydrate](https://doi.org/10.46690/ager.2025.10.04), Advances in Geo-Energy Research, **18**, 38 (2025)
 
 * Youtong Su, Shihan Yan, Kai Ren, Wenwu Jiang, Huasong Qin, [Optical phonon-driven modulation of interlayer thermal transport in stacked diamane](http://dx.doi.org/10.1063/5.0294012), Applied Physics Letters, **127**, 143101 (2025)
 
