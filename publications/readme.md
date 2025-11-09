@@ -4,6 +4,10 @@
 
 * Ting Liang, Ke Xu, Penghua Ying, Wenwu Jiang, Meng Han, Xin Wu, Wengen Ouyang, Yimin Yao, Xiaoliang Zeng, Zhenqiang Ye, Zheyong Fan, Jianbin Xu, [Probing the ideal limit of interfacial thermal conductance in two-dimensional van der Waals heterostructures](https://arxiv.org/abs/2502.13601)
 
+## 2026 (1)
+
+* Wenwu Jiang, Hekai Bu, Kun Zhang, Bozhao Wu, Wengen Ouyang, [Chirality-dependent strain modulation of thermal conductivity in double-walled molybdenum disulfide nanotubes](https://doi.org/10.1016/j.icheatmasstransfer.2025.109935), International Communications in Heat and Mass Transfer, **170**, 109935 (2026)
+
 ## 2025 (11)
 
 * Kaibin Xiong, Yuan Li, Ziyan Lin, Gaoyang Luo, Jianyang Wu, [Machine learning potential insights into mechanical response and heat transfer in CO<sub>2</sub> hydrate](https://doi.org/10.46690/ager.2025.10.04), Advances in Geo-Energy Research, **18**, 38 (2025)
