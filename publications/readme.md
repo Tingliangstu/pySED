@@ -8,7 +8,9 @@
 
 * Wenwu Jiang, Hekai Bu, Kun Zhang, Bozhao Wu, Wengen Ouyang, [Chirality-dependent strain modulation of thermal conductivity in double-walled molybdenum disulfide nanotubes](https://doi.org/10.1016/j.icheatmasstransfer.2025.109935), International Communications in Heat and Mass Transfer, **170**, 109935 (2026)
 
-## 2025 (11)
+## 2025 (12)
+
+* Kaibin Xiong, Yuan Li, Ziyan Lin, Gaoyang Luo, Jianyang Wu, [Phonon bottleneck in methane clathrate hydrate from machine learning molecular dynamics](https://doi.org/10.1016/j.ces.2025.122955), Chemical Engineering Science, **9**, 122955 (2025)
 
 * Kaibin Xiong, Yuan Li, Ziyan Lin, Gaoyang Luo, Jianyang Wu, [Machine learning potential insights into mechanical response and heat transfer in CO<sub>2</sub> hydrate](https://doi.org/10.46690/ager.2025.10.04), Advances in Geo-Energy Research, **18**, 38 (2025)
 
