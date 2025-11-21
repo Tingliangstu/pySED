@@ -4,7 +4,9 @@
 
 * Ting Liang, Ke Xu, Penghua Ying, Wenwu Jiang, Meng Han, Xin Wu, Wengen Ouyang, Yimin Yao, Xiaoliang Zeng, Zhenqiang Ye, Zheyong Fan, Jianbin Xu, [Probing the ideal limit of interfacial thermal conductance in two-dimensional van der Waals heterostructures](https://arxiv.org/abs/2502.13601)
 
-## 2026 (1)
+## 2026 (2)
+
+* Biao Wang, Cun Zhang, Kunpeng Yuan, Xiaoliang Zhang, [Wrinkle-induced reversible modulation of thermal transport in multi-walled carbon nanotubes: A non-equilibrium molecular dynamics study](https://doi.org/10.1016/j.ijthermalsci.2025.110484), International Journal of Thermal Sciences, **221**, 110484 (2026)
 
 * Wenwu Jiang, Hekai Bu, Kun Zhang, Bozhao Wu, Wengen Ouyang, [Chirality-dependent strain modulation of thermal conductivity in double-walled molybdenum disulfide nanotubes](https://doi.org/10.1016/j.icheatmasstransfer.2025.109935), International Communications in Heat and Mass Transfer, **170**, 109935 (2026)
 
