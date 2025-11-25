@@ -10,7 +10,9 @@
 
 * Wenwu Jiang, Hekai Bu, Kun Zhang, Bozhao Wu, Wengen Ouyang, [Chirality-dependent strain modulation of thermal conductivity in double-walled molybdenum disulfide nanotubes](https://doi.org/10.1016/j.icheatmasstransfer.2025.109935), International Communications in Heat and Mass Transfer, **170**, 109935 (2026)
 
-## 2025 (12)
+## 2025 (13)
+
+* Niu, Jiale and Ye, Zhenqiang and Deng, Junyang and Zhang, Mingdong and Chen, Guangming, [Black Phosphorus@MXene Heterojunction-Engineered Carbon Nanotube Thermoelectric Films with Synergistic Energy Filtering and Phonon Scattering Effects](https://onlinelibrary.wiley.com/doi/abs/10.1002/smll.202512596), Small, **1**, e12596 (2025)
 
 * Kaibin Xiong, Yuan Li, Ziyan Lin, Gaoyang Luo, Jianyang Wu, [Phonon bottleneck in methane clathrate hydrate from machine learning molecular dynamics](https://doi.org/10.1016/j.ces.2025.122955), Chemical Engineering Science, **9**, 122955 (2025)
 
