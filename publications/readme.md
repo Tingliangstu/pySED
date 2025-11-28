@@ -12,9 +12,9 @@
 
 ## 2025 (14)
 
-* Zhang, Wei and Gao, Tinghong and Liu, Yutao and Shen, Guofa and Wang, Bei and Zhu, Zhongzhong and Huang, Jin and Zhang, Shipeng and Li, Shuang, [Thermal Conductivity Modulation in Carbon Nanotubes via Silicon Nanowire Encapsulation Investigated Using Neuroevolution Potential](https://doi.org/10.1002/adts.202501834), Advanced Theory and Simulations, **1**, e01834 (2025)
+* Wei Zhang, Tinghong Gao, Yutao Liu, Guofa Shen, Bei Wang, Zhongzhong Zhu, Jin Huang, Shipeng Zhang, Shuang Li, [Thermal Conductivity Modulation in Carbon Nanotubes via Silicon Nanowire Encapsulation Investigated Using Neuroevolution Potential](https://doi.org/10.1002/adts.202501834), Advanced Theory and Simulations, **1**, e01834 (2025)
 
-* Niu, Jiale and Ye, Zhenqiang and Deng, Junyang and Zhang, Mingdong and Chen, Guangming, [Black Phosphorus@MXene Heterojunction-Engineered Carbon Nanotube Thermoelectric Films with Synergistic Energy Filtering and Phonon Scattering Effects](https://onlinelibrary.wiley.com/doi/abs/10.1002/smll.202512596), Small, **1**, e12596 (2025)
+* Jiale Niu, Zhenqiang Ye, Junyang Deng, Mingdong Zhang, Guangming Chen, [Black Phosphorus@MXene Heterojunction-Engineered Carbon Nanotube Thermoelectric Films with Synergistic Energy Filtering and Phonon Scattering Effects](https://onlinelibrary.wiley.com/doi/abs/10.1002/smll.202512596), Small, **1**, e12596 (2025)
 
 * Kaibin Xiong, Yuan Li, Ziyan Lin, Gaoyang Luo, Jianyang Wu, [Phonon bottleneck in methane clathrate hydrate from machine learning molecular dynamics](https://doi.org/10.1016/j.ces.2025.122955), Chemical Engineering Science, **9**, 122955 (2025)
 
