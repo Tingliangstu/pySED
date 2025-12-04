@@ -4,7 +4,9 @@
 
 * Ting Liang, Ke Xu, Penghua Ying, Wenwu Jiang, Meng Han, Xin Wu, Wengen Ouyang, Yimin Yao, Xiaoliang Zeng, Zhenqiang Ye, Zheyong Fan, Jianbin Xu, [Probing the ideal limit of interfacial thermal conductance in two-dimensional van der Waals heterostructures](https://arxiv.org/abs/2502.13601)
 
-## 2026 (2)
+## 2026 (3)
+
+* Yahao Wang, Yingguang Liu, Haochen Liu, Cheng Zhang, Ning Wu, [Study on the phonon transport in double-walled nanotubes with superlattice structures](https://doi.org/10.1016/j.icheatmasstransfer.2025.110143), International Communications in Heat and Mass Transfer, **171**, 110143 (2026)
 
 * Biao Wang, Cun Zhang, Kunpeng Yuan, Xiaoliang Zhang, [Wrinkle-induced reversible modulation of thermal transport in multi-walled carbon nanotubes: A non-equilibrium molecular dynamics study](https://doi.org/10.1016/j.ijthermalsci.2025.110484), International Journal of Thermal Sciences, **221**, 110484 (2026)
 
