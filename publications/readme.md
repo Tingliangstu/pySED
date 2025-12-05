@@ -4,7 +4,9 @@
 
 * Ting Liang, Ke Xu, Penghua Ying, Wenwu Jiang, Meng Han, Xin Wu, Wengen Ouyang, Yimin Yao, Xiaoliang Zeng, Zhenqiang Ye, Zheyong Fan, Jianbin Xu, [Probing the ideal limit of interfacial thermal conductance in two-dimensional van der Waals heterostructures](https://arxiv.org/abs/2502.13601)
 
-## 2026 (3)
+## 2026 (4)
+
+* Zhicheng Zong, Yangjun Qin, Jiahong Zhan, Haisheng Fang, Nuo Yang, [Machine learning potential for predicting thermal conductivity of θ-phase and amorphous tantalum nitride](https://doi.org/10.1016/j.ijheatmasstransfer.2025.128155), International Journal of Heat and Mass Transfer, **257**, 128155 (2026)
 
 * Yahao Wang, Yingguang Liu, Haochen Liu, Cheng Zhang, Ning Wu, [Study on the phonon transport in double-walled nanotubes with superlattice structures](https://doi.org/10.1016/j.icheatmasstransfer.2025.110143), International Communications in Heat and Mass Transfer, **171**, 110143 (2026)
 
