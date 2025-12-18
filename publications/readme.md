@@ -16,7 +16,9 @@
 
 * Wenwu Jiang, Hekai Bu, Kun Zhang, Bozhao Wu, Wengen Ouyang, [Chirality-dependent strain modulation of thermal conductivity in double-walled molybdenum disulfide nanotubes](https://doi.org/10.1016/j.icheatmasstransfer.2025.109935), International Communications in Heat and Mass Transfer, **170**, 109935 (2026)
 
-## 2025 (14)
+## 2025 (15)
+
+* Kaibin Xiong, Yuan Li, Ziyan Lin, Gaoyang Luo, Jianyang Wu, [Phonon-Mediated Heat Transport in CO<sub>2</sub> Hydrate](https://pubs.acs.org/action/showCitFormats?doi=10.1021/acs.jpca.5c06498&ref=pdf),The Journal of Physical Chemistry A, ASAP, (2025)
 
 * Wei Zhang, Tinghong Gao, Yutao Liu, Guofa Shen, Bei Wang, Zhongzhong Zhu, Jin Huang, Shipeng Zhang, Shuang Li, [Thermal Conductivity Modulation in Carbon Nanotubes via Silicon Nanowire Encapsulation Investigated Using Neuroevolution Potential](https://doi.org/10.1002/adts.202501834), Advanced Theory and Simulations, **1**, e01834 (2025)
 
