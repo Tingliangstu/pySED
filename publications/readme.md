@@ -6,7 +6,9 @@
 
 * Ting Liang, Ke Xu, Penghua Ying, Wenwu Jiang, Meng Han, Xin Wu, Wengen Ouyang, Yimin Yao, Xiaoliang Zeng, Zhenqiang Ye, Zheyong Fan, Jianbin Xu, [Probing the ideal limit of interfacial thermal conductance in two-dimensional van der Waals heterostructures](https://arxiv.org/abs/2502.13601)
 
-## 2026 (4)
+## 2026 (5)
+
+* Xinyuan Ma, Peng-Hu Du, Chenxin Zhang, Qing Zhang, Qian Wang, [Ultralow and Twist-Tolerant Thermal Conductivity in Two-Dimensional Pentagonal Covalent Organic Frameworks](https://pubs.acs.org/doi/10.1021/acsnano.5c12577), ACS Nano (2026).
 
 * Zhicheng Zong, Yangjun Qin, Jiahong Zhan, Haisheng Fang, Nuo Yang, [Machine learning potential for predicting thermal conductivity of θ-phase and amorphous tantalum nitride](https://doi.org/10.1016/j.ijheatmasstransfer.2025.128155), International Journal of Heat and Mass Transfer, **257**, 128155 (2026)
 
