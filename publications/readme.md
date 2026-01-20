@@ -1,14 +1,16 @@
 # Publications using pySED
 
-## Preprints (2)
+## Preprints (1)
 
 * Xin Wu, Ting Liang, Weitao Wang, Jiangjiang Ma, Zheyong Fan, Jianbin Xu, Sebastian Volz, Masahiro Nomura, [Data-driven flipping engineering for high thermal anisotropy](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5864374)
 
-* Ting Liang, Ke Xu, Penghua Ying, Wenwu Jiang, Meng Han, Xin Wu, Wengen Ouyang, Yimin Yao, Xiaoliang Zeng, Zhenqiang Ye, Zheyong Fan, Jianbin Xu, [Probing the ideal limit of interfacial thermal conductance in two-dimensional van der Waals heterostructures](https://arxiv.org/abs/2502.13601)
+## 2026 (8)
 
-## 2026 (5)
+* Ting Liang, Ke Xu, Penghua Ying, Wenwu Jiang, Meng Han, Xin Wu, Wengen Ouyang, Yimin Yao, Xiaoliang Zeng, Zhenqiang Ye, Zheyong Fan, Jianbin Xu, [Probing the ideal limit of interfacial thermal conductance in two-dimensional van der Waals heterostructures](https://www.nature.com/articles/s41524-025-01885-y), npj Computational Materials, **12**, 11, (2026).
 
-* Xinyuan Ma, Peng-Hu Du, Chenxin Zhang, Qing Zhang, Qian Wang, [Ultralow and Twist-Tolerant Thermal Conductivity in Two-Dimensional Pentagonal Covalent Organic Frameworks](https://pubs.acs.org/doi/10.1021/acsnano.5c12577), ACS Nano (2026).
+* Xianteng Zhou, Chaokun Guo, Zhen Yang, Yuanji Xu, Hongquan Song, De-Ye Lin, Fuyang Tian, [Vacancy-induced mechanism on deformation and thermal conductivity in medium-entropy carbides with typical grain boundaries](https://doi.org/10.1016/j.mtphys.2026.102025), Materials Today Physics, **61**, 102025, (2026).
+
+* Xinyuan Ma, Peng-Hu Du, Chenxin Zhang, Qing Zhang, Qian Wang, [Ultralow and Twist-Tolerant Thermal Conductivity in Two-Dimensional Pentagonal Covalent Organic Frameworks](https://pubs.acs.org/doi/10.1021/acsnano.5c12577), ACS Nano, **20**, 349, (2026).
 
 * Zhicheng Zong, Yangjun Qin, Jiahong Zhan, Haisheng Fang, Nuo Yang, [Machine learning potential for predicting thermal conductivity of θ-phase and amorphous tantalum nitride](https://doi.org/10.1016/j.ijheatmasstransfer.2025.128155), International Journal of Heat and Mass Transfer, **257**, 128155 (2026)
 
@@ -18,13 +20,13 @@
 
 * Wenwu Jiang, Hekai Bu, Kun Zhang, Bozhao Wu, Wengen Ouyang, [Chirality-dependent strain modulation of thermal conductivity in double-walled molybdenum disulfide nanotubes](https://doi.org/10.1016/j.icheatmasstransfer.2025.109935), International Communications in Heat and Mass Transfer, **170**, 109935 (2026)
 
-## 2025 (15)
+* Kaibin Xiong, Yuan Li, Ziyan Lin, Gaoyang Luo, Jianyang Wu, [Phonon-Mediated Heat Transport in CO<sub>2</sub> Hydrate](https://pubs.acs.org/doi/10.1021/acs.jpca.5c06498),The Journal of Physical Chemistry A, **130**, 319 (2026)
 
-* Kaibin Xiong, Yuan Li, Ziyan Lin, Gaoyang Luo, Jianyang Wu, [Phonon-Mediated Heat Transport in CO<sub>2</sub> Hydrate](https://pubs.acs.org/action/showCitFormats?doi=10.1021/acs.jpca.5c06498&ref=pdf),The Journal of Physical Chemistry A, ASAP, (2025)
+## 2025 (14)
 
 * Wei Zhang, Tinghong Gao, Yutao Liu, Guofa Shen, Bei Wang, Zhongzhong Zhu, Jin Huang, Shipeng Zhang, Shuang Li, [Thermal Conductivity Modulation in Carbon Nanotubes via Silicon Nanowire Encapsulation Investigated Using Neuroevolution Potential](https://doi.org/10.1002/adts.202501834), Advanced Theory and Simulations, **1**, e01834 (2025)
 
-* Jiale Niu, Zhenqiang Ye, Junyang Deng, Mingdong Zhang, Guangming Chen, [Black Phosphorus@MXene Heterojunction-Engineered Carbon Nanotube Thermoelectric Films with Synergistic Energy Filtering and Phonon Scattering Effects](https://onlinelibrary.wiley.com/doi/abs/10.1002/smll.202512596), Small, **1**, e12596 (2025)
+* Jiale Niu, Zhenqiang Ye, Junyang Deng, Mingdong Zhang, Guangming Chen, [Black Phosphorus@MXene Heterojunction-Engineered Carbon Nanotube Thermoelectric Films with Synergistic Energy Filtering and Phonon Scattering Effects](https://onlinelibrary.wiley.com/doi/abs/10.1002/smll.202512596), Small, **22**, e12596 (2025)
 
 * Kaibin Xiong, Yuan Li, Ziyan Lin, Gaoyang Luo, Jianyang Wu, [Phonon bottleneck in methane clathrate hydrate from machine learning molecular dynamics](https://doi.org/10.1016/j.ces.2025.122955), Chemical Engineering Science, **9**, 122955 (2025)
 
