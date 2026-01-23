@@ -4,7 +4,9 @@
 
 * Xin Wu, Ting Liang, Weitao Wang, Jiangjiang Ma, Zheyong Fan, Jianbin Xu, Sebastian Volz, Masahiro Nomura, [Data-driven flipping engineering for high thermal anisotropy](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5864374)
 
-## 2026 (8)
+## 2026 (9)
+
+* Yuan Li, Kaibin Xiong, Yongxiao Qu, Gaoyang Luo, Jianyang Wu, Zhisen Zhang, [Phonon-structure interplay in organic hydroquinone CO<sub>2</sub> clathrate via molecular dynamics simulation](https://doi.org/10.1016/j.ces.2026.123384), Chemical Engineering Science, **324**, 123384 (2026)
 
 * Ting Liang, Ke Xu, Penghua Ying, Wenwu Jiang, Meng Han, Xin Wu, Wengen Ouyang, Yimin Yao, Xiaoliang Zeng, Zhenqiang Ye, Zheyong Fan, Jianbin Xu, [Probing the ideal limit of interfacial thermal conductance in two-dimensional van der Waals heterostructures](https://www.nature.com/articles/s41524-025-01885-y), npj Computational Materials, **12**, 11, (2026).
 
