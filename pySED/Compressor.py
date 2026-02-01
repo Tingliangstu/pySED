@@ -10,13 +10,55 @@ import numpy as np
 import os
 from sys import exit
 import re
+import sys
+
+def _read_lammps_block(fin, nblock, num_atoms, data_dtype):
+    vels_block = np.zeros((nblock, num_atoms, 3), dtype=data_dtype)
+    for bi in range(nblock):
+        for _ in range(9):  # Always skip the first nine lines
+            fin.readline()
+        for k in range(num_atoms):
+            vels_block[bi, k, :] = fin.readline().strip().split()[2:]
+    return vels_block
+
+def _read_gpumd_block(fin, nblock, num_atoms, data_dtype):
+    vels_block = np.zeros((nblock, num_atoms, 3), dtype=data_dtype)
+    pos_block = np.zeros((nblock, num_atoms, 3), dtype=data_dtype)
+    for bi in range(nblock):
+        fin.readline()          # Skip number of atoms line
+        fin.readline()          # Skip comment line
+        for k in range(num_atoms):
+            data = fin.readline().strip().split()
+            pos_block[bi, k, :] = data[1:4]
+            vels_block[bi, k, :] = data[4:7]
+    return pos_block, vels_block
+
+def _print_progress(label, current, total):
+    if total <= 0:
+        return
+    percent = int((current / total) * 100)
+    bar_len = 40
+    filled = int(bar_len * percent / 100)
+    bar = "=" * filled + "-" * (bar_len - filled)
+    sys.stdout.write(f"\r{label} [{bar}] {percent}%")
+    sys.stdout.flush()
+    if current >= total:
+        sys.stdout.write("\n")
 
 def compress(params):
     start = time.perf_counter()
     # Now pySED only support lammps or gpumd trajectory, future maybe support AIMD
     num_frame = params.total_num_steps // params.output_data_stride   # number of times actually printed
+    use_float32 = bool(getattr(params, "use_float32", 0))             # default is float64
+    data_dtype = np.float32 if use_float32 else np.float64
+    h5_compression = "lzf"
+    block_size = int(getattr(params, "compress_block_size", 0))
+    if block_size < 1:
+        block_size = max(200, num_frame // 40)
+        block_size = min(block_size, 2000)
 
     box_bounds = []
+
     if params.file_format == 'lammps':
         # check if files exist
         if not os.path.exists(params.vels_file):
@@ -27,7 +69,7 @@ def compress(params):
             exit()
 
         print('\nCompressing velocity and position data into .hdf5 database\n'
-              'This may take a while...\n')
+              'This may take a while ...\n')
 
         # Read box information and number of atoms from the first frame of the position file
         with open(params.pos_file, 'r') as fin:
@@ -102,37 +144,38 @@ def compress(params):
             fout.create_dataset('box', data=box_bounds)  # Store box data
             # For velocity
             with open(params.vels_file, 'r') as fin:
-                vels_dataset = fout.create_dataset('velocity', (num_frame, params.num_atoms,
-                                                                3))  # Initialize the velocity tensor
-                vels = np.zeros((params.num_atoms, 3))
+                vels_dataset = fout.create_dataset(
+                    'velocity',
+                    (num_frame, params.num_atoms, 3),
+                    dtype=data_dtype,
+                    compression=h5_compression,
+                )  # Initialize the velocity tensor
                 # look them up in lammps output file
-                for i in range(num_frame):
-                    for j in range(9):  # Always skip the first nine lines
-                        fin.readline()
-
-                    for k in range(params.num_atoms):
-                        vels[k, :] = fin.readline().strip().split()[2:]
-
-                    vels_dataset[i, :, :] = vels
+                for i0 in range(0, num_frame, block_size):
+                    nblock = min(block_size, num_frame - i0)
+                    vels_block = _read_lammps_block(fin, nblock, params.num_atoms, data_dtype)
+                    vels_dataset[i0:i0 + nblock, :, :] = vels_block
+                    _print_progress("  Compressing lammps velocity", i0 + nblock, num_frame)
             fin.close()
 
             # For positions
             with open(params.pos_file, 'r') as fin:
-                pos_dataset = fout.create_dataset('position', (num_frame, params.num_atoms,
-                                                               3))  # Initialize the velocity tensor
-                pos = np.zeros((params.num_atoms, 3))
+                pos_dataset = fout.create_dataset(
+                    'position',
+                    (num_frame, params.num_atoms, 3),
+                    dtype=data_dtype,
+                    compression=h5_compression,
+                )  # Initialize the velocity tensor
                 # look them up in lammps output file
-                for i in range(num_frame):
-                    for j in range(9):  # Always skip the first nine lines
-                        fin.readline()
-                    for k in range(params.num_atoms):
-                        pos[k, :] = fin.readline().strip().split()[2:]
-
-                    pos_dataset[i, :, :] = pos
+                for i0 in range(0, num_frame, block_size):
+                    nblock = min(block_size, num_frame - i0)
+                    pos_block = _read_lammps_block(fin, nblock, params.num_atoms, data_dtype)
+                    pos_dataset[i0:i0 + nblock, :, :] = pos_block
+                    _print_progress("  Compressing lammps position", i0 + nblock, num_frame)
             fin.close()
 
         fout.close()
-        print('Done compressing {} and {} into .hdf5 format.'
+        print('\nDone compressing {} and {} into .hdf5 format.'
               '\nThe compressed file is \'{}\' (DON\'T CHANGE IT!)\n'
               .format(params.vels_file, params.pos_file, params.output_hdf5))
 
@@ -144,7 +187,7 @@ def compress(params):
             exit()
 
         print('\nCompressing velocity and position data from GPUMD extxyz file into .hdf5 database\n'
-              'This may take a while...\n')
+              'This may take a while ...\n')
 
         with open(params.dump_xyz_file, 'r') as fin:
             first_line = fin.readline()
@@ -169,25 +212,30 @@ def compress(params):
 
         with h5py.File(params.output_hdf5, 'w') as fout:
             fout.create_dataset('box', data=box_bounds)  # Store box data
-            vels_dataset = fout.create_dataset('velocity', (num_frame, params.num_atoms, 3))
-            pos_dataset = fout.create_dataset('position', (num_frame, params.num_atoms, 3))
-            vels = np.zeros((params.num_atoms, 3))
-            pos = np.zeros((params.num_atoms, 3))
+            vels_dataset = fout.create_dataset(
+                'velocity',
+                (num_frame, params.num_atoms, 3),
+                dtype=data_dtype,
+                compression=h5_compression,
+            )
+            pos_dataset = fout.create_dataset(
+                'position',
+                (num_frame, params.num_atoms, 3),
+                dtype=data_dtype,
+                compression=h5_compression,
+            )
             with open(params.dump_xyz_file, 'r') as fin:
-                for i in range(num_frame):
-                    fin.readline()          # Skip number of atoms line
-                    fin.readline()          # Skip comment line
-                    for k in range(params.num_atoms):
-                        data = fin.readline().strip().split()
-                        pos[k, :] = data[1:4]
-                        vels[k, :] = data[4:7]
-                    pos_dataset[i, :, :] = pos
-                    vels_dataset[i, :, :] = vels
+                for i0 in range(0, num_frame, block_size):
+                    nblock = min(block_size, num_frame - i0)
+                    pos_block, vels_block = _read_gpumd_block(fin, nblock, params.num_atoms, data_dtype)
+                    pos_dataset[i0:i0 + nblock, :, :] = pos_block
+                    vels_dataset[i0:i0 + nblock, :, :] = vels_block
+                    _print_progress("  Compressing gpumd trajectory", i0 + nblock, num_frame)
 
             fin.close()
         fout.close()
         
-        print('Done compressing {} into .hdf5 format.'
+        print('\nDone compressing {} into .hdf5 format.'
               '\nThe compressed file is \'{}\' (DON\'T CHANGE IT!)\n'
               .format(params.dump_xyz_file, params.output_hdf5))
 
