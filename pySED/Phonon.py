@@ -71,14 +71,38 @@ class spectral_energy_density:
         self.num_basis = lattice_info.basis_index.max()
         self.num_loops = params.num_splits
 
+        unique_masses = np.unique(lattice_info.masses)
+        self.num_types = len(unique_masses)
+        self.basis_to_type = [np.where(unique_masses == m)[0][0] for m in lattice_info.masses]
+        self.output_partial = getattr(params, 'output_partial', 0)
+
         # do the calculation without eigenvectors
-        self.sed = np.zeros((params.num_splits, self.num_frame_per_split, lattice_info.num_qpoints))
+        #self.sed = np.zeros((params.num_splits, self.num_frame_per_split, lattice_info.num_qpoints))
+        if self.output_partial:
+            # Dimensions: [Block average, Frequency, Q-point, Atom type, xyz direction]
+            print('\n******* Output partial SED for each atom type and different directions *******')
+            print("  🚀🚀  Type index -> mass mapping (mass in amu; use for plotting labels):")
+            for i, m in enumerate(unique_masses):
+                print(f"            type {i+1} = {m} amu")
+
+            self.sed = np.zeros((params.num_splits, self.num_frame_per_split, 
+                                 lattice_info.num_qpoints, self.num_types, 3))
+        else:
+            self.sed = np.zeros((params.num_splits, self.num_frame_per_split, lattice_info.num_qpoints))
+
         self._loop_over_splits(params, lattice_info)
+
+        # Average over all the splits
         self.sed_avg = self.sed.sum(axis=0) / self.num_loops
 
-        max_freq = len(self.freq_fft) // 2
-        self.sed_avg = self.sed_avg[:max_freq, :]
-        self.freq_fft = self.freq_fft[:max_freq]
+        # Average the negative and positive frequency parts
+        n_half = len(self.freq_fft) // 2
+        neg_part_flipped = self.sed_avg[:n_half:-1, ...]
+        L = neg_part_flipped.shape[0]
+
+        self.sed_avg[1:1+L, ...] = (self.sed_avg[1:1+L, ...] + neg_part_flipped) / 2.0
+        self.sed_avg = self.sed_avg[:n_half + 1, ...]
+        self.freq_fft = self.freq_fft[:n_half + 1]
 
         end_time = time.time()
         print(f"\n************ Time for SED computing taken: {end_time - start_time:.2f} seconds. ************")
@@ -97,13 +121,18 @@ class spectral_energy_density:
             print('\n**************** Now calculate on averaging blocks {}/{} ... ****************\n'.format(i + 1,
                                                                                                         self.num_loops))
             self.loop_index = i
-            self.qdot = np.zeros((self.num_frame_per_split, lattice_info.num_qpoints))
+            if self.output_partial:
+                # [Frequency, Q-point, Atom type, xyz direction]
+                self.qdot = np.zeros((self.num_frame_per_split, lattice_info.num_qpoints, self.num_types, 3))
+            else:
+                self.qdot = np.zeros((self.num_frame_per_split, lattice_info.num_qpoints))
+
             vels, cell_vecs = self._get_simulation_data(params, lattice_info)
             self._loop_over_qpoints(lattice_info, vels, cell_vecs)
 
             self.scaling_const = 1 / (4 * np.pi * self.t_o * self.num_unit_cells)
             # self.qdot in kg*m^2, then /self.t_o, so convert to kg*m^2/s, and finally convert to J * s (J=m^2·kg·s-2)
-            self.sed[i, :, :] = self.qdot * self.scaling_const  # scale
+            self.sed[i, ...] = self.qdot * self.scaling_const  # scale
 
     def _loop_over_qpoints(self, lattice_info, vels, cell_vecs):
 
@@ -115,11 +144,11 @@ class spectral_energy_density:
                 futures = [executor.submit(self.process_q_point, *args) for args in args_list]
                 for future in as_completed(futures):
                     q_index, qdot_q = future.result()
-                    self.qdot[:, q_index] = qdot_q
+                    self.qdot[:, q_index, ...] = qdot_q
         else:                                             # use one core for windows system
             for q in q_indices:
                 q_index, qdot_q = self.process_q_point(q, lattice_info, vels, cell_vecs)
-                self.qdot[:, q_index] = qdot_q
+                self.qdot[:, q_index, ...] = qdot_q
 
     def process_q_point(self, q_index, lattice_info, vels, cell_vecs):
 
@@ -139,24 +168,28 @@ class spectral_energy_density:
 
     def _loop_over_basis(self, vels, exp_fac, lattice_info):
 
-        qdot_q = np.zeros(vels.shape[0])
+        num_frames = vels.shape[0]
+        if self.output_partial:
+            qdot_q = np.zeros((num_frames, self.num_types, 3))
+        else:
+            qdot_q = np.zeros(num_frames)
 
-        for i in range(self.num_basis):
-            basis_ids = np.argwhere(lattice_info.basis_index == (i + 1)).reshape(self.num_unit_cells)
-            mass = lattice_info.masses[i]
-            vx = fft(np.squeeze(vels[:, basis_ids, 0]) * exp_fac, axis=0)
-            vy = fft(np.squeeze(vels[:, basis_ids, 1]) * exp_fac, axis=0)
-            vz = fft(np.squeeze(vels[:, basis_ids, 2]) * exp_fac, axis=0)
-            # Sum over all the unit cells after the FFT, before computing the modulus squared
-            vx_sum = vx.sum(axis=1)
-            vy_sum = vy.sum(axis=1)
-            vz_sum = vz.sum(axis=1)
+        for b_idx in range(self.num_basis):
 
-            # Compute the sum of the squares of the modulus of the summed FFT components
-            mod_squared = np.abs(vx_sum) ** 2 + np.abs(vy_sum) ** 2 + np.abs(vz_sum) ** 2
+            t_idx = self.basis_to_type[b_idx]
+            mass = lattice_info.masses[b_idx]
+            basis_ids = np.argwhere(lattice_info.basis_index == (b_idx + 1)).reshape(self.num_unit_cells)
+            #print(f'basis_idx={b_idx}, type_idx={t_idx}, mass={mass}')
+            
+            for dim in range(3):
+                v_fft_sum = fft(np.squeeze(vels[:, basis_ids, dim]) * exp_fac, axis=0).sum(axis=1)
+                qdot_q_term = (np.abs(v_fft_sum)**2) * mass * self.amu_2_kg
+                
+                if self.output_partial:
+                    qdot_q[:, t_idx, dim] += qdot_q_term
+                else:
+                    qdot_q += qdot_q_term
 
-            # Scale the result by the mass of the basis and update the spectral energy density (qdot-sum over basis)
-            qdot_q += mod_squared * mass * self.amu_2_kg  # Unit conversion (from amu to Kg)
         return qdot_q
 
     ################################################################################################

@@ -4,6 +4,7 @@
         liangting.zj@gmail.com --- Refer from Ty Sterling's script
 ************************ 2024/12/6 23:03:21 **********************
 '''
+import os
 from pylab import *
 import seaborn as sns
 import numpy as np
@@ -22,6 +23,13 @@ def plot_bands(data, params):
     thz = data.freq_fft
     q_distances = data.q_distances
     q_labels = data.q_labels
+    
+    if getattr(params, 'plot_partial_SED', 0):
+        type_label = params.plot_partial_type + 1
+        if params.plot_partial_dir:
+            print(f"************ Plotting partial SED: 🚀 type {type_label} 🚀, direction 🚀 {params.plot_partial_dir} 🚀 ************\n")
+        else:
+            print(f"******** Plotting partial SED: 🚀 type {type_label} 🚀, directions 🚀 x+y+z (summed) 🚀 ********\n")
 
     # ******************** Control plotting params ********************
     color = params.plot_color               # 'inferno', 'RdBu_r', 'jet', 'Spectral', 'RdYlGn' (https://matplotlib.org/stable/tutorials/colors/colormaps.html)
@@ -136,7 +144,15 @@ def plot_bands(data, params):
 
     ax.set_ylabel('Frequency (THz)', fontsize=16)
 
-    plt.savefig('{}-SED.png'.format(params.out_files_name), format='png', dpi=650, bbox_inches='tight')
+    if getattr(params, 'plot_partial_SED', 0):
+        partial_dir = params.out_files_name + '_partial_SED'
+        os.makedirs(partial_dir, exist_ok=True)
+        type_label = f"type{params.plot_partial_type + 1}"
+        dir_label = params.plot_partial_dir if params.plot_partial_dir else "xyz"
+        out_name = f"SED_{type_label}_{dir_label}.png"
+        plt.savefig(os.path.join(partial_dir, out_name), format='png', dpi=650, bbox_inches='tight')
+    else:
+        plt.savefig('{}-SED.png'.format(params.out_files_name), format='png', dpi=650, bbox_inches='tight')
 
     if params.if_show_figures:
         plt.show()
@@ -150,6 +166,13 @@ def plot_slice(data, params):
     qpoints = data.qpoints
     thz = data.freq_fft
     q_index = params.q_slice_index
+    
+    if getattr(params, 'plot_partial_SED', 0):
+        type_label = params.plot_partial_type + 1
+        if params.plot_partial_dir:
+            print(f"\n********* Plotting partial SED slice: 🚀 type {type_label} 🚀, direction 🚀 {params.plot_partial_dir} 🚀 *********")
+        else:
+            print(f"\n***** Plotting partial SED slice: 🚀 type {type_label} 🚀, directions 🚀 x+y+z (summed) 🚀 *****")
 
     ### ******************** creat a figure, set its size ********************
     fig, ax = plt.subplots()
@@ -186,11 +209,21 @@ def plot_slice(data, params):
     else:
         ax.set_xlim([0, np.ceil(thz.max())+0.01])
 
-    if save_flag:
-        plt.savefig('LORENTZ-fitting-{}-qpoint.png'.format(params.q_slice_index), format='png', dpi=650, bbox_inches='tight')
-
+    if getattr(params, 'plot_partial_SED', 0):
+        partial_dir = params.out_files_name + '_partial_SED'
+        os.makedirs(partial_dir, exist_ok=True)
+        type_label = f"type{params.plot_partial_type + 1}"
+        dir_label = params.plot_partial_dir if params.plot_partial_dir else "xyz"
+        if save_flag:
+            out_name = f"LORENTZ-fitting-SED_{type_label}_{dir_label}-{params.q_slice_index}-qpoint.png"
+        else:
+            out_name = f"SED_{type_label}_{dir_label}-{params.q_slice_index}-qpoint.png"
+        plt.savefig(os.path.join(partial_dir, out_name), format='png', dpi=650, bbox_inches='tight')
     else:
-        plt.savefig('SED-{}-qpoint.png'.format(params.q_slice_index), format='png', dpi=650, bbox_inches='tight')
+        if save_flag:
+            plt.savefig('LORENTZ-fitting-{}-qpoint.png'.format(params.q_slice_index), format='png', dpi=650, bbox_inches='tight')
+        else:
+            plt.savefig('SED-{}-qpoint.png'.format(params.q_slice_index), format='png', dpi=650, bbox_inches='tight')
 
     if params.if_show_figures:
         plt.show()

@@ -29,7 +29,8 @@ class get_parse_input(object):
             'lorentz', 'if_show_figures', 're_output_total_freq_lifetime',
             'peak_height', 'peak_prominence', 'initial_guess_hwhm',
             'peak_max_hwhm', 'lorentz_fit_cutoff', 'modulate_factor',
-            'lorentz_fit_all_qpoint', 'with_eigs', 'plot_color', 'colorbar_min', 'colorbar_max'
+            'lorentz_fit_all_qpoint', 'with_eigs', 'plot_color', 'colorbar_min',
+            'colorbar_max', 'output_partial', 'plot_partial_SED'
         }
 
         ## ************ Control parameters ************
@@ -41,6 +42,7 @@ class get_parse_input(object):
         self.total_num_steps = 0
         self.time_step = 0
         self.output_data_stride = 0
+        self.num_qpaths = None
 
         ### ************ Input and output files **************
         self.supercell_dim = [1, 1, 1]        # default
@@ -52,10 +54,14 @@ class get_parse_input(object):
         self.file_format = 'gpumd'            # gpumd or lammps
         self.lammps_unit = 'metal'            # lammps unit for unit conversion (support metal or real)
         self.rescale_prim = 1                 # Reconstructed primitive unit cell from MD simulation cell
+        self.output_partial = 0               # Partial SED for different atoms and directions
+        self.plot_partial_SED = 0             # Plot partial SED (type index, optional direction)
+        self.plot_partial_type = None
+        self.plot_partial_dir = None
         self.prim_axis = None     # For Fcc silicon or Al, np.array([[0.0, 0.5, 0.5], [0.5, 0.0, 0.5], [0.5, 0.5, 0.0]])
 
         # multithread for computing SED (not finish yet)
-        self.use_parallel = True        # use parallel or not
+        self.use_parallel = True         # use parallel or not
         self.max_cores = 4               # Means use the max cores in one's machine
 
         # Plot and lorentz fitting
@@ -80,16 +86,18 @@ class get_parse_input(object):
         ## ********** eigenvector from phonopy for further development
         self.with_eigs = None
 
+        self._pending_q_path_tokens = None
         input_txt = open(self.input_file, 'r').readlines()
 
         for line in input_txt:
-            # skip blank and comment lines
-            if len(line.strip()) == 0:
-                continue
-            elif line.strip()[0] == '#':
+            # strip inline comments and skip blank/comment lines
+            line_no_comment = line.split('#', 1)[0]
+            if len(line_no_comment.strip()) == 0:
                 continue
             # control parameters
-            txt = line.strip().split()
+            txt = line_no_comment.strip().split()
+            # Remove possible BOM or invisible prefix from the first token
+            txt[0] = txt[0].lstrip('\ufeff')
 
             if txt[0] not in self.allowed_keys:
                 print_error(txt[0], input_file)
@@ -169,8 +177,14 @@ class get_parse_input(object):
 
             elif txt[0] == 'q_path':
                 try:
-                    self.q_path = np.array(txt[(txt.index('=')+1):
-                        (txt.index('=')+int((self.num_qpaths+1)*3+1))]).astype(float)
+                    tokens = txt[(txt.index('=')+1):]
+                    if self.num_qpaths is None:
+                        self._pending_q_path_tokens = tokens
+                        continue
+                    needed = (self.num_qpaths + 1) * 3
+                    if len(tokens) < needed:
+                        print_error('q_path', input_file)
+                    self.q_path = np.array(tokens[:needed]).astype(float)
                     self.q_path = self.q_path.reshape(self.num_qpaths+1, 3)
 
                 except:
@@ -373,6 +387,41 @@ class get_parse_input(object):
                     self.colorbar_max = float(txt[txt.index('=') + 1])
                 except:
                     print_error('colorbar_max', input_file)
+
+            elif txt[0] == 'output_partial':
+                try:
+                    self.output_partial = bool(int(txt[txt.index('=') + 1]))
+                except:
+                    print_error('output_partial', input_file)        
+            
+            elif txt[0] == 'plot_partial_SED':
+                try:
+                    idx = txt.index('=') + 1
+                    val = int(txt[idx])
+                    self.plot_partial_SED = (val > 0)
+                    if self.plot_partial_SED:
+                        # Use 1-based type index from input, convert to 0-based internally
+                        self.plot_partial_type = val - 1
+                        if self.plot_partial_type < 0:
+                            print_error('plot_partial_SED', input_file)
+                        if len(txt) > idx + 1:
+                            d = txt[idx + 1].strip().lower()
+                            if d not in ('x', 'y', 'z'):
+                                print_error('plot_partial_SED', input_file)
+                            self.plot_partial_dir = d
+                        else:
+                            self.plot_partial_dir = None
+                except:
+                    print_error('plot_partial_SED', input_file)
+
+        if self._pending_q_path_tokens is not None:
+            if self.num_qpaths is None:
+                print_error('num_qpaths', input_file)
+            needed = (self.num_qpaths + 1) * 3
+            if len(self._pending_q_path_tokens) < needed:
+                print_error('q_path', input_file)
+            self.q_path = np.array(self._pending_q_path_tokens[:needed]).astype(float)
+            self.q_path = self.q_path.reshape(self.num_qpaths+1, 3)
 
 if __name__ == "__main__":
 
