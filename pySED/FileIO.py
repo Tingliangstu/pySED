@@ -5,10 +5,27 @@
 ************************ 2021/5/15 23:03:21 **********************
 '''
 
+import os
 import numpy as np
 
 def write_output(phonons, params, BZ_lattice_info):
-    np.savetxt(params.out_files_name + '.SED', phonons.sed_avg)
+    output_partial = getattr(params, 'output_partial', 0)
+    if output_partial:
+        # Overall SED = sum over atom type and direction
+        sed_total = phonons.sed_avg.sum(axis=(-2, -1))
+        np.savetxt(params.out_files_name + '.SED', sed_total)
+
+        partial_dir = params.out_files_name + '_partial_SED'
+        os.makedirs(partial_dir, exist_ok=True)
+        dir_labels = ['x', 'y', 'z']
+
+        for t_idx in range(phonons.sed_avg.shape[2]):
+            for d_idx, d_lab in enumerate(dir_labels):
+                out_path = os.path.join(partial_dir, f"{params.out_files_name}.SED_type{t_idx+1}_{d_lab}")
+                np.savetxt(out_path, phonons.sed_avg[:, :, t_idx, d_idx])
+    else:
+        np.savetxt(params.out_files_name + '.SED', phonons.sed_avg)
+
     np.savetxt(params.out_files_name + '.Qpts', BZ_lattice_info.reduced_qpoints, fmt='%.8f')
     np.savetxt(params.out_files_name + '.THz', phonons.freq_fft, fmt='%.8f')
 
@@ -26,7 +43,37 @@ class load_data(object):
 
     def __init__(self, params):
 
-        self.sed_avg = np.loadtxt(params.out_files_name + '.SED')
+        if getattr(params, 'plot_partial_SED', 0):
+
+            partial_dir = params.out_files_name + '_partial_SED'
+            type_idx = params.plot_partial_type
+
+            if type_idx is None or type_idx < 0:
+                raise ValueError('\n*************** plot_partial_SED type index is invalid ***************')
+
+            if params.plot_partial_dir is None:
+                # Sum x/y/z for the given type
+                file_x = os.path.join(partial_dir, f"{params.out_files_name}.SED_type{type_idx+1}_x")
+                file_y = os.path.join(partial_dir, f"{params.out_files_name}.SED_type{type_idx+1}_y")
+                file_z = os.path.join(partial_dir, f"{params.out_files_name}.SED_type{type_idx+1}_z")
+                if not (os.path.exists(file_x) and os.path.exists(file_y) and os.path.exists(file_z)):
+                    raise FileNotFoundError(
+                        '\n*************** plot_partial_SED type index is out of range or files missing ***************')
+                sed_x = np.loadtxt(file_x)
+                sed_y = np.loadtxt(file_y)
+                sed_z = np.loadtxt(file_z)
+                self.sed_avg = sed_x + sed_y + sed_z
+            else:
+                d = params.plot_partial_dir
+                file_d = os.path.join(partial_dir, f"{params.out_files_name}.SED_type{type_idx+1}_{d}")
+                if not os.path.exists(file_d):
+                    raise FileNotFoundError(
+                        '\n*************** plot_partial_SED type index is out of range or file missing ***************')
+                self.sed_avg = np.loadtxt(file_d)
+
+        else:
+            self.sed_avg = np.loadtxt(params.out_files_name + '.SED')
+
         self.qpoints = np.loadtxt(params.out_files_name + '.Qpts')
         self.freq_fft = np.loadtxt(params.out_files_name + '.THz')
 

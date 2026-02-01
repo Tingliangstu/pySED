@@ -13,7 +13,8 @@ import os
 import h5py
 
 # My modules
-from pySED import (My_Parsers,
+from pySED import (__version__,
+                   My_Parsers,
                    Compressor,
                    construct_BZ,
                    Phonon,
@@ -24,13 +25,13 @@ from pySED import (My_Parsers,
 def main():
     # ******************************** Show pySED imformation ************************
     logo_lines = [
-     "                    _ __   _   _    _____  ______  _____",
+     r"                    _ __   _   _    _____  ______  _____",
      "                   | '_ \\ | | | |  / ____||  ____||  __ \\",
-     "                   | |_) || |_| | | (___  | |__   | |  | |",
-     "                   | .__/  \__, |  \___ \ |  __|  | |  | |",
-     "                   | |      __/ | ____) | | |____ | |__| |",
-     "                   |_|     |___/ |_____/  |______||_____/",
-     "                                              v-2.2.0"
+     r"                   | |_) || |_| | | (___  | |__   | |  | |",
+     r"                   | .__/  \__, |  \___ \ |  __|  | |  | |",
+     r"                   | |      __/ | ____) | | |____ | |__| |",
+     r"                   |_|     |___/ |_____/  |______||_____/",
+     f"                                              v-{__version__}"
      ]
     for line in logo_lines:
         print(line)
@@ -98,6 +99,7 @@ def main():
         lammps_unit             : LAMMPS unit style ('metal' or 'real'). Default = 'metal'.
         
         output_hdf5             : Compressed HDF5 file name. Default = 'vel_pos_compress.hdf5'.
+        output_partial          : Partial SED for different atoms and directions. Default = 0.
 
     ────────────────────────────────────────────────────────────
     [ Parallelization ]
@@ -126,6 +128,7 @@ def main():
         colorbar_max            : Colorbar maximum value (log scale). Inspect the initial SED output plot to adjust values for optimal contrast.
         qpoint_slice_index      : Index of q-point for single plot. Default = 0. Tips: set qpoint_slice_index = 0 to plot the first q-point.
         plot_slice              : Plot q-slice (1=yes, 0=no). Default = 0.
+        plot_partial_SED        : Plot partial SED for type index (1-based). Usage: 1 (sum x+y+z) or 1 x/y/z for different directions. Default = 0.
         if_show_figures         : Show figures on screen. Default = 0.
 
     ────────────────────────────────────────────────────────────
