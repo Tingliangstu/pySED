@@ -101,8 +101,9 @@ class spectral_energy_density:
         L = neg_part_flipped.shape[0]
 
         self.sed_avg[1:1+L, ...] = (self.sed_avg[1:1+L, ...] + neg_part_flipped) / 2.0
-        self.sed_avg = self.sed_avg[:n_half + 1, ...]
-        self.freq_fft = self.freq_fft[:n_half + 1]
+        # Keep only the half spectrum (exclude the Nyquist point)
+        self.sed_avg = self.sed_avg[:n_half, ...]
+        self.freq_fft = self.freq_fft[:n_half]
 
         end_time = time.time()
         print(f"\n************ Time for SED computing taken: {end_time - start_time:.2f} seconds. ************")
