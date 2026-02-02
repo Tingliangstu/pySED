@@ -30,7 +30,7 @@
 
 * Jiale Niu, Zhenqiang Ye, Junyang Deng, Mingdong Zhang, Guangming Chen, [Black Phosphorus@MXene Heterojunction-Engineered Carbon Nanotube Thermoelectric Films with Synergistic Energy Filtering and Phonon Scattering Effects](https://onlinelibrary.wiley.com/doi/abs/10.1002/smll.202512596), Small, **22**, e12596 (2025)
 
-* Kaibin Xiong, Yuan Li, Ziyan Lin, Gaoyang Luo, Jianyang Wu, [Phonon bottleneck in methane clathrate hydrate from machine learning molecular dynamics](https://doi.org/10.1016/j.ces.2025.122955), Chemical Engineering Science, **9**, 122955 (2025)
+* Kaibin Xiong, Yuan Li, Ziyan Lin, Gaoyang Luo, Jianyang Wu, [Phonon bottleneck in methane clathrate hydrate from machine learning molecular dynamics](https://doi.org/10.1016/j.ces.2025.122955), Chemical Engineering Science, **321**, 122955 (2025)
 
 * Kaibin Xiong, Yuan Li, Ziyan Lin, Gaoyang Luo, Jianyang Wu, [Machine learning potential insights into mechanical response and heat transfer in CO<sub>2</sub> hydrate](https://doi.org/10.46690/ager.2025.10.04), Advances in Geo-Energy Research, **18**, 38 (2025)
 
@@ -48,7 +48,7 @@
 
 * Ke Li, Hao Ma, [Decoding the thermal conductivity of ionic covalent organic frameworks: Optical phonons as key determinants revealed by neuroevolution potential](https://www.sciencedirect.com/science/article/pii/S254252932500080X?via%3Dihub), Materials Today Physics, **54**, 101724 (2025)
 
-* Wenwu Jiang, Ting Liang, Hekai Bu, Jianbin Xu, Wengen Ouyang, [Moiré-Driven Interfacial Thermal Transport in Twisted Transition Metal Dichalcogenides](https://pubs.acs.org/doi/full/10.1021/acsnano.4c12148), ACS Nano, **1**, 1 (2025).
+* Wenwu Jiang, Ting Liang, Hekai Bu, Jianbin Xu, Wengen Ouyang, [Moiré-Driven Interfacial Thermal Transport in Twisted Transition Metal Dichalcogenides](https://pubs.acs.org/doi/full/10.1021/acsnano.4c12148), ACS Nano, **19**, 16287 (2025).
 
 * Xianteng Zhou, Yuanji Xu, Yue Chen, Fuyang Tian, [Mechanism on lattice thermal conductivity of carbon-vacancy and porous medium entropy ceramics](https://www.sciencedirect.com/science/article/pii/S1359646225000326), Scripta Materialia, **259**, 116568 (2025).
 
