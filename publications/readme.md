@@ -4,7 +4,9 @@
 
 * Xin Wu, Ting Liang, Weitao Wang, Jiangjiang Ma, Zheyong Fan, Jianbin Xu, Sebastian Volz, Masahiro Nomura, [Data-driven flipping engineering for high thermal anisotropy](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5864374)
 
-## 2026 (9)
+## 2026 (10)
+
+* Ziyang Wang, Bingqi Linghui, Donghao Li, Jie Zhu, Dawei Tang, [Systematic investigation of interfacial heat transport at Metal/GaN interfaces: Experimental and simulation validation](https://doi.org/10.1016/j.ijheatmasstransfer.2026.128564), International Journal of Heat and Mass Transfer, **261**, 128564 (2026)
 
 * Yuan Li, Kaibin Xiong, Yongxiao Qu, Gaoyang Luo, Jianyang Wu, Zhisen Zhang, [Phonon-structure interplay in organic hydroquinone CO<sub>2</sub> clathrate via molecular dynamics simulation](https://doi.org/10.1016/j.ces.2026.123384), Chemical Engineering Science, **324**, 123384 (2026)
 
