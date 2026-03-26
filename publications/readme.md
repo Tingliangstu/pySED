@@ -5,6 +5,7 @@
 * Xin Wu, Ting Liang, Weitao Wang, Jiangjiang Ma, Zheyong Fan, Jianbin Xu, Sebastian Volz, Masahiro Nomura, [Data-driven flipping engineering for high thermal anisotropy](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5864374)
 
 ## 2026 (11)
+
 * Dian Huang, Jun Lyu, Zhe Wu, Guihua Tang, Lin Yang, [Thermal conductivity modulation under strain gradients in III–V semiconductors](https://doi.org/10.1016/j.apsusc.2026.166672), Applied Surface Science, 166672 (2026)
 
 * Ziyang Wang, Bingqi Linghui, Donghao Li, Jie Zhu, Dawei Tang, [Systematic investigation of interfacial heat transport at Metal/GaN interfaces: Experimental and simulation validation](https://doi.org/10.1016/j.ijheatmasstransfer.2026.128564), International Journal of Heat and Mass Transfer, **261**, 128564 (2026)
