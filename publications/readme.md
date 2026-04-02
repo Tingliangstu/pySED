@@ -4,7 +4,13 @@
 
 * Xin Wu, Ting Liang, Weitao Wang, Jiangjiang Ma, Zheyong Fan, Jianbin Xu, Sebastian Volz, Masahiro Nomura, [Data-driven flipping engineering for high thermal anisotropy](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5864374)
 
-## 2026 (11)
+## 2026 (14)
+
+* Jincheng Yue, Rongkun Chen, Xinkai Sun, Yinong Liu, Xiaolong Li, and Shiqian Hu, [Phonon overdamping defines the ultimate limit of lattice thermal conductivity](https://journals.aps.org/prb/abstract/10.1103/jhfd-vzjy), Physical Review B, **113**, L161401, (2026).
+
+* Xinran Zhang, Yinglong Hu, Jian Luo, Ke Li, Shuo Wang, Meiyi Jiang, Chen Li, and Hao Ma, [The Importance of Interchain Configuration on Thermal Conductivity in Crystalline Conjugated Polymers](https://doi.org/10.1016/j.mtphys.2026.102091), Materials Today Physics, 102091, (2026).
+
+* Yuan Li, Kaibin Xiong, Yongxiao Qu, Gaoyang Luo, Jianyang Wu, Zhisen Zhang, [Phonon-structure interplay in organic hydroquinone CO<sub>2</sub> clathrate via molecular dynamics simulation](https://doi.org/10.1016/j.ces.2026.123384), Chemical Engineering Science, 123384, (2026).
 
 * Dian Huang, Jun Lyu, Zhe Wu, Guihua Tang, Lin Yang, [Thermal conductivity modulation under strain gradients in III–V semiconductors](https://doi.org/10.1016/j.apsusc.2026.166672), Applied Surface Science, 166672 (2026)
 
