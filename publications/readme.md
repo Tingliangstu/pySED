@@ -6,19 +6,23 @@
 
 * Penghua Ying, Ting Liang, Yun Chen, Yan Chen, Shiyun Xiong, Zheyong Fan, Jianbin Xu, Yilun Liu, [Structurally Triggered Breakdown of the Phonon Gas Model in Crystalline Metal-Organic Frameworks](https://arxiv.org/abs/2604.03783)
 
-## 2026 (14)
+## 2026 (17)
 
 * Jincheng Yue, Rongkun Chen, Xinkai Sun, Yinong Liu, Xiaolong Li, and Shiqian Hu, [Phonon overdamping defines the ultimate limit of lattice thermal conductivity](https://journals.aps.org/prb/abstract/10.1103/jhfd-vzjy), Physical Review B, **113**, L161401, (2026).
 
-* Xinran Zhang, Yinglong Hu, Jian Luo, Ke Li, Shuo Wang, Meiyi Jiang, Chen Li, and Hao Ma, [The Importance of Interchain Configuration on Thermal Conductivity in Crystalline Conjugated Polymers](https://doi.org/10.1016/j.mtphys.2026.102091), Materials Today Physics, 102091, (2026).
+* Xinran Zhang, Yinglong Hu, Jian Luo, Ke Li, Shuo Wang, Meiyi Jiang, Chen Li, and Hao Ma, [The Importance of Interchain Configuration on Thermal Conductivity in Crystalline Conjugated Polymers](https://doi.org/10.1016/j.mtphys.2026.102091), Materials Today Physics, **63**, 102091 (2026).
 
-* Yuan Li, Kaibin Xiong, Yongxiao Qu, Gaoyang Luo, Jianyang Wu, Zhisen Zhang, [Phonon-structure interplay in organic hydroquinone CO<sub>2</sub> clathrate via molecular dynamics simulation](https://doi.org/10.1016/j.ces.2026.123384), Chemical Engineering Science, 123384, (2026).
-
-* Dian Huang, Jun Lyu, Zhe Wu, Guihua Tang, Lin Yang, [Thermal conductivity modulation under strain gradients in III–V semiconductors](https://doi.org/10.1016/j.apsusc.2026.166672), Applied Surface Science, 166672 (2026)
+* Dian Huang, Jun Lyu, Zhe Wu, Guihua Tang, Lin Yang, [Thermal conductivity modulation under strain gradients in III-V semiconductors](https://doi.org/10.1016/j.apsusc.2026.166672), Applied Surface Science, **735**, 166672 (2026)
 
 * Ziyang Wang, Bingqi Linghui, Donghao Li, Jie Zhu, Dawei Tang, [Systematic investigation of interfacial heat transport at Metal/GaN interfaces: Experimental and simulation validation](https://doi.org/10.1016/j.ijheatmasstransfer.2026.128564), International Journal of Heat and Mass Transfer, **261**, 128564 (2026)
 
+* Wei Zhang, Tinghong Gao, Yutao Liu, Guofa Shen, Bei Wang, Zhongzhong Zhu, Jin Huang, Shipeng Zhang, Shuang Li, [Thermal Conductivity Modulation in Carbon Nanotubes via Silicon Nanowire Encapsulation Investigated Using Neuroevolution Potential](https://doi.org/10.1002/adts.202501834), Advanced Theory and Simulations, **9**, e01834 (2026)
+
+* Jiale Niu, Zhenqiang Ye, Junyang Deng, Mingdong Zhang, Guangming Chen, [Black Phosphorus@MXene Heterojunction-Engineered Carbon Nanotube Thermoelectric Films with Synergistic Energy Filtering and Phonon Scattering Effects](https://onlinelibrary.wiley.com/doi/abs/10.1002/smll.202512596), Small, **22**, e12596 (2026)
+
 * Yuan Li, Kaibin Xiong, Yongxiao Qu, Gaoyang Luo, Jianyang Wu, Zhisen Zhang, [Phonon-structure interplay in organic hydroquinone CO<sub>2</sub> clathrate via molecular dynamics simulation](https://doi.org/10.1016/j.ces.2026.123384), Chemical Engineering Science, **324**, 123384 (2026)
+
+* Kaibin Xiong, Yuan Li, Ziyan Lin, Gaoyang Luo, Jianyang Wu, [Phonon bottleneck in methane clathrate hydrate from machine learning molecular dynamics](https://doi.org/10.1016/j.ces.2025.122955), Chemical Engineering Science, **321**, 122955 (2026)
 
 * Ting Liang, Ke Xu, Penghua Ying, Wenwu Jiang, Meng Han, Xin Wu, Wengen Ouyang, Yimin Yao, Xiaoliang Zeng, Zhenqiang Ye, Zheyong Fan, Jianbin Xu, [Probing the ideal limit of interfacial thermal conductance in two-dimensional van der Waals heterostructures](https://www.nature.com/articles/s41524-025-01885-y), npj Computational Materials, **12**, 11, (2026).
 
@@ -26,7 +30,7 @@
 
 * Xinyuan Ma, Peng-Hu Du, Chenxin Zhang, Qing Zhang, Qian Wang, [Ultralow and Twist-Tolerant Thermal Conductivity in Two-Dimensional Pentagonal Covalent Organic Frameworks](https://pubs.acs.org/doi/10.1021/acsnano.5c12577), ACS Nano, **20**, 349, (2026).
 
-* Zhicheng Zong, Yangjun Qin, Jiahong Zhan, Haisheng Fang, Nuo Yang, [Machine learning potential for predicting thermal conductivity of θ-phase and amorphous tantalum nitride](https://doi.org/10.1016/j.ijheatmasstransfer.2025.128155), International Journal of Heat and Mass Transfer, **257**, 128155 (2026)
+* Zhicheng Zong, Yangjun Qin, Jiahong Zhan, Haisheng Fang, Nuo Yang, [Machine learning potential for predicting thermal conductivity of theta-phase and amorphous tantalum nitride](https://doi.org/10.1016/j.ijheatmasstransfer.2025.128155), International Journal of Heat and Mass Transfer, **257**, 128155 (2026)
 
 * Yahao Wang, Yingguang Liu, Haochen Liu, Cheng Zhang, Ning Wu, [Study on the phonon transport in double-walled nanotubes with superlattice structures](https://doi.org/10.1016/j.icheatmasstransfer.2025.110143), International Communications in Heat and Mass Transfer, **171**, 110143 (2026)
 
@@ -34,23 +38,17 @@
 
 * Wenwu Jiang, Hekai Bu, Kun Zhang, Bozhao Wu, Wengen Ouyang, [Chirality-dependent strain modulation of thermal conductivity in double-walled molybdenum disulfide nanotubes](https://doi.org/10.1016/j.icheatmasstransfer.2025.109935), International Communications in Heat and Mass Transfer, **170**, 109935 (2026)
 
-* Kaibin Xiong, Yuan Li, Ziyan Lin, Gaoyang Luo, Jianyang Wu, [Phonon-Mediated Heat Transport in CO<sub>2</sub> Hydrate](https://pubs.acs.org/doi/10.1021/acs.jpca.5c06498),The Journal of Physical Chemistry A, **130**, 319 (2026)
+* DaiJi Tang, YuTao Liu, Han Song, Cheng Deng, Mengyuan Liu, TingHong Gao, Yongchao Liang, Qingquan Xiao, Yunjun Ruan, [Neuroevolution Potential-Driven Accurate and Efficient Discovery of Graphene/GaN Heterojunctions: From Ballistic-Diffusive Transition to Thermal Conductivity Enhancement](https://doi.org/10.1016/j.physe.2025.116363), Physica E: Low-dimensional Systems and Nanostructures, **175**, 116363 (2026)
 
-## 2025 (14)
+* Kaibin Xiong, Yuan Li, Ziyan Lin, Gaoyang Luo, Jianyang Wu, [Phonon-Mediated Heat Transport in CO<sub>2</sub> Hydrate](https://pubs.acs.org/doi/10.1021/acs.jpca.5c06498), The Journal of Physical Chemistry A, **130**, 319 (2026)
 
-* Wei Zhang, Tinghong Gao, Yutao Liu, Guofa Shen, Bei Wang, Zhongzhong Zhu, Jin Huang, Shipeng Zhang, Shuang Li, [Thermal Conductivity Modulation in Carbon Nanotubes via Silicon Nanowire Encapsulation Investigated Using Neuroevolution Potential](https://doi.org/10.1002/adts.202501834), Advanced Theory and Simulations, **1**, e01834 (2025)
-
-* Jiale Niu, Zhenqiang Ye, Junyang Deng, Mingdong Zhang, Guangming Chen, [Black Phosphorus@MXene Heterojunction-Engineered Carbon Nanotube Thermoelectric Films with Synergistic Energy Filtering and Phonon Scattering Effects](https://onlinelibrary.wiley.com/doi/abs/10.1002/smll.202512596), Small, **22**, e12596 (2025)
-
-* Kaibin Xiong, Yuan Li, Ziyan Lin, Gaoyang Luo, Jianyang Wu, [Phonon bottleneck in methane clathrate hydrate from machine learning molecular dynamics](https://doi.org/10.1016/j.ces.2025.122955), Chemical Engineering Science, **321**, 122955 (2025)
+## 2025 (10)
 
 * Kaibin Xiong, Yuan Li, Ziyan Lin, Gaoyang Luo, Jianyang Wu, [Machine learning potential insights into mechanical response and heat transfer in CO<sub>2</sub> hydrate](https://doi.org/10.46690/ager.2025.10.04), Advances in Geo-Energy Research, **18**, 38 (2025)
 
 * Youtong Su, Shihan Yan, Kai Ren, Wenwu Jiang, Huasong Qin, [Optical phonon-driven modulation of interlayer thermal transport in stacked diamane](http://dx.doi.org/10.1063/5.0294012), Applied Physics Letters, **127**, 143101 (2025)
 
-* Lei Zhang, Fei Tian, Ke Chen, Zhongbo Yan, Kun Cao, [Uniaxial stress tuning of interfacial thermal conductance in cubic BAs/4H-SiC heterostructures](https://journals.aps.org/prmaterials/abstract/10.1103/12z6-4kj4), Physical Review Materials, **9**, 094604 (2025)
-
-* DaiJi Tang, YuTao Liu, Han Song, Cheng Deng, Mengyuan Liu, TingHong Gao, Yongchao Liang, Qingquan Xiao, Yunjun Ruan, [Neuroevolution Potential-Driven Accurate and Efficient Discovery of Graphene/GaN Heterojunctions: From Ballistic-Diffusive Transition to Thermal Conductivity Enhancement](https://doi.org/10.1016/j.physe.2025.116363), Physica E: Low-dimensional Systems and Nanostructures, **175**, 116363 (2025)
+* Lei Zhang, Fei Tian, Ke Chen, Zhongbo Yan, Kun Cao, [Uniaxial stress tuning of interfacial thermal conductance in cubic BAs/4H-SiC heterostructures](https://journals.aps.org/prmaterials/abstract/10.1103/12z6-4kj4), Physical Review Materials, **9**, 094604 (2025)
 
 * Yuan Li, Kaibin Xiong, Yongxiao Qu, Xiaoyu Shi, Zhisen Zhang, Jianyang Wu, [Effects of guest molecular occupancy and electric field on thermal conductivity of CO<sub>2</sub> hydrates](https://doi.org/10.1063/5.0286293), Journal of Chemical Physics, **163**, 084504 (2025)
 
@@ -60,7 +58,7 @@
 
 * Ke Li, Hao Ma, [Decoding the thermal conductivity of ionic covalent organic frameworks: Optical phonons as key determinants revealed by neuroevolution potential](https://www.sciencedirect.com/science/article/pii/S254252932500080X?via%3Dihub), Materials Today Physics, **54**, 101724 (2025)
 
-* Wenwu Jiang, Ting Liang, Hekai Bu, Jianbin Xu, Wengen Ouyang, [Moiré-Driven Interfacial Thermal Transport in Twisted Transition Metal Dichalcogenides](https://pubs.acs.org/doi/full/10.1021/acsnano.4c12148), ACS Nano, **19**, 16287 (2025).
+* Wenwu Jiang, Ting Liang, Hekai Bu, Jianbin Xu, Wengen Ouyang, [Moire-Driven Interfacial Thermal Transport in Twisted Transition Metal Dichalcogenides](https://pubs.acs.org/doi/full/10.1021/acsnano.4c12148), ACS Nano, **19**, 16287 (2025).
 
 * Xianteng Zhou, Yuanji Xu, Yue Chen, Fuyang Tian, [Mechanism on lattice thermal conductivity of carbon-vacancy and porous medium entropy ceramics](https://www.sciencedirect.com/science/article/pii/S1359646225000326), Scripta Materialia, **259**, 116568 (2025).
 
@@ -69,13 +67,12 @@
 
 ## 2024 (2)
 
-* Jianhui Zeng, Ting Liang, Jingjing Zhang, Daoqing Liu, Shiang Li, Xinhui Lu, Meng Han, Yimin Yao, Jianbin Xu, Rong Sun, Liejun Li, [Correlating Young\'s Modulus with High Thermal Conductivity in Organic Conjugated Small Molecules](https://onlinelibrary.wiley.com/doi/full/10.1002/smll.202309338), Small, **20**, 2309338 (2024).
+* Jianhui Zeng, Ting Liang, Jingjing Zhang, Daoqing Liu, Shiang Li, Xinhui Lu, Meng Han, Yimin Yao, Jianbin Xu, Rong Sun, Liejun Li, [Correlating Young's Modulus with High Thermal Conductivity in Organic Conjugated Small Molecules](https://onlinelibrary.wiley.com/doi/full/10.1002/smll.202309338), Small, **20**, 2309338 (2024).
 
 * Jian Li, Jin Zhang, [Thermal transport properties of defective graphene/graphyne van der Waals heterostructures elucidated via molecular dynamics and machine learning](https://pubs.rsc.org/en/content/articlelanding/2024/nr/d4nr02120g), Nanoscale, **16**, 17992 (2024).
 
 ## 2023 (2)
 
-* Penghua Ying, Ting Liang, Ke Xu, Jin Zhang, Jianbin Xu, Zheng Zhong, Zheyong Fan, [Sub-Micrometer Phonon Mean Free Paths in Metal–Organic Frameworks Revealed by Machine Learning Molecular Dynamics Simulations](https://pubs.acs.org/doi/10.1021/acsami.3c07770)s, ACS Applied Materials \& Interfaces, **15**, 36412 (2023).
+* Penghua Ying, Ting Liang, Ke Xu, Jin Zhang, Jianbin Xu, Zheng Zhong, Zheyong Fan, [Sub-Micrometer Phonon Mean Free Paths in Metal-Organic Frameworks Revealed by Machine Learning Molecular Dynamics Simulations](https://pubs.acs.org/doi/10.1021/acsami.3c07770), ACS Applied Materials \& Interfaces, **15**, 36412 (2023).
 
 * Jian Li, Penghua Ying, Ting Liang, Yao Du, Jianli Zhou, Jin Zhang, [Mechanical and thermal properties of graphyne-coated carbon nanotubes: a molecular dynamics simulation on one-dimensional all-carbon van der Waals heterostructures](https://pubs.rsc.org/en/content/articlelanding/2023/cp/d2cp05673a), Physical Chemistry Chemical Physics, **25**, 8651 (2023).
-
