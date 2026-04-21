@@ -30,7 +30,7 @@
 
 * Xinyuan Ma, Peng-Hu Du, Chenxin Zhang, Qing Zhang, Qian Wang, [Ultralow and Twist-Tolerant Thermal Conductivity in Two-Dimensional Pentagonal Covalent Organic Frameworks](https://pubs.acs.org/doi/10.1021/acsnano.5c12577), ACS Nano, **20**, 349, (2026).
 
-* Zhicheng Zong, Yangjun Qin, Jiahong Zhan, Haisheng Fang, Nuo Yang, [Machine learning potential for predicting thermal conductivity of theta-phase and amorphous tantalum nitride](https://doi.org/10.1016/j.ijheatmasstransfer.2025.128155), International Journal of Heat and Mass Transfer, **257**, 128155 (2026)
+* Zhicheng Zong, Yangjun Qin, Jiahong Zhan, Haisheng Fang, Nuo Yang, [Machine learning potential for predicting thermal conductivity of ¦È-phase and amorphous tantalum nitride](https://doi.org/10.1016/j.ijheatmasstransfer.2025.128155), International Journal of Heat and Mass Transfer, **257**, 128155 (2026)
 
 * Yahao Wang, Yingguang Liu, Haochen Liu, Cheng Zhang, Ning Wu, [Study on the phonon transport in double-walled nanotubes with superlattice structures](https://doi.org/10.1016/j.icheatmasstransfer.2025.110143), International Communications in Heat and Mass Transfer, **171**, 110143 (2026)
 
@@ -58,7 +58,7 @@
 
 * Ke Li, Hao Ma, [Decoding the thermal conductivity of ionic covalent organic frameworks: Optical phonons as key determinants revealed by neuroevolution potential](https://www.sciencedirect.com/science/article/pii/S254252932500080X?via%3Dihub), Materials Today Physics, **54**, 101724 (2025)
 
-* Wenwu Jiang, Ting Liang, Hekai Bu, Jianbin Xu, Wengen Ouyang, [Moire-Driven Interfacial Thermal Transport in Twisted Transition Metal Dichalcogenides](https://pubs.acs.org/doi/full/10.1021/acsnano.4c12148), ACS Nano, **19**, 16287 (2025).
+* Wenwu Jiang, Ting Liang, Hekai Bu, Jianbin Xu, Wengen Ouyang, [Moir¨¦-Driven Interfacial Thermal Transport in Twisted Transition Metal Dichalcogenides](https://pubs.acs.org/doi/full/10.1021/acsnano.4c12148), ACS Nano, **19**, 16287 (2025).
 
 * Xianteng Zhou, Yuanji Xu, Yue Chen, Fuyang Tian, [Mechanism on lattice thermal conductivity of carbon-vacancy and porous medium entropy ceramics](https://www.sciencedirect.com/science/article/pii/S1359646225000326), Scripta Materialia, **259**, 116568 (2025).
 
