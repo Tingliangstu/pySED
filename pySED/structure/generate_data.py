@@ -95,13 +95,15 @@ class structure_maker(object):
         self.num_atoms = position.shape[0]
 
     def write_xyz(self, filename='model.xyz', pbc="T T T"):
-        xhi, yhi, zhi, xy, xz, yz = self.calculate_lattice_parameters(self.cell, self.supercell)
+        lattice = self.calculate_supercell_matrix(self.cell, self.supercell)
         with open(filename, 'w') as fid:
             fid.write('{0:d}\n'.format(self.num_atoms))
 
             lattice_str = 'Lattice="{0:10.10f} {1:10.10f} {2:10.10f} {3:10.10f} {4:10.10f} {5:10.10f} {6:10.10f} ' \
                           '{7:10.10f} {8:10.10f}" Properties=species:S:1:pos:R:3 config_type="SED by pySED codes"'.format(
-                           xhi, 0.0, 0.0, xy, yhi, 0.0, xz, yz, zhi)
+                           lattice[0, 0], lattice[0, 1], lattice[0, 2],
+                           lattice[1, 0], lattice[1, 1], lattice[1, 2],
+                           lattice[2, 0], lattice[2, 1], lattice[2, 2])
 
             fid.write(lattice_str + f' pbc="{pbc}"' + '\n')
             for i, row in enumerate(self.supercell_position):
@@ -112,8 +114,11 @@ class structure_maker(object):
     def write_lammps_data(self, file_name='lammps_data', lammps_data_types=None, atom_order=None):
 
         # Get lammps data boundary
-        xhi, yhi, zhi, xy, xz, yz = self.calculate_lattice_parameters(self.cell, self.supercell)
+        restricted_cell, rotation = self.calculate_restricted_cell(self.calculate_supercell_matrix(self.cell, self.supercell),
+                                                                   return_rotation=True)
+        xhi, yhi, zhi, xy, xz, yz = self.lammps_parameters_from_restricted_cell(restricted_cell)
         xlo, ylo, zlo = 0.0, 0.0, 0.0
+        lammps_positions = self.supercell_position @ rotation
 
         # For atom types
         if atom_order is not None:
@@ -165,7 +170,7 @@ class structure_maker(object):
             fid.write('\nAtoms\n\n')
 
             if self.unit == 'metal':
-                for i, row in enumerate(self.supercell_position):
+                for i, row in enumerate(lammps_positions):
                     fid.write('{0} {1:d} {2:20.10f} {3:20.10f} {4:20.10f}  # {5}\n'.format(i + 1,
                                                                      self.unique_types.index(self.basis_atoms_symbols[i])+1,
                                                                      row[0], row[1], row[2],
@@ -175,7 +180,7 @@ class structure_maker(object):
                 # Counters for atom and molecule IDs
                 atom_id = 0
                 molecule_id = 0
-                for i, row in enumerate(self.supercell_position):
+                for i, row in enumerate(lammps_positions):
                     atom_id += 1
                     if i > 0 and i % self.unitcell_num_atoms == 0: # assign by supercell of z direction
                         molecule_id += 1
@@ -208,22 +213,88 @@ class structure_maker(object):
         print('************* ' + file_name + ' is written successfully' + ' ************\n')
 
     @staticmethod
+    def calculate_supercell_matrix(cell, supercell):
+        cell = np.asarray(cell, dtype=float)
+        supercell = np.asarray(supercell, dtype=float)
+
+        if cell.shape != (3, 3):
+            raise ValueError('cell must be a 3x3 matrix with lattice vectors as rows.')
+        if supercell.shape != (3,):
+            raise ValueError('supercell must contain three replication factors.')
+        if np.any(supercell <= 0):
+            raise ValueError('supercell replication factors must be positive.')
+
+        return np.diag(supercell) @ cell
+
+    @staticmethod
+    def calculate_restricted_cell(cell, return_rotation=False):
+        """
+        Convert any right-handed triclinic cell to the lower-triangular
+        restricted representation used by LAMMPS. The returned rotation maps
+        row-vector Cartesian coordinates from the input cell frame to the
+        restricted frame: new_positions = old_positions @ rotation.
+        """
+        cell = np.asarray(cell, dtype=float)
+        if cell.shape != (3, 3):
+            raise ValueError('cell must be a 3x3 matrix with lattice vectors as rows.')
+
+        avec, bvec, cvec = cell
+        ax = np.linalg.norm(avec)
+        if np.isclose(ax, 0.0):
+            raise ValueError('The first lattice vector has zero length.')
+
+        ex = avec / ax
+        bx = np.dot(bvec, ex)
+        by_vec = bvec - bx * ex
+        by = np.linalg.norm(by_vec)
+        if np.isclose(by, 0.0):
+            raise ValueError('The first two lattice vectors are collinear.')
+
+        ey = by_vec / by
+        ez = np.cross(ex, ey)
+        ez_norm = np.linalg.norm(ez)
+        if np.isclose(ez_norm, 0.0):
+            raise ValueError('The lattice vectors do not form a valid 3D cell.')
+        ez = ez / ez_norm
+
+        cx = np.dot(cvec, ex)
+        cy = np.dot(cvec, ey)
+        cz = np.dot(cvec, ez)
+        if cz <= 0.0 and np.isclose(cz, 0.0):
+            raise ValueError('The third lattice vector is coplanar with the first two.')
+        if cz < 0.0:
+            raise ValueError('The cell must be right-handed for LAMMPS restricted triclinic output.')
+
+        restricted_cell = np.array([[ax, 0.0, 0.0],
+                                    [bx, by, 0.0],
+                                    [cx, cy, cz]])
+        restricted_cell[np.isclose(restricted_cell, 0.0, atol=1e-12)] = 0.0
+
+        rotation = np.vstack((ex, ey, ez)).T
+        if return_rotation:
+            return restricted_cell, rotation
+        return restricted_cell
+
+    @staticmethod
+    def lammps_parameters_from_restricted_cell(restricted_cell):
+        restricted_cell = np.asarray(restricted_cell, dtype=float)
+        if restricted_cell.shape != (3, 3):
+            raise ValueError('restricted_cell must be a 3x3 matrix.')
+
+        xhi = restricted_cell[0, 0]
+        yhi = restricted_cell[1, 1]
+        zhi = restricted_cell[2, 2]
+        xy = restricted_cell[1, 0]
+        xz = restricted_cell[2, 0]
+        yz = restricted_cell[2, 1]
+
+        return xhi, yhi, zhi, xy, xz, yz
+
+    @staticmethod
     def calculate_lattice_parameters(cell, supercell):
-
-        a = np.linalg.norm(cell[0]) * supercell[0]
-        b = np.linalg.norm(cell[1]) * supercell[1]
-        c = np.linalg.norm(cell[2]) * supercell[2]
-
-        alpha = np.arccos(np.dot(cell[1], cell[2]) / (np.linalg.norm(cell[1]) * np.linalg.norm(cell[2])))
-        beta = np.arccos(np.dot(cell[0], cell[2]) / (np.linalg.norm(cell[0]) * np.linalg.norm(cell[2])))
-        gamma = np.arccos(np.dot(cell[0], cell[1]) / (np.linalg.norm(cell[0]) * np.linalg.norm(cell[1])))
-
-        xhi = a
-        xy = b * np.cos(gamma)
-        xz = c * np.cos(beta)
-        yhi = np.sqrt(b ** 2 - xy ** 2)
-        yz = (b * c * np.cos(alpha) - xy * xz) / yhi
-        zhi = np.sqrt(c ** 2 - xz ** 2 - yz ** 2)
+        supercell_matrix = structure_maker.calculate_supercell_matrix(cell, supercell)
+        restricted_cell = structure_maker.calculate_restricted_cell(supercell_matrix)
+        xhi, yhi, zhi, xy, xz, yz = structure_maker.lammps_parameters_from_restricted_cell(restricted_cell)
 
         return xhi, yhi, zhi, xy, xz, yz
 
