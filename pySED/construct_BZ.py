@@ -111,12 +111,12 @@ class BZ_methods(object):
             params.prim_unitcell = expected_prim_unitcell
             if self.box_info:
                 print(
-                    "\n⚠pySED identified that structural optimization is likely performed using the NVT ensemble.")
+                    "\n⚠️pySED identified that structural optimization is likely performed using the NVT ensemble.")
 
         else:
             if self.box_info:
                 print(
-                    "\n⚠Warning⚠: The cell matrix in the trajectory is different from calculated "
+                    "\n⚠️Warning⚠️: The cell matrix in the trajectory is different from calculated "
                     "by the primitive cell and supercell dimensions.")
                 print("This suggests that structural optimization is likely performed using the NPT ensemble.")
 
