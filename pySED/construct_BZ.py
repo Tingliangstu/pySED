@@ -87,15 +87,15 @@ class BZ_methods(object):
         with h5py.File(params.output_hdf5, 'r') as database:
             box_in_traj = database['box'][()]
 
-        # Here is important, means that the supercells used for MD simulation can be different from primitive cells
+        # Here is important, means that the supercells used for MD simulation can be different from primitive cells.
         self.supercell = box_in_traj
 
-        xhi, yhi, zhi, xy, xz, yz = generate_data.structure_maker.calculate_lattice_parameters(params.prim_unitcell,
-                                                                                               params.supercell_dim)
-        # Construct the expected box matrix
-        expected_box = np.array([[xhi, 0.0, 0.0],
-                                 [xy, yhi, 0.0],
-                                 [xz, yz, zhi]])
+        expected_prim_unitcell = params.prim_unitcell
+        expected_box = generate_data.structure_maker.calculate_supercell_matrix(expected_prim_unitcell,
+                                                                                params.supercell_dim)
+        if str(params.file_format).lower() == 'lammps':
+            expected_box = generate_data.structure_maker.calculate_restricted_cell(expected_box)
+            expected_prim_unitcell = generate_data.structure_maker.calculate_restricted_cell(expected_prim_unitcell)
 
         if self.box_info:
             print("\n************************** Structural information *****************************")
@@ -107,7 +107,13 @@ class BZ_methods(object):
             for row in box_in_traj:
                 print("  {: .8e}    {: .8e}    {: .8e}".format(row[0], row[1], row[2]))
 
-        if np.any(np.abs(box_in_traj - expected_box) > 1e-4):
+        if np.allclose(box_in_traj, expected_box, atol=1e-4):
+            params.prim_unitcell = expected_prim_unitcell
+            if self.box_info:
+                print(
+                    "\n⚠️pySED identified that structural optimization is likely performed using the NVT ensemble.")
+
+        else:
             if self.box_info:
                 print(
                     "\n⚠️Warning⚠️: The cell matrix in the trajectory is different from calculated "
@@ -121,10 +127,6 @@ class BZ_methods(object):
                     print("\nNow, pySED have reconstructed primitive unit cell matrix from MD simulation cell (Angstrom):")
                     for row in params.prim_unitcell:
                         print("  {: .8e}    {: .8e}    {: .8e}".format(row[0], row[1], row[2]))
-        else:
-            if self.box_info:
-                print(
-                    "\n⚠️pySED identified that structural optimization is likely performed using the NVT ensemble.")
 
         # see ref: https://phonopy.github.io/phonopy/setting-tags.html#primitive-axes
         if params.prim_axis is not None:
