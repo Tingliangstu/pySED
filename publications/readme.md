@@ -6,7 +6,9 @@
 
 * Penghua Ying, Ting Liang, Yun Chen, Yan Chen, Shiyun Xiong, Zheyong Fan, Jianbin Xu, Yilun Liu, [Structurally Triggered Breakdown of the Phonon Gas Model in Crystalline Metal-Organic Frameworks](https://arxiv.org/abs/2604.03783)
 
-## 2026 (17)
+## 2026 (18)
+
+* Yilin Fang, Weiyi Li, Guiyun Hang, Jintao Wang, Xiyao Yun, Wan xiao Guo, Tao Wang, and Wenli Yu, [New Insights into Thermal Transport in ¦Å-CL-20 Revealed by Machine-Learned Potentials and Mode-Projection Analysis](https://doi.org/10.1021/acs.jpca.6c00862), The Journal of Physical Chemistry A, (2026).
 
 * Jincheng Yue, Rongkun Chen, Xinkai Sun, Yinong Liu, Xiaolong Li, and Shiqian Hu, [Phonon overdamping defines the ultimate limit of lattice thermal conductivity](https://journals.aps.org/prb/abstract/10.1103/jhfd-vzjy), Physical Review B, **113**, L161401, (2026).
 
