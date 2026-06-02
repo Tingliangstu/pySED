@@ -391,8 +391,8 @@ class BZPathHelper:
         if np.allclose(start_frac, end_frac):
             return [Fraction(0, 1)]
 
-        s = np.array([Fraction(x).limit_denominator() for x in start_frac])
-        e = np.array([Fraction(x).limit_denominator() for x in end_frac])
+        s = np.array([self._as_commensurate_fraction(x) for x in start_frac])
+        e = np.array([self._as_commensurate_fraction(x) for x in end_frac])
 
         P_T = self.P.T
         s_sc = s @ P_T
@@ -431,3 +431,20 @@ class BZPathHelper:
         fracs = [Fraction(n - a, b) for n in range(n_min, n_max + 1)]
 
         return [f for f in fracs if 0 <= f <= 1]
+
+    @staticmethod
+    def _as_commensurate_fraction(value, max_denominator=12, atol=1e-6):
+        """
+        Convert q-path coordinates to stable Fractions.
+
+        Users often enter high-symmetry points as decimal approximations,
+        e.g. 0.333333 for 1/3. Treat nearby small-denominator fractions as
+        the intended value, otherwise preserve the decimal value.
+        """
+        frac = Fraction(str(float(value)))
+        simple = frac.limit_denominator(max_denominator)
+
+        if abs(float(simple) - float(value)) <= atol:
+            return simple
+
+        return frac
