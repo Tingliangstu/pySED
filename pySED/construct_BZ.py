@@ -433,12 +433,12 @@ class BZPathHelper:
         return [f for f in fracs if 0 <= f <= 1]
 
     @staticmethod
-    def _as_commensurate_fraction(value, max_denominator=12, atol=1e-6):
+    def _as_commensurate_fraction(value, max_denominator=12, atol=1e-5):
         """
         Convert q-path coordinates to stable Fractions.
 
         Users often enter high-symmetry points as decimal approximations,
-        e.g. 0.333333 for 1/3. Treat nearby small-denominator fractions as
+        e.g. 0.33333 for 1/3. Treat nearby small-denominator fractions as
         the intended value, otherwise preserve the decimal value.
         """
         frac = Fraction(str(float(value)))
