@@ -6,11 +6,18 @@
 '''
 
 import numpy as np
+from fractions import Fraction
 
 def print_error(txt, input_file):
     print('\nERROR: Value for input paramater "{}" seems wrong or should not exist in {}, '
           'please check it and see README.\n'.format(txt, input_file))
     exit()
+
+def parse_float_or_fraction(token):
+    try:
+        return float(token)
+    except ValueError:
+        return float(Fraction(token))
 
 class get_parse_input(object):
     def __init__(self, input_file='input_SED.in'):
@@ -184,7 +191,7 @@ class get_parse_input(object):
                     needed = (self.num_qpaths + 1) * 3
                     if len(tokens) < needed:
                         print_error('q_path', input_file)
-                    self.q_path = np.array(tokens[:needed]).astype(float)
+                    self.q_path = np.array([parse_float_or_fraction(token) for token in tokens[:needed]])
                     self.q_path = self.q_path.reshape(self.num_qpaths+1, 3)
 
                 except:
@@ -420,7 +427,7 @@ class get_parse_input(object):
             needed = (self.num_qpaths + 1) * 3
             if len(self._pending_q_path_tokens) < needed:
                 print_error('q_path', input_file)
-            self.q_path = np.array(self._pending_q_path_tokens[:needed]).astype(float)
+            self.q_path = np.array([parse_float_or_fraction(token) for token in self._pending_q_path_tokens[:needed]])
             self.q_path = self.q_path.reshape(self.num_qpaths+1, 3)
 
 if __name__ == "__main__":
