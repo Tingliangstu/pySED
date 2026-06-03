@@ -10,19 +10,6 @@ Use this directory together with the
 [`input_SED.in` parameter guide](https://pysed.readthedocs.io/en/latest/input_parameters.html)
 first.
 
-Useful direct links:
-
-- [`num_atoms`](https://pysed.readthedocs.io/en/latest/input_parameters.html#num-atoms)
-- [`output_data_stride`](https://pysed.readthedocs.io/en/latest/input_parameters.html#output-data-stride)
-- [`supercell_dim`](https://pysed.readthedocs.io/en/latest/input_parameters.html#supercell-dim)
-- [`plot_SED`](https://pysed.readthedocs.io/en/latest/input_parameters.html#plot-sed)
-- [`plot_slice`](https://pysed.readthedocs.io/en/latest/input_parameters.html#plot-slice)
-- [`qpoint_slice_index`](https://pysed.readthedocs.io/en/latest/input_parameters.html#qpoint-slice-index)
-- [`peak_height`](https://pysed.readthedocs.io/en/latest/input_parameters.html#peak-height)
-- [`peak_prominence`](https://pysed.readthedocs.io/en/latest/input_parameters.html#peak-prominence)
-- [`initial_guess_hwhm`](https://pysed.readthedocs.io/en/latest/input_parameters.html#initial-guess-hwhm)
-- [`output_partial`](https://pysed.readthedocs.io/en/latest/input_parameters.html#output-partial)
-
 ---
 
 ## 🧭 Workflow Map
@@ -37,8 +24,8 @@ Each modern GPUMD example follows this sequence:
 - [x] **[4. Plot/Fit]** Run pySED with `plot_SED = 1`, then tune plotting or Lorentz fitting parameters.
 - [x] **[5. Validate]** Compare with lattice dynamics when an LD workflow is provided.
 
-For repeatable runs, you can put the structure generation, MD run, pySED
-calculation, and plotting commands into a `.sh` workflow script. See the
+For workflow automation, you can put the structure generation, MD run, pySED
+calculation, and plotting commands into a `.sh` script. See the
 [manual tips page](https://pysed.readthedocs.io/en/latest/tips.html) for a
 `run_SED.sh`-style example.
 
@@ -62,9 +49,10 @@ in the structure-generation script, then write `model.xyz` and `basis.in`.
 ## 🧩 Reference and Legacy Folders
 
 - **`Ref_Phonon_dispersion_from_phonopy`**
-  Legacy reference lattice-dynamics workflows using phonopy. They are kept for
-  checking whether SED branches agree with harmonic phonon dispersions, but
-  these older scripts may be removed or reorganized in future releases.
+  Legacy reference lattice-dynamics workflows using phonopy for previous
+  empirical-potential examples. They are kept to check whether SED branches
+  from those older workflows agree with harmonic phonon dispersions, but these
+  scripts may be removed or reorganized in future releases.
 
 - **`For_old_version_example`**
   Older LAMMPS-based and legacy workflows. Start from the modern GPUMD examples
