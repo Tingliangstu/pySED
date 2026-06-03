@@ -131,9 +131,9 @@ clear:
 
 - [`plot_cutoff_freq`](https://pysed.readthedocs.io/en/latest/input_parameters.html#plot-cutoff-freq)
 - [`plot_interval`](https://pysed.readthedocs.io/en/latest/input_parameters.html#plot-interval)
-- `plot_color`
-- `colorbar_min`
-- `colorbar_max`
+- [`plot_color`](https://pysed.readthedocs.io/en/latest/input_parameters.html#plot-color)
+- [`colorbar_min`](https://pysed.readthedocs.io/en/latest/input_parameters.html#colorbar-min)
+- [`colorbar_max`](https://pysed.readthedocs.io/en/latest/input_parameters.html#colorbar-max)
 
 The raw pySED figure is:
 
@@ -145,9 +145,10 @@ The raw pySED figure is:
 
 This example includes an LD comparison workflow in `SED/compare_LD/`:
 
-- `get_phonon_dispersion.py` calculates the NEP-driven LD dispersion using
-  `calorine` and `phonopy`.
-- `plot_phonon_dis_NEP_SED.py` overlays the LD branches on the pySED SED map.
+- [`get_phonon_dispersion.py`](SED/compare_LD/get_phonon_dispersion.py)
+  calculates the NEP-driven LD dispersion using `calorine` and `phonopy`.
+- [`plot_phonon_dis_NEP_SED.py`](SED/compare_LD/plot_phonon_dis_NEP_SED.py)
+  overlays the LD branches on the pySED SED map.
 
 The final comparison figure should show strong agreement between the SED
 background and LD branches.
@@ -161,4 +162,5 @@ background and LD branches.
 - [x] [`num_atoms = 3200`](https://pysed.readthedocs.io/en/latest/input_parameters.html#num-atoms) matches `basis.in` and `dump.xyz`.
 - [x] [`supercell_dim = 40 40 1`](https://pysed.readthedocs.io/en/latest/input_parameters.html#supercell-dim) matches the generated graphene supercell.
 - [x] [`output_data_stride = 10`](https://pysed.readthedocs.io/en/latest/input_parameters.html#output-data-stride) matches `dump_exyz 10 1`.
-- [x] `q_path_name = 'GMKG'` has `num_qpaths + 1` labels.
+- [x] [`q_path_name = 'GMKG'`](https://pysed.readthedocs.io/en/latest/input_parameters.html#q-path-name) has
+  [`num_qpaths + 1`](https://pysed.readthedocs.io/en/latest/input_parameters.html#num-qpaths) labels.

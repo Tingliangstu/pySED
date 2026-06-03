@@ -109,8 +109,9 @@ For the first run, use:
 plot_SED = 0
 ```
 
-After `silicon.SED`, `silicon.Qpts`, and `silicon.THz` exist, set the
-following value in `SED/input_SED.in`:
+After `silicon.SED`, `silicon.Qpts`, and `silicon.THz` exist, set
+[`plot_SED`](https://pysed.readthedocs.io/en/latest/input_parameters.html#plot-sed)
+in `SED/input_SED.in`:
 
 ```text
 plot_SED = 1
@@ -124,6 +125,11 @@ q_path_name = 'GXUKGL'
 q_path = 0.0 0.0 0.0  0.5 0.0 0.5  0.625 0.25 0.625  0.375 0.375 0.75  0.0 0.0 0.0  0.5 0.5 0.5
 ```
 
+For the q-path syntax, see
+[`num_qpaths`](https://pysed.readthedocs.io/en/latest/input_parameters.html#num-qpaths),
+[`q_path_name`](https://pysed.readthedocs.io/en/latest/input_parameters.html#q-path-name),
+and [`q_path`](https://pysed.readthedocs.io/en/latest/input_parameters.html#q-path).
+
 The raw pySED SED map is:
 
 ![Silicon SED](SED/silicon-SED.png)
@@ -134,9 +140,10 @@ The raw pySED SED map is:
 
 The `SED/compare_LD/` directory contains:
 
-- `get_phonon_dispersion.py` calculates the NEP-driven LD dispersion using
-  `calorine` and `phonopy`.
-- `plot_phonon_dis_NEP_SED.py` overlays the LD branches on the pySED SED map.
+- [`get_phonon_dispersion.py`](SED/compare_LD/get_phonon_dispersion.py)
+  calculates the NEP-driven LD dispersion using `calorine` and `phonopy`.
+- [`plot_phonon_dis_NEP_SED.py`](SED/compare_LD/plot_phonon_dis_NEP_SED.py)
+  overlays the LD branches on the pySED SED map.
 
 The final comparison figure should show strong agreement between the SED
 background and LD branches.
@@ -160,7 +167,10 @@ lorentz_fit_cutoff = 20
 
 Tune these key parameters in `SED/input_SED.in`:
 
+- [`plot_slice`](https://pysed.readthedocs.io/en/latest/input_parameters.html#plot-slice)
 - [`qpoint_slice_index`](https://pysed.readthedocs.io/en/latest/input_parameters.html#qpoint-slice-index)
+- [`lorentz`](https://pysed.readthedocs.io/en/latest/input_parameters.html#lorentz)
+- [`lorentz_fit_cutoff`](https://pysed.readthedocs.io/en/latest/input_parameters.html#lorentz-fit-cutoff)
 - [`peak_height`](https://pysed.readthedocs.io/en/latest/input_parameters.html#peak-height)
 - [`peak_prominence`](https://pysed.readthedocs.io/en/latest/input_parameters.html#peak-prominence)
 - [`initial_guess_hwhm`](https://pysed.readthedocs.io/en/latest/input_parameters.html#initial-guess-hwhm)
@@ -172,5 +182,6 @@ Tune these key parameters in `SED/input_SED.in`:
 - [x] [`num_atoms = 16000`](https://pysed.readthedocs.io/en/latest/input_parameters.html#num-atoms) matches `basis.in` and `dump.xyz`.
 - [x] [`supercell_dim = 20 20 20`](https://pysed.readthedocs.io/en/latest/input_parameters.html#supercell-dim) matches the generated silicon supercell.
 - [x] [`output_data_stride = 10`](https://pysed.readthedocs.io/en/latest/input_parameters.html#output-data-stride) matches `dump_exyz 10 1`.
-- [x] `prim_unitcell` is consistent with the primitive silicon cell.
-- [x] `q_path_name = 'GXUKGL'` has `num_qpaths + 1` labels.
+- [x] [`prim_unitcell`](https://pysed.readthedocs.io/en/latest/input_parameters.html#prim-unitcell) is consistent with the primitive silicon cell.
+- [x] [`q_path_name = 'GXUKGL'`](https://pysed.readthedocs.io/en/latest/input_parameters.html#q-path-name) has
+  [`num_qpaths + 1`](https://pysed.readthedocs.io/en/latest/input_parameters.html#num-qpaths) labels.
