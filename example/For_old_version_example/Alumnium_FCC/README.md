@@ -93,5 +93,5 @@ unfix           NVE
 
 One can modify the **input_SED.in** and play with it.
 
-The parameters in input_sed. in are explained in detail.
+The parameters in **input_SED.in** are explained in detail.
 

@@ -1,96 +1,122 @@
-# pySED Tutorial: Calculating Spectral Energy Density (SED) for Bulk MoS<sub>2<sub/>
+# MoS2 SED Example
 
-This guide walks you through using **pySED** to compute the **Spectral Energy Density (SED)** of a **Bulk MoS<sub>2<sub/>** (for the out-of-plane) system entirely in **GPUMD**.
+This example calculates the low-frequency out-of-plane SED of layered MoS2
+with GPUMD trajectories and pySED.
 
-It is strongly recommended that you reproduce this tutorial **exactly** before applying the method to your own system.
+## Purpose
 
----
+Use this example to learn how to:
 
-## **Workflow Overview**
+- build a layered-material supercell,
+- analyze the `G-A` out-of-plane q-path,
+- plot low-frequency SED branches,
+- fit Lorentzian peaks in a narrow frequency range.
 
-1. **Generate [model.xyz](https://gpumd.org/gpumd/input_files/model_xyz.html) structure file for gpumd and basis files for pySED**
-2. **Run GPUMD to produce trajectory files (`dump.exyz`)**
-3. **Run pySED to calculate the SED**
-4. **SED compare with lattice dynamic calculation**
- 
-## Usage
+## Folder Layout
 
-- [x] **1. Goto the structure folder and using the modify the generate_gpumd_xyz.py file** 
+- `structure/`
+  - `POSCAR_MoS2`: input structure.
+  - `generate_lammps_data.py`: creates structure files and `basis.in`.
+- `gpumd_run/`
+  - `run.in`: GPUMD run file.
+  - `nep.txt`: NEP potential.
+- `SED/`
+  - `input_SED.in`: pySED control file.
+  - Existing SED and Lorentzian fitting outputs.
 
-**`generate_gpumd_xyz.py`** Now only read [POSCAR](https://www.vasp.at/wiki/index.php/POSCAR) file.
+## Step 1: Generate Structure Files
 
-run **`python generate_gpumd_xyz.py`**, the [model.xyz](https://gpumd.org/gpumd/input_files/model_xyz.html) data and the basis.in will be generate.
-
-
-```python
-
-from pySED.structure import generate_data
-
-def generate_required_files(input_file, supercell):
-    '''
-    structure_maker class include functions:
-    1.replicate_supercell
-    2.write_xyz
-    3.write_lammps_data
-    4.write_lattice_basis_file
-    '''	 
-    # Generate a structure class
-    structure = generate_data.structure_maker(structure_file_name=input_file)
-    
-    # Generate supercell
-    structure.replicate_supercell(supercell=supercell)
-
-    # Write xyz files for gpumd
-    structure.write_xyz(filename='model.xyz', pbc="T T T")
-    
-    # Write basis.in files for further used
-    structure.write_lattice_basis_file()
-
-if __name__ == "__main__":
-
-    file_name = 'POSCAR_MoS2'                              ## The in file for lammps
-    supercell = (12, 12, 16)
-    generate_required_files(file_name, supercell)
-
+```bash
+cd example/MoS2_gpumd/structure
+python generate_lammps_data.py
 ```
 
-- [x] **2. Goto the gpumd_run folder and run GPUMD to generate the dump.xyz**.
+The script reads `POSCAR_MoS2`, builds a `12 x 12 x 16` supercell, and writes
+the `basis.in` file needed by pySED.
 
-Maybe one can modify the **[run.in]()**
+## Step 2: Run GPUMD
 
-```python
+```bash
+cd ../gpumd_run
+gpumd
+```
 
-potential      nep.txt
-dftd3          pbe  12  6
-velocity       300
+The production block uses:
 
-ensemble       npt_scr 300 300 100 0 0 0 0 0 0 20 20 20 20 20 20 1000
-time_step      1
-dump_thermo    10000
-dump_position  100000
-run            1000000
-
-######### Nose-Hoover ###############
-ensemble       nvt_nhc   300    300   100
-time_step      1
-dump_thermo    20000
-dump_position  50000
-run            500000
-
+```text
 ensemble       nve
 dump_exyz      50     1
 run            500000
-
 ```
 
+The matching pySED settings are:
 
-- [x] **3. Goto the SED folder and run pySED to get SED data** 
+```text
+total_num_steps = 500000
+time_step = 1
+output_data_stride = 50
+dump_xyz_file = '../gpumd_run/dump.xyz'
+```
 
-The parameters in input_sed.in are explained in detail.
+## Step 3: Compute SED
 
-One can use  **pysed -h** on the command line to find more details.
+```bash
+cd ../SED
+pysed input_SED.in
+```
 
-One can modify the **input_SED.in** and play with it.
+For the first calculation:
 
+```text
+plot_SED = 0
+```
 
-![SED of MoS<sub>2<sub/>](https://github.com/Tingliangstu/pySED/blob/main/example/MoS2_gpumd/SED/bulk_MoS2-SED.png)
+The example uses:
+
+```text
+num_qpaths = 1
+q_path_name = 'GA'
+q_path = 0.0 0.0 0.0  0.0 0.0 0.5
+```
+
+## Step 4: Plot Low-Frequency Modes
+
+After computing SED, set:
+
+```text
+plot_SED = 1
+plot_cutoff_freq = 2.0
+plot_interval = 0.5
+```
+
+The low cutoff keeps the out-of-plane branches visible.
+
+## Step 5: Lorentzian Fitting
+
+For single-q fitting, set:
+
+```text
+plot_slice = 1
+lorentz = 1
+lorentz_fit_cutoff = 2
+```
+
+Tune:
+
+- `qpoint_slice_index`
+- `peak_height`
+- `peak_prominence`
+- `initial_guess_hwhm`
+
+After fitting all q-points, pySED writes
+`TOTAL-LORENTZ-Qpoints.Fre_lifetime`.
+
+## Expected Result
+
+The final SED image is `SED/bulk_MoS2-SED.png`.
+
+## Checks
+
+- `num_atoms = 13824` must match `basis.in` and the trajectory.
+- `supercell_dim = 12 12 16` must match the generated supercell.
+- Use a small frequency cutoff when inspecting low-frequency branches.

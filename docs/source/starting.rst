@@ -1,61 +1,125 @@
 Quick Start
 ===========
 
-To use **pySED**, molecular dynamics (MD) simulations must first be performed using either  
-`GPUMD <https://gpumd.org/index.html>`_ or `LAMMPS <https://www.lammps.org/>`_ to generate the required trajectory and velocity data.
+The pySED workflow is a post-processing workflow. First run molecular dynamics
+to produce a trajectory with coordinates and velocities, then run pySED to
+compress the trajectory, construct commensurate q-points, calculate SED, plot
+the result, and optionally fit Lorentzian peaks.
 
-.. note::
+Recommended Workflow
+--------------------
 
-   After MD simulation, the usage of **pySED** is the same regardless of the MD engine.  
-   We provide two examples below, and strongly recommend repeating one before applying pySED to your own system.
+1. **Prepare the primitive structure.**
+   Start from a POSCAR or compatible structure file for the primitive cell.
 
-GPUMD Users
------------
+2. **Generate the MD supercell and ``basis.in``.**
+   Use ``pySED.structure.generate_data.structure_maker``. The generated
+   ``basis.in`` maps every atom in the MD supercell to its unit-cell index,
+   basis index, and mass. pySED needs this mapping for reciprocal-space SED.
 
-For GPUMD users, we recommend starting with the :math:`\text{MoS}_2` example.  
-This case is well-integrated with the latest version of pySED and serves as a comprehensive guide.
+3. **Run the MD simulation.**
+   Use GPUMD or LAMMPS. Equilibrate first, then run an NVE production trajectory
+   for SED.
 
+4. **Edit ``input_SED.in``.**
+   Set the trajectory path, number of atoms, MD step information, primitive
+   cell, supercell dimensions, and q-path.
 
-- Example folder: `MoS2 SED Example <https://github.com/Tingliangstu/pySED/tree/main/example/MoS2_gpumd>`_
+5. **Compute SED.**
 
-- Jupyter tutorial: `MoS2 Tutorial Notebook <https://github.com/Tingliangstu/pySED/blob/main/example/tutorials/MoS2/SED_MoS2.ipynb>`_
+   .. code-block:: bash
 
+      cd example/MoS2_gpumd/SED
+      pysed input_SED.in
 
-**Required GPUMD input format:**
+   For the first run, use ``plot_SED = 0``. pySED writes ``.SED``, ``.Qpts``,
+   ``.THz``, and ``.Q_distances_and_labels`` files.
 
-.. code-block:: bash
+6. **Plot SED.**
+   Set ``plot_SED = 1`` and run pySED again. Tune ``plot_cutoff_freq``,
+   ``plot_interval``, ``plot_color``, ``colorbar_min``, and ``colorbar_max`` for
+   a clean figure.
+
+7. **Fit lifetimes if needed.**
+   First set ``plot_slice = 1`` and choose ``qpoint_slice_index`` to inspect a
+   single q-point. Tune ``peak_height`` and ``peak_prominence``. After a good
+   single-q fit, set ``lorentz_fit_all_qpoint = 1``.
+
+GPUMD Trajectory
+----------------
+
+For GPUMD users, the production run should write an extended XYZ trajectory
+with positions and velocities. A minimal production block is:
+
+.. code-block:: text
 
    ensemble       nve
    dump_exyz      10     1
    run            500000
 
-This produces a `dump_exyz <https://gpumd.org/gpumd/input_parameters/dump_exyz.html#dump-exyz>`_ file containing atomic coordinates and velocities.
+The first number after ``dump_exyz`` is the output stride in MD steps. Use the
+same value for ``output_data_stride`` in ``input_SED.in``. For details, see the
+GPUMD manual page for
+`dump_exyz <https://gpumd.org/gpumd/input_parameters/dump_exyz.html>`_.
 
-LAMMPS Users
-------------
+In ``input_SED.in``, use:
 
-For LAMMPS users, we recommend starting with the silicon example.
+.. code-block:: text
 
-- Example folder:  
-  `Silicon SED Example <https://github.com/Tingliangstu/pySED/tree/main/example/For_old_version_example/Silicon>`_
+   file_format = 'gpumd'
+   dump_xyz_file = '../gpumd_run/dump.xyz'
 
-**Required LAMMPS input format:**
+LAMMPS Trajectory
+-----------------
 
-.. code-block:: bash
+LAMMPS writes position and velocity trajectories separately. The required dump
+format is sorted by atom id:
+
+.. code-block:: text
 
    dump            vels  all  custom  ${dt_dump}  vels.dat  id  type  vx  vy  vz
    dump_modify     vels  format  line "%d  %d  %0.8g  %0.8g  %0.8g"
    dump_modify     vels  sort  id
    dump            pos   all  custom  ${dt_dump}  pos.dat   id  type  x  y  z
-   dump_modify     pos   format  line  "%d  %d  %0.8g  %0.8g  %0.8g"
+   dump_modify     pos   format  line "%d  %d  %0.8g  %0.8g  %0.8g"
    dump_modify     pos   sort  id
 
    run             2097152
 
-In LAMMPS, the coordinate (`pos.dat`) and velocity (`vels.dat`) files are generated separately.  
-These files must be specified in the `input_SED.in` file when running pySED.
+In ``input_SED.in``, use:
 
-.. tip::
+.. code-block:: text
 
-   Always verify that your trajectory files are correctly formatted before running pySED.  
-   You can use the `pySED -h` command to check available options and input requirements.
+   file_format = 'lammps'
+   pos_file = '../lammps_run/pos.dat'
+   vels_file = '../lammps_run/vels.dat'
+   lammps_unit = 'metal'
+
+Use ``lammps_unit = 'metal'`` for velocities in Angstrom/ps and
+``lammps_unit = 'real'`` for velocities in Angstrom/fs.
+
+What to Check Before Running pySED
+----------------------------------
+
+- ``num_atoms`` equals the number of atoms in the trajectory and the maximum
+  atom id in ``basis.in``.
+- ``total_num_steps``, ``time_step``, and ``output_data_stride`` match the MD
+  production run.
+- ``prim_unitcell`` and ``supercell_dim`` reconstruct the MD supercell.
+- ``basis_lattice_file`` points to the correct ``basis.in`` file.
+- ``q_path_name`` has ``num_qpaths + 1`` labels.
+- ``q_path`` contains ``num_qpaths + 1`` reduced-coordinate triples.
+- The trajectory contains coordinates and velocities for every saved frame.
+
+Recommended First Examples
+--------------------------
+
+Start with an existing example before applying pySED to a new system:
+
+- 1D: `CNT <https://github.com/Tingliangstu/pySED/tree/main/example/CNT>`_
+- 2D: `Graphene <https://github.com/Tingliangstu/pySED/tree/main/example/In_plane_graphene_gpumd>`_
+  or `MoS2 <https://github.com/Tingliangstu/pySED/tree/main/example/MoS2_gpumd>`_
+- 3D: `Silicon <https://github.com/Tingliangstu/pySED/tree/main/example/Silicon_primitive_gpumd>`_
+
+If one of these examples reproduces the expected SED image, your installation
+and workflow are ready for a custom system.

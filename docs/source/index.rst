@@ -5,7 +5,11 @@
 
 Welcome to pySED's documentation!
 =================================
-To implement the SED method in 2010, phonon lifetime can be calculated
+
+**pySED** is a Python package for calculating kinetic-energy-weighted phonon
+spectral energy density (SED) from molecular dynamics trajectories. It can read
+trajectories from GPUMD and LAMMPS, construct commensurate q-points, plot SED
+maps, and fit Lorentzian peaks to estimate phonon lifetimes.
 
 .. toctree::
    :maxdepth: 1
@@ -16,7 +20,11 @@ To implement the SED method in 2010, phonon lifetime can be calculated
    requirements
    installation
    starting
+   input_parameters
    tutorials
    example
+   theory
+   tips
+   publications
    reference
    troubleshooting

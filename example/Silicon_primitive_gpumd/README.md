@@ -1,100 +1,112 @@
-# pySED Tutorial: Calculating Spectral Energy Density (SED) for Silicon
+# Bulk Silicon SED Example
 
-This guide walks you through using **pySED** to compute the **Spectral Energy Density (SED)** of a **Silicon** system entirely in **GPUMD**.
+This example calculates the phonon SED of bulk silicon with GPUMD and pySED,
+then compares the result with a lattice-dynamics reference.
 
-It is strongly recommended that you reproduce this tutorial **exactly** before applying the method to your own system.
+## Purpose
 
----
+Use this example to learn how to:
 
-## **Workflow Overview**
+- run a three-dimensional crystalline SED workflow,
+- use a multi-segment high-symmetry q-path,
+- check primitive-cell and supercell consistency,
+- compare pySED output with NEP-driven lattice dynamics,
+- perform single-q-point Lorentzian fitting.
 
-1. **Generate [model.xyz](https://gpumd.org/gpumd/input_files/model_xyz.html) structure file for gpumd and basis files for pySED**
-2. **Run GPUMD to produce trajectory files (`dump.exyz`)**
-3. **Run pySED to calculate the SED**
-4. **SED compare with lattice dynamic calculation**
- 
-## Usage
+## Folder Layout
 
-- [x] **1. Goto the structure folder and using the modify the generate_gpumd_xyz.py file** 
+- `structure/`
+  - `POSCAR_prim`: primitive silicon structure.
+  - `generate_lammps_data.py`: creates structure files and `basis.in`.
+- `gpumd_run/`
+  - `run.in`: GPUMD run file.
+  - `nep.txt`: NEP potential.
+- `SED/`
+  - `input_SED.in`: pySED control file.
+  - `compare_LD/`: scripts and data for lattice-dynamics comparison.
 
-**`generate_gpumd_xyz.py`** Now only read [POSCAR](https://www.vasp.at/wiki/index.php/POSCAR) file.
+## Step 1: Generate Structure Files
 
-run **`python generate_gpumd_xyz.py`**, the [model.xyz](https://gpumd.org/gpumd/input_files/model_xyz.html) data and the basis.in will be generate.
-
-
-```python
-
-from pySED.structure import generate_data
-
-def generate_required_files(input_file, supercell):
-    '''
-    structure_maker class include functions:
-    1.replicate_supercell
-    2.write_xyz
-    3.write_lammps_data
-    4.write_lattice_basis_file
-    '''	 
-    # Generate a structure class
-    structure = generate_data.structure_maker(structure_file_name=input_file)
-    
-    # Generate supercell
-    structure.replicate_supercell(supercell=supercell)
-
-    # Write xyz files for gpumd
-    structure.write_xyz(filename='model.xyz', pbc="T T T")
-
-    # Write basis.in files for further used
-    structure.write_lattice_basis_file()
-
-if __name__ == "__main__":
-
-    file_name = 'POSCAR_prim'                              ## The in file for lammps
-    supercell = (20, 20, 20)
-    generate_required_files(file_name, supercell)
-
+```bash
+cd example/Silicon_primitive_gpumd/structure
+python generate_lammps_data.py
 ```
 
-- [x] **2. Goto the gpumd_run folder and run GPUMD to generate the dump.xyz**.
+The script reads `POSCAR_prim`, builds a `20 x 20 x 20` supercell, and writes
+the `basis.in` file used by pySED.
 
-Maybe one can modify the **[run.in]()**
+## Step 2: Run GPUMD
 
-```python
+```bash
+cd ../gpumd_run
+gpumd
+```
 
-potential      nep.txt
-velocity       300
+The production block uses:
 
-######### Nose-Hoover ###############
-ensemble       nvt_nhc   300    300   100
-time_step      1
-dump_thermo    20000
-dump_position  100000
-run            1000000
-
+```text
 ensemble       nve
 dump_exyz      10     1
 run            500000
-
 ```
 
+The matching pySED settings are:
 
-- [x] **3. Goto the SED folder and run pySED to get SED data** 
+```text
+total_num_steps = 500000
+time_step = 1
+output_data_stride = 10
+dump_xyz_file = '../gpumd_run/dump.xyz'
+```
 
-The parameters in input_sed.in are explained in detail.
+## Step 3: Compute or Plot SED
 
-One can use  **pysed -h** on the command line to find more details.
+```bash
+cd ../SED
+pysed input_SED.in
+```
 
-One can modify the **input_SED.in** and play with it.
+Use `plot_SED = 0` for the first compute run. Use `plot_SED = 1` after
+`silicon.SED`, `silicon.Qpts`, and `silicon.THz` exist.
 
+The q-path is:
 
+```text
+num_qpaths = 5
+q_path_name = 'GXUKGL'
+q_path = 0.0 0.0 0.0  0.5 0.0 0.5  0.625 0.25 0.625  0.375 0.375 0.75  0.0 0.0 0.0  0.5 0.5 0.5
+```
 
-- [x] **4. Compare SED with Lattice Dynamics (LD) Calculations** 
+## Step 4: Compare with Lattice Dynamics
 
-This example also provides a method to compare SED results with lattice dynamics (LD) calculations.
+The `SED/compare_LD/` directory contains:
 
-The relevant scripts are located in the `SED/compare_LD/` directory:
--   The `get_phonon_dispersion.py` script uses the **NEP** potential to calculate the phonon dispersion. This script utilizes both the `calorine` and `phonopy` packages.
--   The `plot_phonon_dis_NEP_SED.py` script is used to plot and compare the SED results obtained from pySED with the phonon dispersion curves calculated from lattice dynamics.
+- `get_phonon_dispersion.py`: calculates the NEP-driven lattice-dynamics
+  dispersion using calorine and phonopy.
+- `plot_phonon_dis_NEP_SED.py`: overlays the reference branches on pySED output.
 
-The final output figure (`Silicon.png`) should show an excellent agreement between the SED spectrum (background colormap) and the LD-calculated phonon branches (white dashed lines).
+The expected comparison figure is `SED/compare_LD/Silicon.png`.
 
-![Comparison of SED and LD for Silicon](https://github.com/Tingliangstu/pySED/blob/main/example/Silicon_primitive_gpumd/SED/compare_LD/Silicon.png)
+## Step 5: Fit a q-Point
+
+The example includes a single-q fitting result for q-point index 2. To repeat or
+adjust the fit:
+
+```text
+plot_SED = 1
+plot_slice = 1
+qpoint_slice_index = 2
+lorentz = 1
+lorentz_fit_cutoff = 20
+```
+
+Tune `peak_height`, `peak_prominence`, and `initial_guess_hwhm` until the fitted
+peaks match the visible SED slice.
+
+## Checks
+
+- `num_atoms = 16000` must match the trajectory and `basis.in`.
+- `supercell_dim = 20 20 20` must match the generated supercell.
+- `prim_unitcell` must be consistent with the primitive silicon cell.
+- If the generated q-point count is unexpected, check `q_path`, `q_path_name`,
+  and the supercell size.

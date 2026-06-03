@@ -3,6 +3,9 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
+import re
+from pathlib import Path
+
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
@@ -14,10 +17,80 @@ release = '1.0.0'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ['recommonmark','sphinx_markdown_tables','nbsphinx'] 
+extensions = ['recommonmark', 'sphinx_markdown_tables', 'nbsphinx', 'sphinx.ext.mathjax']
 
 templates_path = ['_templates']
 exclude_patterns = []
+
+source_suffix = {
+    '.rst': 'restructuredtext',
+}
+
+
+def _markdown_links_to_rst(text):
+    def convert_link(match):
+        label = match.group(1)
+        url = match.group(2)
+        label = re.sub(r'<sub>(.*?)</sub>', r'\1', label)
+        label = label.replace('&theta;', 'theta').replace('\\&', '&')
+        return f'`{label} <{url}>`_'
+
+    return re.sub(r'\[([^\]]+)\]\(([^)]+)\)', convert_link, text)
+
+
+def _sync_publications_page():
+    """Create the docs publications page from the repository publication list."""
+    docs_source = Path(__file__).resolve().parent
+    repo_root = docs_source.parents[1]
+    source = repo_root / 'publications' / 'readme.md'
+    target = docs_source / 'publications.rst'
+    legacy_markdown_target = docs_source / 'publications.md'
+
+    if not source.exists():
+        return
+
+    if legacy_markdown_target.exists():
+        legacy_markdown_target.unlink()
+
+    data = source.read_bytes()
+    for encoding in ('utf-8', 'gbk', 'cp1252'):
+        try:
+            text = data.decode(encoding)
+            break
+        except UnicodeDecodeError:
+            text = None
+    if text is None:
+        text = data.decode('utf-8', errors='replace')
+    lines = text.replace('\r\n', '\n').replace('\r', '\n').splitlines()
+    output = []
+    for line in lines:
+        stripped = line.strip()
+        if stripped == '# Publications using pySED':
+            title = 'Publications'
+            output.extend([
+                title,
+                '=' * len(title),
+                '',
+                'This page is generated from '
+                '`publications/readme.md <https://github.com/Tingliangstu/pySED/tree/main/publications>`_. '
+                'To update this page, edit ``publications/readme.md``, rebuild the documentation, '
+                'and push the change to GitHub. ReadTheDocs will sync it during the next build.',
+                '',
+            ])
+        elif stripped.startswith('## '):
+            title = stripped[3:]
+            output.extend(['', title, '-' * len(title), ''])
+        elif stripped.startswith('* '):
+            output.append('- ' + _markdown_links_to_rst(stripped[2:]))
+        elif stripped:
+            output.append(_markdown_links_to_rst(stripped))
+        elif output and output[-1] != '':
+            output.append('')
+
+    target.write_text('\n'.join(output).rstrip() + '\n', encoding='utf-8')
+
+
+_sync_publications_page()
 
 
 
