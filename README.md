@@ -3,116 +3,123 @@
 
 # pySED
 
-pySED is a Python package for calculating kinetic-energy-weighted phonon
-spectral energy density (SED) from molecular dynamics trajectories. It supports
-GPUMD and LAMMPS trajectory formats, plots phonon SED maps, and fits SED peaks
-with Lorentzian functions to estimate phonon lifetimes.
+**To implement the [phonon SED (spectral energy desity) method in 2010](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.81.081411), phonon lifetime can be easily calculated.** 
 
-Online manual: <https://pysed.readthedocs.io/en/latest/>
+## Main features
 
-## Main Features
+- Output a very nice SED image 
+- Using Lorentz to fitting the SED peak 
+- Fit all peaks at once and output phonon lifetimes, or can fit them individually
+- Phonon lifetime can only be obtained qualitatively
+- Can be used in parallel and get SED results quickly
+- Can interface with [GPUMD](https://github.com/brucefan1983/GPUMD?tab=readme-ov-file) and [LAMMPS](https://www.lammps.org/#gsc.tab=0), capable of capturing quantum dynamics.
 
-- Compute phonon SED from GPUMD or LAMMPS molecular dynamics trajectories.
-- Construct commensurate q-points from primitive-cell and supercell information.
-- Plot publication-quality SED maps.
-- Fit SED peaks at a selected q-point or across all q-points.
-- Output frequency-lifetime data from Lorentzian fitting.
-- Compute and plot partial SED by atom type and Cartesian direction.
-- Run SED calculations in parallel for faster q-point processing.
+## Installation instructions
 
-## Installation
-
-Installing from source is recommended because pySED is actively maintained.
-
+1)  Download by git or from [source code](https://github.com/Tingliangstu/pySED). **Installing from source is highly recommended, as it is frequently maintained**.
 ```bash
 git clone https://github.com/Tingliangstu/pySED.git
+```
+2) Install
+```bash
 cd pySED
 pip install .
 ```
+  or one can use:
+```bash
+python setup.py install --user --prefix=
+```
 
-You can also install directly from GitHub:
+For convenience, you may want to copy (or link) the files inside scripts folder to a location included in $PATH environment variable.
 
+3) If one prefers a one-line installation without cloning manually:
 ```bash
 pip install git+https://github.com/Tingliangstu/pySED.git
 ```
 
-Verify the installation:
-
-```bash
-pysed -h
-```
-
-or
-
+4) Verify installation
 ```bash
 pySED -h
 ```
-
-## Documentation
-
-Start with these manual sections:
-
-- Theory: <https://pysed.readthedocs.io/en/latest/theory.html>
-- Quick Start: <https://pysed.readthedocs.io/en/latest/starting.html>
-- Input Parameters: <https://pysed.readthedocs.io/en/latest/input_parameters.html>
-- Examples: <https://pysed.readthedocs.io/en/latest/example.html>
-
-The `pysed -h` command also lists the supported `input_SED.in` parameters.
-
-## Basic Workflow
-
-1. Generate the MD supercell and `basis.in` file.
-2. Run GPUMD or LAMMPS to output coordinates and velocities.
-3. Edit `input_SED.in`.
-4. Run pySED in compute mode with `plot_SED = 0`.
-5. Run pySED in plotting mode with `plot_SED = 1`.
-6. Optionally fit Lorentzian peaks for phonon lifetimes.
-
-## Examples
-
-The example library is available at
-<https://github.com/Tingliangstu/pySED/tree/main/example>.
-
-### 1D Systems
-
-- Carbon nanotube: <https://github.com/Tingliangstu/pySED/tree/main/example/CNT>
-
-### 2D Systems
-
-- In-plane graphene:
-  <https://github.com/Tingliangstu/pySED/tree/main/example/In_plane_graphene_gpumd>
-- MoS<sub>2</sub> out-of-plane modes:
-  <https://github.com/Tingliangstu/pySED/tree/main/example/MoS2_gpumd>
-
-### 3D Systems
-
-- Bulk silicon:
-  <https://github.com/Tingliangstu/pySED/tree/main/example/Silicon_primitive_gpumd>
+  or
+```bash
+pysed -h
+```
+This means that `pySED` or `pysed` can be run directly from the command line.
+You can always use the `-h` flag to explore available options and understand how to prepare input files for `pySED`.
 
 ## Citations
 
-If you use pySED in your research, please cite:
+| Reference             | Cite for what?                    |
+| --------------------- | --------------------------------- |
+| [1]                   | for any work that used `pySED`    |
+| [2]                   | fundamental theory on phonon SED |
 
-[1] Ting Liang, Wenwu Jiang, Ke Xu, Hekai Bu, Zheyong Fan, Wengen Ouyang, and
-Jianbin Xu, "PYSED: A tool for extracting kinetic-energy-weighted phonon
-dispersion and lifetime from molecular dynamics simulations", *Journal of
-Applied Physics* **138**, 075101 (2025).
-<https://doi.org/10.1063/5.0278798>
+## References
 
-[2] J. A. Thomas, J. E. Turney, R. M. Iutzi, C. H. Amon, and A. J. H.
-McGaughey, "Predicting phonon dispersion relations and lifetimes from the
-spectral energy density", *Physical Review B* **81**, 081411 (2010).
-<https://doi.org/10.1103/PhysRevB.81.081411>
+[1] Ting Liang, Wenwu Jiang, Ke Xu, Hekai Bu, Zheyong Fan, Wengen Ouyang, Jianbin Xu, [PYSED: A tool for extracting kinetic-energy-weighted phonon dispersion and lifetime from molecular dynamics simulations](https://doi.org/10.1063/5.0278798). J. Appl. Phys. **138**, 075101 (2025).
 
-## Publications Using pySED
+[2] J. A. Thomas, J. E. Turney, R. M. Iutzi, C. H. Amon, A. J. H. McGaughey, [Predicting phonon dispersion relations and lifetimes from the spectral energy density](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.81.081411), Phys. Rev. B **81**, 081411 (2010).
+	
+## Publications using pySED
 
-See <https://github.com/Tingliangstu/pySED/tree/main/publications>.
+Please visit the [publications page](https://github.com/Tingliangstu/pySED/tree/main/publications).
 
-## Contact
 
-Ting Liang: liangting.zj@gmail.com
+## Usage
 
-Wenwu Jiang: wwjiang96@163.com
+The [example files](https://github.com/Tingliangstu/pySED/tree/main/example) have so many case provided to show how to use **pySED**. 
+If you can successfully reproduce these cases, you are ready to apply `pySED` to your own research systems.  
 
-Questions and suggestions can also be raised through the pySED GitHub issues
-page.
+Users can always use the `pysed -h` flag to explore available options and understand how to prepare input files for pySED.
+
+We also strongly encourage readers to browse through the [pySED paper](https://doi.org/10.1063/5.0278798), 
+as it contains a wealth of details that can greatly aid in understanding both the theoretical foundations 
+and the practical aspects of the SED methods it presents.
+
+
+**Online manual** [https://pysed.readthedocs.io](https://pysed.readthedocs.io/en/latest/)
+
+
+### 1D Systems
+- **Example**: Carbon Nanotube (CNT)  
+- Purpose: Learn how to set up and analyze SED for **one-dimensional materials**.  
+
+[CNT Example Folder](https://github.com/Tingliangstu/pySED/tree/main/example/CNT)  
+<p align="center">
+  <img src="https://github.com/Tingliangstu/pySED/blob/main/example/CNT/SED/CNT-SED.svg" alt="CNT SED" width="500">
+</p>
+
+### 2D Systems
+- **Examples**:  
+  - In-plane Graphene
+  - [Out-of-plane MoS<sub>2</sub>](https://github.com/Tingliangstu/pySED/tree/main/example/MoS2_gpumd)
+- Purpose: Learn how to analyze SED for **two-dimensional materials**.  
+
+[Graphene Example Folder](https://github.com/Tingliangstu/pySED/tree/main/example/In_plane_graphene_gpumd)  
+<p align="center">
+  <img src="https://github.com/Tingliangstu/pySED/blob/main/example/In_plane_graphene_gpumd/SED/compare_LD/Graphene.png" alt="Graphene SED" width="500">
+</p>
+
+
+### 3D Systems
+- **Example**: Bulk Silicon  
+- Purpose: Learn how to perform SED analysis for **three-dimensional crystalline materials**.  
+
+[Silicon Example Folder](https://github.com/Tingliangstu/pySED/tree/main/example/Silicon_primitive_gpumd)  
+<p align="center">
+  <img src="https://github.com/Tingliangstu/pySED/blob/main/example/Silicon_primitive_gpumd/SED/compare_LD/Silicon.png" alt="Silicon SED" width="500">
+</p>
+
+
+## Contact info
+
+Ting Liang
+liangting.zj@gmail.com;
+Wenwu Jiang
+wwjiang96@163.com
+
+Or one can raise questions and suggestion at QQ group:
+<p align="center">
+  <img src="https://github.com/Tingliangstu/pySED/blob/main/docs/source/_static/qq.jpg" alt="Silicon SED" width="400">
+</p>
