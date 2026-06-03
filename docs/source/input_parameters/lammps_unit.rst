@@ -8,7 +8,8 @@ lammps_unit
    lammps_unit = 'metal'
 
 **Meaning**
-   LAMMPS unit style used for velocity conversion.
+   LAMMPS unit style used to convert velocities into the units expected by
+   pySED. Set this to match the ``units`` command in the LAMMPS simulation.
 
 **Default**
    ``metal``.

@@ -8,7 +8,8 @@ plot_interval
    plot_interval = 5
 
 **Meaning**
-   Frequency tick interval on the y-axis, in THz.
+   Frequency tick interval on the plot y-axis, in THz. Smaller values give
+   denser labels and are useful for low-frequency plots.
 
 **Default**
    ``5``.

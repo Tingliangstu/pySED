@@ -8,7 +8,9 @@ file_format
    file_format = 'gpumd'
 
 **Meaning**
-   Selects the trajectory reader.
+   Selects which trajectory format pySED should read. Use ``gpumd`` for GPUMD
+   extended XYZ output and ``lammps`` for separate LAMMPS position and velocity
+   files.
 
 **Default**
    ``gpumd``.

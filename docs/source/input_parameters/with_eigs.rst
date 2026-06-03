@@ -8,7 +8,8 @@ with_eigs
    with_eigs = 1
 
 **Meaning**
-   Reserved for eigenvector-related development.
+   Reserved for future eigenvector-related development. Normal pySED SED
+   calculations do not need this parameter.
 
 **Default**
    ``None``.

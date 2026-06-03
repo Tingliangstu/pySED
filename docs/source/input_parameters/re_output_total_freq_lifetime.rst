@@ -8,8 +8,9 @@ re_output_total_freq_lifetime
    re_output_total_freq_lifetime = 1
 
 **Meaning**
-   Rebuild ``TOTAL-LORENTZ-Qpoints.Fre_lifetime`` after re-fitting selected
-   q-points.
+   Rewrites ``TOTAL-LORENTZ-Qpoints.Fre_lifetime`` after you re-fit a selected
+   q-point. Use it when one q-point fit was poor and you want to adjust
+   ``peak_height`` or ``peak_prominence`` without re-fitting all q-points.
 
 **Default**
    ``0``.

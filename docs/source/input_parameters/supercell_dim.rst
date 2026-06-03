@@ -8,7 +8,9 @@ supercell_dim
    supercell_dim = 12 12 16
 
 **Meaning**
-   Number of primitive-cell repeats used to build the MD supercell.
+   Number of primitive-cell repeats used to build the MD supercell. This
+   should match the actual MD trajectory cell, because pySED uses it to decide
+   which q-points are commensurate with the simulation.
 
 **Default**
    ``1 1 1``.
@@ -39,8 +41,10 @@ supercell_dim
    :math:`q(f)=q_{\mathrm{start}}+f(q_{\mathrm{end}}-q_{\mathrm{start}})`
    that satisfy :math:`q(f)P^T \in \mathbb{Z}^3`. In this case, inspect the
    printed ``Number of q-points generated`` message or the output ``.Qpts``
-   file. Increase the supercell repeats in the lattice directions that project
-   onto the desired q-path to improve resolution.
+   file. **Increase the supercell repeats in the lattice directions that
+   project onto the desired q-path to improve resolution.** If the calculation
+   can still fit in memory, use as large a supercell as practical; a larger
+   supercell gives denser q-point sampling.
 
 :doc:`Back to Parameter Index <../input_parameters>`
 

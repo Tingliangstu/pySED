@@ -8,7 +8,8 @@ peak_max_hwhm
    peak_max_hwhm = 0.1
 
 **Meaning**
-   Upper bound for the fitted HWHM.
+   Maximum allowed fitted half-width at half maximum (HWHM). It prevents very
+   broad or failed Lorentzian fits from being accepted as physical peaks.
 
 **Default**
    ``1e6``.

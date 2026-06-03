@@ -8,7 +8,9 @@ colorbar_max
    colorbar_max = -4
 
 **Meaning**
-   Upper colorbar limit after log scaling.
+   Upper limit of the SED color scale after log scaling. Increase it when the
+   strongest branches saturate the plot; decrease it when weak branches are too
+   hard to see.
 
 **Default**
    ``None``.

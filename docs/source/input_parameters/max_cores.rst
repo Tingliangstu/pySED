@@ -8,7 +8,8 @@ max_cores
    max_cores = 4
 
 **Meaning**
-   Maximum number of worker processes used in parallel mode.
+   Maximum number of CPU worker processes used when ``use_parallel = 1``. More
+   cores can speed up q-point calculations, but they also increase memory use.
 
 **Default**
    ``4``.

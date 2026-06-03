@@ -8,7 +8,9 @@ out_files_name
    out_files_name = 'bulk_MoS2'
 
 **Meaning**
-   Prefix used for output files.
+   Prefix used for pySED output files. For example, ``out_files_name =
+   'bulk_MoS2'`` produces files such as ``bulk_MoS2.SED``,
+   ``bulk_MoS2.Qpts``, and ``bulk_MoS2.THz``.
 
 **Default**
    No parser default. Set it explicitly.

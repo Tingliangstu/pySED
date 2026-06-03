@@ -8,7 +8,9 @@ if_show_figures
    if_show_figures = 0
 
 **Meaning**
-   Show figures interactively.
+   Controls whether Matplotlib figures are shown on screen after pySED creates
+   them. Use ``0`` for batch jobs or remote runs, and ``1`` when working
+   interactively.
 
 **Default**
    ``0``.

@@ -8,7 +8,9 @@ qpoint_slice_index
    qpoint_slice_index = 2
 
 **Meaning**
-   Zero-based q-point index used for single-q-point slice plotting and fitting.
+   Zero-based index of the q-point used for single-q-point plotting and
+   fitting. Use the ``.Qpts`` output file to identify which index corresponds
+   to the q-point you want to inspect.
 
 **Default**
    ``0``.

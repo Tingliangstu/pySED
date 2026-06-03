@@ -8,8 +8,9 @@ prim_axis
    prim_axis = 0.0 0.5 0.5 0.5 0.0 0.5 0.5 0.5 0.0
 
 **Meaning**
-   Transformation from the input cell to a primitive cell, following the same
-   idea as phonopy primitive axes.
+   Optional transformation from the input cell to a primitive cell, following
+   the same idea as phonopy primitive axes. Use it only when the structure file
+   is not already expressed in the primitive-cell basis expected by pySED.
 
 **Default**
    ``None``.

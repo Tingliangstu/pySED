@@ -1,8 +1,8 @@
 Tutorials
 =========
 
-This section contains tutorial material for pySED. Start with the MoS2 notebook
-if you want a step-by-step notebook workflow.
+This section contains tutorial material for pySED. Start with the
+MoS\ :sub:`2` notebook if you want a step-by-step notebook workflow.
 
 .. toctree::
    :maxdepth: 1

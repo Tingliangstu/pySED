@@ -8,7 +8,8 @@ pos_file
    pos_file = 'pos.dat'
 
 **Meaning**
-   LAMMPS position trajectory.
+   Path to the LAMMPS position trajectory file. Use this only when
+   ``file_format = 'lammps'``.
 
 **Default**
    ``pos.dat``.

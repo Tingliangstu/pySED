@@ -8,7 +8,9 @@ initial_guess_hwhm
    initial_guess_hwhm = 0.001
 
 **Meaning**
-   Initial guess for the Lorentzian HWHM.
+   Initial half-width at half maximum (HWHM) used when pySED starts a
+   Lorentzian fit. If fits fail or converge to unreasonable widths, this value
+   can help guide the optimizer.
 
 **Default**
    ``0.001``.

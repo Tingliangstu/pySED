@@ -8,7 +8,9 @@ num_splits
    num_splits = 5
 
 **Meaning**
-   Number of trajectory blocks used for block averaging.
+   Number of blocks used to split the trajectory before averaging SED. More
+   blocks can make the SED map smoother, but each block is shorter, so the
+   frequency resolution becomes coarser.
 
 **Default**
    ``1``.
