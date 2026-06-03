@@ -118,7 +118,7 @@ Start with an existing example before applying pySED to a new system:
 
 - 1D: `CNT <https://github.com/Tingliangstu/pySED/tree/main/example/CNT>`_
 - 2D: `Graphene <https://github.com/Tingliangstu/pySED/tree/main/example/In_plane_graphene_gpumd>`_
-  or `MoS\ :sub:`2` <https://github.com/Tingliangstu/pySED/tree/main/example/MoS2_gpumd>`_
+  or `MoS₂ <https://github.com/Tingliangstu/pySED/tree/main/example/MoS2_gpumd>`_
 - 3D: `Silicon <https://github.com/Tingliangstu/pySED/tree/main/example/Silicon_primitive_gpumd>`_
 
 If one of these examples reproduces the expected SED image, your installation
