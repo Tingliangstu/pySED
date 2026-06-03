@@ -1,7 +1,8 @@
-input_SED.in Parameters
-=======================
+Input Parameters
+================
 
-pySED reads a plain-text control file, usually named ``input_SED.in``. Each
+pySED reads a plain-text control file. The default file name is
+``input_SED.in``, but another file name can be passed on the command line. Each
 active line has the form
 
 .. code-block:: text
@@ -17,27 +18,14 @@ command line, pySED reads ``input_SED.in`` in the current directory:
    pysed input_SED.in
    pySED input_SED.in
 
-.. rubric:: Example ``input_SED.in``
-
-The following input file is the MoS\ :sub:`2` GPUMD example from
-`example/MoS2_gpumd/SED/input_SED.in <https://github.com/Tingliangstu/pySED/blob/main/example/MoS2_gpumd/SED/input_SED.in>`_.
-It shows a complete workflow, including MD trajectory settings, structure
-settings, q-path settings, plotting, and Lorentzian fitting options.
-
-.. literalinclude:: ../../example/MoS2_gpumd/SED/input_SED.in
-   :language: text
-   :caption: MoS\ :sub:`2` GPUMD ``input_SED.in`` example
-
-This page is the entry point for parameters accepted by ``input_SED.in``. The
-same parameter list is also shown under **input_SED.in Parameters** in the left
-sidebar, so users can jump directly to one parameter page from any page in this
-section. Each parameter page has the parameter name as its title and includes
-syntax, meaning, defaults, examples, practical notes, and related parameters.
+The table below lists the parameters accepted by the pySED input file. Each
+parameter has its own page with the parameter name as the title, plus syntax,
+meaning, defaults, examples, practical notes, and related parameters.
 
 .. toctree::
    :hidden:
    :maxdepth: 1
-   :caption: input_SED.in parameters
+   :caption: Input file parameters
 
    input_parameters/num_atoms
    input_parameters/total_num_steps
@@ -152,7 +140,7 @@ syntax, meaning, defaults, examples, practical notes, and related parameters.
 
 .. rst-class:: parameter-index
 
-.. list-table:: ``input_SED.in`` parameter pages
+.. list-table::
    :header-rows: 1
    :widths: 24 24 52
 

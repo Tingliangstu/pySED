@@ -34,6 +34,11 @@ output_data_stride
       \frac{500}
       {\mathrm{time\_step(fs)} \times \mathrm{output\_data\_stride}}.
 
+   This is the usual Nyquist limit,
+   ``f_max = 1 / (2 * time_step * output_data_stride)``. The factor ``500``
+   comes only from unit conversion: when ``time_step`` is given in fs, ``1/fs``
+   equals ``1000`` THz, and the Nyquist factor ``1/2`` gives ``1000 / 2 = 500``.
+
    For example, if ``time_step = 1`` fs and ``output_data_stride = 50``, the
    maximum resolvable frequency is ``10`` THz. Modes above this frequency
    cannot be recovered from the saved trajectory.
