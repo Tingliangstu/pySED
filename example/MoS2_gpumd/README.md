@@ -1,4 +1,4 @@
-# pySED Tutorial: Bulk MoS2 SED with GPUMD
+# 📢 pySED Tutorial: Bulk MoS2 SED with GPUMD
 
 This example computes the low-frequency out-of-plane SED of layered MoS2 using
 a GPUMD trajectory and pySED.
@@ -6,9 +6,14 @@ a GPUMD trajectory and pySED.
 Reproduce this example before applying pySED to another layered or
 two-dimensional material.
 
+Use this example together with the
+[online manual](https://pysed.readthedocs.io/en/latest/). For any unclear
+`input_SED.in` setting, go directly to the
+[`input_SED.in` parameter guide](https://pysed.readthedocs.io/en/latest/input_parameters.html).
+
 ---
 
-## Workflow Map
+## 🧭 Workflow Map
 
 `[1. Structure] -> [2. GPUMD trajectory] -> [3. pySED SED] -> [4. Low-frequency plot] -> [5. Lorentz fitting]`
 
@@ -22,7 +27,7 @@ two-dimensional material.
 
 ---
 
-## [Step 1] -> Generate `model.xyz` and `basis.in`
+## 🧱 [Step 1] -> Generate `model.xyz` and `basis.in`
 
 Go to the structure folder:
 
@@ -61,7 +66,7 @@ Generated files:
 
 ---
 
-## [Step 2] -> Run GPUMD and write `dump.xyz`
+## 🚀 [Step 2] -> Run GPUMD and write `dump.xyz`
 
 Go to the GPUMD folder:
 
@@ -89,7 +94,7 @@ dump_xyz_file = '../gpumd_run/dump.xyz'
 
 ---
 
-## [Step 3] -> Compute SED with pySED
+## ⚙️ [Step 3] -> Compute SED with pySED
 
 Go to the SED folder:
 
@@ -114,9 +119,9 @@ q_path = 0.0 0.0 0.0  0.0 0.0 0.5
 
 ---
 
-## [Step 4] -> Plot low-frequency SED
+## 📈 [Step 4] -> Plot low-frequency SED
 
-After the SED files exist, set:
+After the SED files exist, set the following values in `SED/input_SED.in`:
 
 ```text
 plot_SED = 1
@@ -131,9 +136,9 @@ visible.
 
 ---
 
-## [Step 5] -> Fit Lorentzian peaks
+## 🎯 [Step 5] -> Fit Lorentzian peaks
 
-For single-q-point fitting, use:
+For single-q-point fitting, set these values in `SED/input_SED.in`:
 
 ```text
 plot_slice = 1
@@ -141,22 +146,21 @@ lorentz = 1
 lorentz_fit_cutoff = 2
 ```
 
-Tune:
+Tune these key parameters in `SED/input_SED.in`:
 
-- `qpoint_slice_index`
-- `peak_height`
-- `peak_prominence`
-- `initial_guess_hwhm`
-- `peak_max_hwhm`
+- [`qpoint_slice_index`](https://pysed.readthedocs.io/en/latest/input_parameters.html#qpoint-slice-index)
+- [`peak_height`](https://pysed.readthedocs.io/en/latest/input_parameters.html#peak-height)
+- [`peak_prominence`](https://pysed.readthedocs.io/en/latest/input_parameters.html#peak-prominence)
+- [`initial_guess_hwhm`](https://pysed.readthedocs.io/en/latest/input_parameters.html#initial-guess-hwhm)
 
 After all-q-point fitting, pySED writes
 `TOTAL-LORENTZ-Qpoints.Fre_lifetime`.
 
 ---
 
-## Checklist
+## ✅ Checklist
 
-- [x] `num_atoms = 13824` matches `basis.in` and `dump.xyz`.
-- [x] `supercell_dim = 12 12 16` matches the generated MoS2 supercell.
-- [x] `output_data_stride = 50` matches `dump_exyz 50 1`.
-- [x] `plot_cutoff_freq = 2.0` is used for low-frequency branch inspection.
+- [x] [`num_atoms = 13824`](https://pysed.readthedocs.io/en/latest/input_parameters.html#num-atoms) matches `basis.in` and `dump.xyz`.
+- [x] [`supercell_dim = 12 12 16`](https://pysed.readthedocs.io/en/latest/input_parameters.html#supercell-dim) matches the generated MoS2 supercell.
+- [x] [`output_data_stride = 50`](https://pysed.readthedocs.io/en/latest/input_parameters.html#output-data-stride) matches `dump_exyz 50 1`.
+- [x] [`plot_cutoff_freq = 2.0`](https://pysed.readthedocs.io/en/latest/input_parameters.html#plot-cutoff-freq) is used for low-frequency branch inspection.

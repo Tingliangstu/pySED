@@ -1,13 +1,18 @@
-# pySED Tutorial: CNT SED with GPUMD
+# 📢 pySED Tutorial: CNT SED with GPUMD
 
 This example computes the spectral energy density (SED) of a carbon nanotube
 (CNT) using a GPUMD trajectory and pySED.
 
 Reproduce this example before applying pySED to a new one-dimensional system.
 
+Use this example together with the
+[online manual](https://pysed.readthedocs.io/en/latest/). For any unclear
+`input_SED.in` setting, go directly to the
+[`input_SED.in` parameter guide](https://pysed.readthedocs.io/en/latest/input_parameters.html).
+
 ---
 
-## Workflow Map
+## 🧭 Workflow Map
 
 `[1. Structure] -> [2. GPUMD trajectory] -> [3. pySED SED] -> [4. Plot/Fit lifetime]`
 
@@ -20,7 +25,7 @@ Reproduce this example before applying pySED to a new one-dimensional system.
 
 ---
 
-## [Step 1] -> Generate `model.xyz` and `basis.in`
+## 🧱 [Step 1] -> Generate `model.xyz` and `basis.in`
 
 Go to the structure folder:
 
@@ -61,7 +66,7 @@ Copy or link `model.xyz` into `gpumd_run/` if your GPUMD run folder needs it.
 
 ---
 
-## [Step 2] -> Run GPUMD and write `dump.xyz`
+## 🚀 [Step 2] -> Run GPUMD and write `dump.xyz`
 
 Go to the GPUMD folder:
 
@@ -90,7 +95,7 @@ dump_xyz_file = '../gpumd_run/dump.xyz'
 
 ---
 
-## [Step 3] -> Compute SED with pySED
+## ⚙️ [Step 3] -> Compute SED with pySED
 
 Go to the SED folder:
 
@@ -123,9 +128,9 @@ q_path = 0.0 0.0 0.0  0.0 0.0 0.5
 
 ---
 
-## [Step 4] -> Plot SED and fit lifetime
+## 📈 [Step 4] -> Plot SED and fit lifetime
 
-After the SED files exist, set:
+After the SED files exist, set the following values in `SED/input_SED.in`:
 
 ```text
 plot_SED = 1
@@ -133,13 +138,13 @@ plot_slice = 1
 lorentz = 1
 ```
 
-Tune the single-q-point fit first:
+Tune the single-q-point fit first. These key parameters are all in
+`SED/input_SED.in`:
 
-- `qpoint_slice_index`
-- `peak_height`
-- `peak_prominence`
-- `initial_guess_hwhm`
-- `peak_max_hwhm`
+- [`qpoint_slice_index`](https://pysed.readthedocs.io/en/latest/input_parameters.html#qpoint-slice-index)
+- [`peak_height`](https://pysed.readthedocs.io/en/latest/input_parameters.html#peak-height)
+- [`peak_prominence`](https://pysed.readthedocs.io/en/latest/input_parameters.html#peak-prominence)
+- [`initial_guess_hwhm`](https://pysed.readthedocs.io/en/latest/input_parameters.html#initial-guess-hwhm)
 
 After a reasonable single-q-point fit, use:
 
@@ -151,15 +156,15 @@ The all-q-point workflow writes `TOTAL-LORENTZ-Qpoints.Fre_lifetime`.
 
 ---
 
-## Expected Result
+## 🖼️ Expected Result
 
 ![CNT SED Result](SED/CNT-SED.svg)
 
 ---
 
-## Checklist
+## ✅ Checklist
 
-- [x] `num_atoms = 17920` matches `basis.in` and `dump.xyz`.
-- [x] `supercell_dim = 1 1 160` matches the generated CNT supercell.
-- [x] `output_data_stride = 8` matches `dump_exyz 8 1`.
+- [x] [`num_atoms = 17920`](https://pysed.readthedocs.io/en/latest/input_parameters.html#num-atoms) matches `basis.in` and `dump.xyz`.
+- [x] [`supercell_dim = 1 1 160`](https://pysed.readthedocs.io/en/latest/input_parameters.html#supercell-dim) matches the generated CNT supercell.
+- [x] [`output_data_stride = 8`](https://pysed.readthedocs.io/en/latest/input_parameters.html#output-data-stride) matches `dump_exyz 8 1`.
 - [x] The q-path `G-A` follows the tube axis.

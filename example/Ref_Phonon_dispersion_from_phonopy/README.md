@@ -1,4 +1,11 @@
-# Phonon Dispersion Calculator
+# 🧩 Legacy Phonon Dispersion Calculator
+
+This folder contains legacy reference lattice-dynamics scripts based on phonopy.
+They are kept for checking whether pySED branches agree with harmonic phonon
+dispersions, but these older scripts may be removed or reorganized in future
+releases. For current pySED workflows, start from the modern examples and the
+[online manual](https://pysed.readthedocs.io/en/latest/).
+
 Using Phonopy and Lammps-python interface to calculate the phonon dispersion and can be use to calculate most of different systems.
 
 Need phonopy module and lammps-python interface installed.
@@ -60,4 +67,4 @@ force_constants.plot_phonon_dispersion_bands(use_seek_path=False,
 
 ```
 
-- [x] **3. python get_2or_force_constant.py** 
+- [x] **3. python get_2or_force_constant.py**

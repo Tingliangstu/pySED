@@ -1,12 +1,19 @@
-# Example to use the pySED to calculate the SED of Silicon
+# 🧩 Legacy Example: Silicon SED with pySED
  
 It is best to reproduce the results of this case before calculating one's system.
+
+This is an older LAMMPS-based workflow. Use it together with the
+[online manual](https://pysed.readthedocs.io/en/latest/) and check the
+[`input_SED.in` parameter guide](https://pysed.readthedocs.io/en/latest/input_parameters.html)
+when editing pySED inputs.
  
 ## Usage
 
 - [x] **1. Goto the structure folder and using the Modify the generate_lammps_data.py file** 
 
-**`generate_lammps_data.py`** Now only read [POSCAR](https://www.vasp.at/wiki/index.php/POSCAR) file.
+**`generate_lammps_data.py`** uses a [POSCAR](https://www.vasp.at/wiki/index.php/POSCAR)
+file in this legacy example. The current `structure_maker` can also read `.xyz`
+input structures.
 
 run **`python generate_lammps_data.py`** the lammps data and the basis.in will be generate
 
@@ -90,5 +97,6 @@ unfix           NVE
 
 One can modify the **input_SED.in** and play with it.
 
-The parameters in **input_SED.in** are explained in detail.
+The parameters in **input_SED.in** are explained in the
+[`input_SED.in` parameter guide](https://pysed.readthedocs.io/en/latest/input_parameters.html).
 

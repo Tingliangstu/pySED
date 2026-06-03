@@ -1,13 +1,18 @@
-# pySED Tutorial: In-Plane Graphene SED with GPUMD
+# 📢 pySED Tutorial: In-Plane Graphene SED with GPUMD
 
 This example computes the in-plane phonon SED of graphene with GPUMD and pySED,
 then compares the SED map with a lattice-dynamics (LD) reference.
 
 Reproduce this example before applying pySED to a new two-dimensional material.
 
+Use this example together with the
+[online manual](https://pysed.readthedocs.io/en/latest/). For any unclear
+`input_SED.in` setting, go directly to the
+[`input_SED.in` parameter guide](https://pysed.readthedocs.io/en/latest/input_parameters.html).
+
 ---
 
-## Workflow Map
+## 🧭 Workflow Map
 
 `[1. Structure] -> [2. GPUMD trajectory] -> [3. pySED SED] -> [4. Plot] -> [5. Compare with LD]`
 
@@ -21,7 +26,7 @@ Reproduce this example before applying pySED to a new two-dimensional material.
 
 ---
 
-## [Step 1] -> Generate `model.xyz` and `basis.in`
+## 🧱 [Step 1] -> Generate `model.xyz` and `basis.in`
 
 Go to the structure folder:
 
@@ -59,7 +64,7 @@ periodic in-plane.
 
 ---
 
-## [Step 2] -> Run GPUMD and write `dump.xyz`
+## 🚀 [Step 2] -> Run GPUMD and write `dump.xyz`
 
 Go to the GPUMD folder:
 
@@ -87,7 +92,7 @@ dump_xyz_file = '../gpumd_run/dump.xyz'
 
 ---
 
-## [Step 3] -> Compute SED with pySED
+## ⚙️ [Step 3] -> Compute SED with pySED
 
 Go to the SED folder:
 
@@ -112,19 +117,20 @@ q_path = 0.0 0.0 0.0  0.5 0.0 0.0  0.3333333 0.3333333 0.0  0.0 0.0 0.0
 
 ---
 
-## [Step 4] -> Plot SED
+## 📈 [Step 4] -> Plot SED
 
-After the SED files exist, set:
+After the SED files exist, set the following values in `SED/input_SED.in`:
 
 ```text
 plot_SED = 1
 use_contourf = 1
 ```
 
-Tune these plotting parameters if the contrast is not clear:
+Tune these plotting parameters in `SED/input_SED.in` if the contrast is not
+clear:
 
-- `plot_cutoff_freq`
-- `plot_interval`
+- [`plot_cutoff_freq`](https://pysed.readthedocs.io/en/latest/input_parameters.html#plot-cutoff-freq)
+- [`plot_interval`](https://pysed.readthedocs.io/en/latest/input_parameters.html#plot-interval)
 - `plot_color`
 - `colorbar_min`
 - `colorbar_max`
@@ -135,7 +141,7 @@ The raw pySED figure is:
 
 ---
 
-## [Step 5] -> Compare SED with lattice dynamics
+## 🔍 [Step 5] -> Compare SED with lattice dynamics
 
 This example includes an LD comparison workflow in `SED/compare_LD/`:
 
@@ -150,9 +156,9 @@ background and LD branches.
 
 ---
 
-## Checklist
+## ✅ Checklist
 
-- [x] `num_atoms = 3200` matches `basis.in` and `dump.xyz`.
-- [x] `supercell_dim = 40 40 1` matches the generated graphene supercell.
-- [x] `output_data_stride = 10` matches `dump_exyz 10 1`.
+- [x] [`num_atoms = 3200`](https://pysed.readthedocs.io/en/latest/input_parameters.html#num-atoms) matches `basis.in` and `dump.xyz`.
+- [x] [`supercell_dim = 40 40 1`](https://pysed.readthedocs.io/en/latest/input_parameters.html#supercell-dim) matches the generated graphene supercell.
+- [x] [`output_data_stride = 10`](https://pysed.readthedocs.io/en/latest/input_parameters.html#output-data-stride) matches `dump_exyz 10 1`.
 - [x] `q_path_name = 'GMKG'` has `num_qpaths + 1` labels.

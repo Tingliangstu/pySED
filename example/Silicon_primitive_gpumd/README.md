@@ -1,4 +1,4 @@
-# pySED Tutorial: Bulk Silicon SED with GPUMD
+# 📢 pySED Tutorial: Bulk Silicon SED with GPUMD
 
 This example computes the phonon SED of bulk silicon with GPUMD and pySED,
 then compares the result with a lattice-dynamics (LD) reference.
@@ -6,9 +6,14 @@ then compares the result with a lattice-dynamics (LD) reference.
 Reproduce this example before applying pySED to a new three-dimensional
 crystalline material.
 
+Use this example together with the
+[online manual](https://pysed.readthedocs.io/en/latest/). For any unclear
+`input_SED.in` setting, go directly to the
+[`input_SED.in` parameter guide](https://pysed.readthedocs.io/en/latest/input_parameters.html).
+
 ---
 
-## Workflow Map
+## 🧭 Workflow Map
 
 `[1. Structure] -> [2. GPUMD trajectory] -> [3. pySED SED] -> [4. Compare with LD] -> [5. Fit q-point]`
 
@@ -22,7 +27,7 @@ crystalline material.
 
 ---
 
-## [Step 1] -> Generate `model.xyz` and `basis.in`
+## 🧱 [Step 1] -> Generate `model.xyz` and `basis.in`
 
 Go to the structure folder:
 
@@ -61,7 +66,7 @@ Generated files:
 
 ---
 
-## [Step 2] -> Run GPUMD and write `dump.xyz`
+## 🚀 [Step 2] -> Run GPUMD and write `dump.xyz`
 
 Go to the GPUMD folder:
 
@@ -89,7 +94,7 @@ dump_xyz_file = '../gpumd_run/dump.xyz'
 
 ---
 
-## [Step 3] -> Compute and plot SED
+## ⚙️ [Step 3] -> Compute and plot SED
 
 Go to the SED folder:
 
@@ -104,7 +109,8 @@ For the first run, use:
 plot_SED = 0
 ```
 
-After `silicon.SED`, `silicon.Qpts`, and `silicon.THz` exist, set:
+After `silicon.SED`, `silicon.Qpts`, and `silicon.THz` exist, set the
+following value in `SED/input_SED.in`:
 
 ```text
 plot_SED = 1
@@ -124,7 +130,7 @@ The raw pySED SED map is:
 
 ---
 
-## [Step 4] -> Compare SED with lattice dynamics
+## 🔍 [Step 4] -> Compare SED with lattice dynamics
 
 The `SED/compare_LD/` directory contains:
 
@@ -139,10 +145,10 @@ background and LD branches.
 
 ---
 
-## [Step 5] -> Fit a q-point
+## 🎯 [Step 5] -> Fit a q-point
 
 The example includes a single-q-point fitting result for q-point index 2. To
-repeat or adjust the fit:
+repeat or adjust the fit, set these values in `SED/input_SED.in`:
 
 ```text
 plot_SED = 1
@@ -152,19 +158,19 @@ lorentz = 1
 lorentz_fit_cutoff = 20
 ```
 
-Tune:
+Tune these key parameters in `SED/input_SED.in`:
 
-- `peak_height`
-- `peak_prominence`
-- `initial_guess_hwhm`
-- `peak_max_hwhm`
+- [`qpoint_slice_index`](https://pysed.readthedocs.io/en/latest/input_parameters.html#qpoint-slice-index)
+- [`peak_height`](https://pysed.readthedocs.io/en/latest/input_parameters.html#peak-height)
+- [`peak_prominence`](https://pysed.readthedocs.io/en/latest/input_parameters.html#peak-prominence)
+- [`initial_guess_hwhm`](https://pysed.readthedocs.io/en/latest/input_parameters.html#initial-guess-hwhm)
 
 ---
 
-## Checklist
+## ✅ Checklist
 
-- [x] `num_atoms = 16000` matches `basis.in` and `dump.xyz`.
-- [x] `supercell_dim = 20 20 20` matches the generated silicon supercell.
-- [x] `output_data_stride = 10` matches `dump_exyz 10 1`.
+- [x] [`num_atoms = 16000`](https://pysed.readthedocs.io/en/latest/input_parameters.html#num-atoms) matches `basis.in` and `dump.xyz`.
+- [x] [`supercell_dim = 20 20 20`](https://pysed.readthedocs.io/en/latest/input_parameters.html#supercell-dim) matches the generated silicon supercell.
+- [x] [`output_data_stride = 10`](https://pysed.readthedocs.io/en/latest/input_parameters.html#output-data-stride) matches `dump_exyz 10 1`.
 - [x] `prim_unitcell` is consistent with the primitive silicon cell.
 - [x] `q_path_name = 'GXUKGL'` has `num_qpaths + 1` labels.
