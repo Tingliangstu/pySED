@@ -20,7 +20,7 @@ release = '1.0.0'
 extensions = ['recommonmark', 'sphinx_markdown_tables', 'nbsphinx', 'sphinx.ext.mathjax']
 
 templates_path = ['_templates']
-exclude_patterns = []
+exclude_patterns = ['notebook/Test_num_qpoints.ipynb']
 
 source_suffix = {
     '.rst': 'restructuredtext',
@@ -71,14 +71,16 @@ def _sync_publications_page():
                 title,
                 '=' * len(title),
                 '',
-                'This page is generated from '
+                'Publications using pySED are grouped by year. This page is '
+                'synced from '
                 '`publications/readme.md <https://github.com/Tingliangstu/pySED/tree/main/publications>`_. '
-                'To update this page, edit ``publications/readme.md``, rebuild the documentation, '
-                'and push the change to GitHub. ReadTheDocs will sync it during the next build.',
+                'To update it, edit ``publications/readme.md`` and push the '
+                'change to GitHub; ReadTheDocs will refresh the page during '
+                'the next build.',
                 '',
             ])
         elif stripped.startswith('## '):
-            title = stripped[3:]
+            title = re.sub(r'\s*\(\d+\)\s*$', '', stripped[3:])
             output.extend(['', title, '-' * len(title), ''])
         elif stripped.startswith('* '):
             output.append('- ' + _markdown_links_to_rst(stripped[2:]))

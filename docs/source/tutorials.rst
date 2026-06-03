@@ -1,11 +1,10 @@
 Tutorials
 =========
 
-This section contains tutorials on using pySED.
+This section contains tutorial material for pySED. Start with the MoS2 notebook
+if you want a step-by-step notebook workflow.
 
 .. toctree::
    :maxdepth: 1
-   :caption: pySED's tutorials
 
    notebook/SED_MoS2.ipynb
-   notebook/Test_num_qpoints.ipynb

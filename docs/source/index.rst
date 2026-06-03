@@ -14,7 +14,6 @@ maps, and fit Lorentzian peaks to estimate phonon lifetimes.
 .. toctree::
    :maxdepth: 1
    :caption: Table of contents
-   :numbered:
 
    introduction
    requirements

@@ -8,58 +8,71 @@
 }
 
 .toggle .header:after {
-    content: " ▼";
+    content: " +";
 }
 
 .toggle .header.open:after {
-    content: " ▲";
+    content: " -";
 }
 
 /* Custom colors */
 
 .wy-side-nav-search,
 .wy-nav-top {
-    /* above navigation, behind logo */
     background: #2c2c2c;
 }
 
 .icon.icon-home {
-    /* link above logo */
     color: #ff763b;
 }
 
 .version {
-    /* version spec under logo */
     color: #ff763b !important;
 }
 
 .highlight {
-    /* code blocks */
     background: #ffeee0;
 }
 
 .admonition-title {
-    /* notes, title */
     background: #ff763b !important;
 }
 
 .admonition {
-    /* notes */
     background: #ffeee0 !important;
 }
 
+.rst-content table.parameter-index {
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid #e1d4ca;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.rst-content table.parameter-index th {
+    background: #2c2c2c;
+    color: #ffffff;
+}
+
+.rst-content table.parameter-index td:first-child a {
+    font-weight: 700;
+}
+
+.rst-content table.parameter-index tr:nth-child(even) td {
+    background: #fff7f0;
+}
+
 html.writer-html5 .rst-content dl[class]:not(.option-list):not(.field-list):not(.footnote):not(.glossary):not(.simple)>dt {
-    /* Class definitions */
     border-top: solid 3px #955e47;
     border-left: none;
     background: #ffeee0;
     color: black;
 }
 
-/* Move "Read the Docs" link to the bottom left corner */
 .rtd-footer {
-    position: absolute;  
-    left: 20px;         
-    bottom: 20px;       
-    text-align: left;  
+    position: absolute;
+    left: 20px;
+    bottom: 20px;
+    text-align: left;
 }
