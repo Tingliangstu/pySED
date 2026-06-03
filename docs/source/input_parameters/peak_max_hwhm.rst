@@ -15,7 +15,8 @@ peak_max_hwhm
    ``1e6``.
 
 **Notes**
-   Set a smaller value when broad or noisy peaks cause unreasonable fits.
+   In most cases, this parameter does not need to be adjusted. Set a smaller
+   value only when broad or noisy peaks cause unreasonable Lorentzian fits.
 
 :doc:`Back to Parameter Index <../input_parameters>`
 
