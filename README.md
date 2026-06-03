@@ -78,7 +78,7 @@ as it contains a wealth of details that can greatly aid in understanding both th
 and the practical aspects of the SED methods it presents.
 
 
-**Online manual** [https://pysed.readthedocs.io](https://pysed.readthedocs.io/en/latest/)
+**Online manual** [https://pysed.readthedocs.io](https://pysed.readthedocs.io/en/latest/) includes the `input_SED.in` parameter guide, quick-start workflow, examples, theory notes, and practical tips for preparing SED calculations.
 
 
 ### 1D Systems
