@@ -1,0 +1,31 @@
+re_output_total_freq_lifetime
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Syntax**
+
+.. code-block:: text
+
+   re_output_total_freq_lifetime = 1
+
+**Meaning**
+   Rebuild ``TOTAL-LORENTZ-Qpoints.Fre_lifetime`` after re-fitting selected
+   q-points.
+
+**Default**
+   ``0``.
+
+**Notes**
+   Use this with ``lorentz_fit_all_qpoint = 0`` after improving a single
+   q-point fit.
+
+:doc:`Back to Parameter Index <../input_parameters>`
+
+Related parameters
+------------------
+
+- :doc:`qpoint_slice_index <qpoint_slice_index>`
+- :doc:`lorentz_fit_all_qpoint <lorentz_fit_all_qpoint>`
+- :doc:`lorentz <lorentz>`
+- :doc:`peak_height <peak_height>`
+- :doc:`peak_prominence <peak_prominence>`
+- :doc:`initial_guess_hwhm <initial_guess_hwhm>`
