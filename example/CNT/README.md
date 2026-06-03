@@ -1,56 +1,76 @@
-# CNT SED Example
+# pySED Tutorial: CNT SED with GPUMD
 
-This example calculates the spectral energy density of a carbon nanotube (CNT)
-with GPUMD trajectories and pySED.
+This example computes the spectral energy density (SED) of a carbon nanotube
+(CNT) using a GPUMD trajectory and pySED.
 
-## Purpose
+Reproduce this example before applying pySED to a new one-dimensional system.
 
-Use this example to learn how to:
+---
 
-- build a one-dimensional supercell for SED,
-- generate the `basis.in` file required by pySED,
-- run GPUMD with `dump_exyz`,
-- compute and plot SED along the tube axis,
-- fit SED peaks and collect phonon lifetimes.
+## Workflow Map
 
-## Folder Layout
+`[1. Structure] -> [2. GPUMD trajectory] -> [3. pySED SED] -> [4. Plot/Fit lifetime]`
 
-- `structure/`
-  - `POSCAR_CNT`: input structure.
-  - `generate_gpumd_xyz.py`: creates `model.xyz` and `basis.in`.
-- `gpumd_run/`
-  - `run.in`: GPUMD run file.
-  - `nep.txt`: NEP potential.
-- `SED/`
-  - `input_SED.in`: pySED control file.
-  - Existing SED outputs and the final `CNT-SED.svg` figure.
+| Stage | Folder | Main files | Output |
+|---|---|---|---|
+| `[1. Structure]` | `structure/` | `POSCAR_CNT`, `generate_gpumd_xyz.py` | `model.xyz`, `basis.in` |
+| `[2. GPUMD]` | `gpumd_run/` | `run.in`, `nep.txt` | `dump.xyz` |
+| `[3. pySED]` | `SED/` | `input_SED.in` | `CNT.SED`, `CNT.Qpts`, `CNT.THz` |
+| `[4. Plot/Fit]` | `SED/` | `input_SED.in` | `CNT-SED.svg`, lifetime files |
 
-## Step 1: Generate Structure Files
+---
 
-From the structure folder:
+## [Step 1] -> Generate `model.xyz` and `basis.in`
+
+Go to the structure folder:
 
 ```bash
 cd example/CNT/structure
 python generate_gpumd_xyz.py
 ```
 
-The script reads `POSCAR_CNT`, replicates the cell as `1 x 1 x 160`, and writes:
+The script uses `pySED.structure.generate_data.structure_maker`:
 
-- `model.xyz` for GPUMD,
-- `basis.in` for pySED.
+```python
+from pySED.structure import generate_data
 
-Copy or link `model.xyz` into `gpumd_run/` if needed before running GPUMD.
+def generate_required_files(input_file, supercell):
+    structure = generate_data.structure_maker(structure_file_name=input_file)
+    structure.replicate_supercell(supercell=supercell)
+    structure.write_xyz(filename='model.xyz', pbc="T T T")
+    structure.write_lattice_basis_file()
 
-## Step 2: Run GPUMD
+if __name__ == "__main__":
+    file_name = 'POSCAR_CNT'
+    supercell = (1, 1, 160)
+    generate_required_files(file_name, supercell)
+```
 
-From the GPUMD folder:
+Input structure support:
+
+- POSCAR-style files are supported, as used here with `POSCAR_CNT`.
+- `.xyz` files are also supported. For example, use
+  `file_name = 'primitive_CNT.xyz'` if your starting structure is an XYZ file.
+
+Generated files:
+
+- `model.xyz`: GPUMD structure file.
+- `basis.in`: pySED basis mapping file.
+
+Copy or link `model.xyz` into `gpumd_run/` if your GPUMD run folder needs it.
+
+---
+
+## [Step 2] -> Run GPUMD and write `dump.xyz`
+
+Go to the GPUMD folder:
 
 ```bash
 cd ../gpumd_run
 gpumd
 ```
 
-The production part of `run.in` uses:
+The production part of `run.in` is:
 
 ```text
 ensemble       nve
@@ -58,8 +78,8 @@ dump_exyz      8     1
 run            500000
 ```
 
-This writes a `dump.xyz` trajectory every 8 MD steps. Therefore
-`SED/input_SED.in` uses:
+This writes an extended XYZ trajectory every 8 MD steps. The matching pySED
+settings are:
 
 ```text
 total_num_steps = 500000
@@ -68,16 +88,18 @@ output_data_stride = 8
 dump_xyz_file = '../gpumd_run/dump.xyz'
 ```
 
-## Step 3: Compute SED
+---
 
-From the SED folder:
+## [Step 3] -> Compute SED with pySED
+
+Go to the SED folder:
 
 ```bash
 cd ../SED
 pysed input_SED.in
 ```
 
-For the first calculation, use:
+For the first run, use:
 
 ```text
 plot_SED = 0
@@ -90,9 +112,20 @@ pySED writes:
 - `CNT.THz`
 - `CNT.Q_distances_and_labels`
 
-## Step 4: Plot and Fit
+Important input settings:
 
-After the SED data exist, set:
+```text
+num_atoms = 17920
+supercell_dim = 1 1 160
+q_path_name = 'GA'
+q_path = 0.0 0.0 0.0  0.0 0.0 0.5
+```
+
+---
+
+## [Step 4] -> Plot SED and fit lifetime
+
+After the SED files exist, set:
 
 ```text
 plot_SED = 1
@@ -100,22 +133,33 @@ plot_slice = 1
 lorentz = 1
 ```
 
-Use `qpoint_slice_index`, `peak_height`, `peak_prominence`, and
-`initial_guess_hwhm` to tune single-q-point fitting. When the single-q fit is
-reasonable, use:
+Tune the single-q-point fit first:
+
+- `qpoint_slice_index`
+- `peak_height`
+- `peak_prominence`
+- `initial_guess_hwhm`
+- `peak_max_hwhm`
+
+After a reasonable single-q-point fit, use:
 
 ```text
 lorentz_fit_all_qpoint = 1
 ```
 
-The all-q fitting workflow writes `TOTAL-LORENTZ-Qpoints.Fre_lifetime`.
+The all-q-point workflow writes `TOTAL-LORENTZ-Qpoints.Fre_lifetime`.
+
+---
 
 ## Expected Result
 
-The final SED figure is `SED/CNT-SED.svg`.
+![CNT SED Result](SED/CNT-SED.svg)
 
-## Checks
+---
 
-- `num_atoms = 17920` must match `basis.in` and `dump.xyz`.
-- `supercell_dim = 1 1 160` must match the generated supercell.
-- The q-path `G-A` is along the tube axis: `q_path = 0 0 0  0 0 0.5`.
+## Checklist
+
+- [x] `num_atoms = 17920` matches `basis.in` and `dump.xyz`.
+- [x] `supercell_dim = 1 1 160` matches the generated CNT supercell.
+- [x] `output_data_stride = 8` matches `dump_exyz 8 1`.
+- [x] The q-path `G-A` follows the tube axis.

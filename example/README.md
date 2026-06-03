@@ -1,64 +1,63 @@
 # pySED Examples
 
 This directory contains example workflows for calculating phonon spectral
-energy density (SED) with pySED. Reproducing at least one example is strongly
-recommended before applying pySED to a new system.
+energy density (SED) with **pySED**. Please reproduce at least one example
+before applying pySED to a new material.
 
-## Standard Workflow
+---
 
-Each modern GPUMD example follows the same sequence:
+## Workflow Map
 
-1. Generate a GPUMD `model.xyz` supercell and a pySED `basis.in` file.
-2. Run GPUMD to generate a production `dump.xyz` trajectory with coordinates
-   and velocities.
-3. Run pySED in compute mode with `plot_SED = 0`.
-4. Run pySED again in plotting mode with `plot_SED = 1`.
-5. Optionally tune Lorentzian peak fitting and compare with lattice dynamics.
+`[1. Structure] -> [2. GPUMD or LAMMPS MD] -> [3. pySED compute] -> [4. Plot/Fit] -> [5. LD check]`
+
+Each modern GPUMD example follows this sequence:
+
+- [x] **[1. Structure]** Generate `model.xyz` for GPUMD and `basis.in` for pySED.
+- [x] **[2. MD]** Run GPUMD to produce `dump.xyz` with positions and velocities.
+- [x] **[3. Compute]** Run pySED with `plot_SED = 0`.
+- [x] **[4. Plot/Fit]** Run pySED with `plot_SED = 1`, then tune plotting or Lorentz fitting parameters.
+- [x] **[5. Validate]** Compare with lattice dynamics when an LD workflow is provided.
+
+`structure_maker` can read both POSCAR-style files and `.xyz` files as input
+structures. To use an `.xyz` file, set `structure_file_name='your_structure.xyz'`
+in the structure-generation script, then write `model.xyz` and `basis.in`.
+
+---
 
 ## Recommended Examples
 
-### 1D systems
+| Dimension | Folder | Purpose | Preview |
+|---|---|---|---|
+| 1D | [`CNT`](CNT) | Carbon nanotube SED along the tube axis. | ![CNT SED](CNT/SED/CNT-SED.svg) |
+| 2D | [`In_plane_graphene_gpumd`](In_plane_graphene_gpumd) | In-plane graphene SED with LD comparison. | ![Graphene SED and LD](In_plane_graphene_gpumd/SED/compare_LD/Graphene.png) |
+| 2D/Layered | [`MoS2_gpumd`](MoS2_gpumd) | Low-frequency out-of-plane SED of layered MoS2. | ![MoS2 SED](MoS2_gpumd/SED/bulk_MoS2-SED.png) |
+| 3D | [`Silicon_primitive_gpumd`](Silicon_primitive_gpumd) | Bulk silicon SED with LD comparison. | ![Silicon SED and LD](Silicon_primitive_gpumd/SED/compare_LD/Silicon.png) |
 
-- `CNT`
-  - Carbon nanotube example.
-  - Teaches q-path setup along a one-dimensional axis and all-q-point lifetime
-    fitting.
+---
 
-### 2D systems
+## Reference and Legacy Folders
 
-- `In_plane_graphene_gpumd`
-  - In-plane graphene dispersion with GPUMD.
-  - Includes a lattice-dynamics comparison workflow in `SED/compare_LD`.
+- **`Ref_Phonon_dispersion_from_phonopy`**
+  Reference lattice-dynamics workflows using phonopy. Use these to check
+  whether SED branches agree with harmonic phonon dispersions.
 
-- `MoS2_gpumd`
-  - Low-frequency out-of-plane modes in layered MoS2.
-  - Includes Lorentzian fitting outputs for the low-frequency range.
+- **`For_old_version_example`**
+  Older LAMMPS-based and legacy workflows. Start from the modern GPUMD examples
+  above unless you specifically need one of these older cases.
 
-### 3D systems
+- **`tutorials`**
+  Jupyter-based tutorial material, including a MoS2 notebook workflow.
 
-- `Silicon_primitive_gpumd`
-  - Bulk silicon with a multi-segment q-path.
-  - Includes a lattice-dynamics comparison workflow in `SED/compare_LD`.
+---
 
-## Reference Dispersion
+## Quick Checks
 
-`Ref_Phonon_dispersion_from_phonopy` contains reference lattice-dynamics
-workflows using phonopy. These are useful for checking whether the SED branches
-agree with a harmonic reference dispersion.
-
-## Older Examples
-
-`For_old_version_example` contains older LAMMPS-based and legacy workflows. Use
-the modern GPUMD examples above first unless you specifically need one of the
-older cases.
-
-## Tips
-
-- Confirm that `num_atoms` matches both the trajectory and `basis.in`.
-- Confirm that `output_data_stride` matches the MD dump stride.
-- Use `plot_slice = 1` to inspect one q-point before fitting all q-points.
+- `num_atoms` must match the trajectory and the maximum atom id in `basis.in`.
+- `output_data_stride` must match the MD trajectory dump stride.
+- `supercell_dim` must match the supercell used to generate `model.xyz` and
+  `basis.in`.
+- Use `plot_slice = 1` to inspect a single q-point before fitting all q-points.
 - Use `output_partial = 1` for atom-type and direction-resolved partial SED.
-- pySED does not add LO-TO splitting by itself; the effect must already be
-  present in the MD trajectory.
 
-Author: pySED development team
+**Author:** pySED development team
+**Recommended version:** pySED v2.2.0 and above
