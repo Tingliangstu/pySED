@@ -8,7 +8,9 @@ dump_xyz_file
    dump_xyz_file = '../gpumd_run/dump.xyz'
 
 **Meaning**
-   GPUMD extended XYZ trajectory file containing positions and velocities.
+   Path to the GPUMD extended XYZ trajectory file, usually ``dump.xyz``. This
+   file must contain the positions and velocities saved from the MD production
+   run.
 
 **Default**
    ``dump.xyz``.

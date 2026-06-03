@@ -8,7 +8,9 @@ plot_SED
    plot_SED = 0
 
 **Meaning**
-   Select compute mode or plot/fitting mode.
+   Selects whether pySED calculates SED from the trajectory or only plots and
+   fits existing SED output files. Use ``0`` for a new calculation and ``1`` for
+   plotting or Lorentzian fitting after the ``.SED`` data already exists.
 
 **Default**
    ``0``.

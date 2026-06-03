@@ -1,5 +1,5 @@
-Input Parameters
-================
+input_SED.in Parameters
+=======================
 
 pySED reads a plain-text control file, usually named ``input_SED.in``. Each
 active line has the form
@@ -17,9 +17,22 @@ command line, pySED reads ``input_SED.in`` in the current directory:
    pysed input_SED.in
    pySED input_SED.in
 
-The table below is the left-sidebar index for ``input_SED.in`` input
-parameters. Click a parameter name to open a dedicated page with its syntax,
-meaning, defaults, examples, practical notes, and related parameters.
+.. rubric:: Example ``input_SED.in``
+
+The following input file is the MoS\ :sub:`2` GPUMD example from
+`example/MoS2_gpumd/SED/input_SED.in <https://github.com/Tingliangstu/pySED/blob/main/example/MoS2_gpumd/SED/input_SED.in>`_.
+It shows a complete workflow, including MD trajectory settings, structure
+settings, q-path settings, plotting, and Lorentzian fitting options.
+
+.. literalinclude:: ../../example/MoS2_gpumd/SED/input_SED.in
+   :language: text
+   :caption: MoS\ :sub:`2` GPUMD ``input_SED.in`` example
+
+This page is the entry point for parameters accepted by ``input_SED.in``. The
+same parameter list is also shown under **input_SED.in Parameters** in the left
+sidebar, so users can jump directly to one parameter page from any page in this
+section. Each parameter page has the parameter name as its title and includes
+syntax, meaning, defaults, examples, practical notes, and related parameters.
 
 .. toctree::
    :hidden:
@@ -73,61 +86,73 @@ meaning, defaults, examples, practical notes, and related parameters.
    input_parameters/with_eigs
 
 
-Parameter Index
----------------
-
 .. raw:: html
 
-   <span id="num-atoms"></span>
-   <span id="total-num-steps"></span>
-   <span id="time-step"></span>
-   <span id="output-data-stride"></span>
-   <span id="num-splits"></span>
-   <span id="compress"></span>
-   <span id="out-files-name"></span>
-   <span id="basis-lattice-file"></span>
-   <span id="file-format"></span>
-   <span id="dump-xyz-file"></span>
-   <span id="pos-file"></span>
-   <span id="vels-file"></span>
-   <span id="lammps-unit"></span>
-   <span id="output-hdf5"></span>
-   <span id="output-partial"></span>
-   <span id="use-parallel"></span>
-   <span id="max-cores"></span>
-   <span id="prim-unitcell"></span>
-   <span id="prim-axis"></span>
-   <span id="supercell-dim"></span>
-   <span id="rescale-prim"></span>
-   <span id="num-qpaths"></span>
-   <span id="q-path-name"></span>
-   <span id="q-path"></span>
-   <span id="plot-sed"></span>
-   <span id="plot-cutoff-freq"></span>
-   <span id="plot-interval"></span>
-   <span id="plot-color"></span>
-   <span id="colorbar-min"></span>
-   <span id="colorbar-max"></span>
-   <span id="use-contourf"></span>
-   <span id="qpoint-slice-index"></span>
-   <span id="plot-slice"></span>
-   <span id="plot-partial-sed"></span>
-   <span id="if-show-figures"></span>
-   <span id="lorentz"></span>
-   <span id="peak-height"></span>
-   <span id="peak-prominence"></span>
-   <span id="initial-guess-hwhm"></span>
-   <span id="peak-max-hwhm"></span>
-   <span id="lorentz-fit-cutoff"></span>
-   <span id="modulate-factor"></span>
-   <span id="lorentz-fit-all-qpoint"></span>
-   <span id="re-output-total-freq-lifetime"></span>
-   <span id="with-eigs"></span>
+   <script>
+   (function () {
+     var pages = {
+       "num-atoms": "input_parameters/num_atoms.html",
+       "total-num-steps": "input_parameters/total_num_steps.html",
+       "time-step": "input_parameters/time_step.html",
+       "output-data-stride": "input_parameters/output_data_stride.html",
+       "num-splits": "input_parameters/num_splits.html",
+       "compress": "input_parameters/compress.html",
+       "out-files-name": "input_parameters/out_files_name.html",
+       "basis-lattice-file": "input_parameters/basis_lattice_file.html",
+       "file-format": "input_parameters/file_format.html",
+       "dump-xyz-file": "input_parameters/dump_xyz_file.html",
+       "pos-file": "input_parameters/pos_file.html",
+       "vels-file": "input_parameters/vels_file.html",
+       "lammps-unit": "input_parameters/lammps_unit.html",
+       "output-hdf5": "input_parameters/output_hdf5.html",
+       "output-partial": "input_parameters/output_partial.html",
+       "use-parallel": "input_parameters/use_parallel.html",
+       "max-cores": "input_parameters/max_cores.html",
+       "prim-unitcell": "input_parameters/prim_unitcell.html",
+       "prim-axis": "input_parameters/prim_axis.html",
+       "supercell-dim": "input_parameters/supercell_dim.html",
+       "rescale-prim": "input_parameters/rescale_prim.html",
+       "num-qpaths": "input_parameters/num_qpaths.html",
+       "q-path-name": "input_parameters/q_path_name.html",
+       "q-path": "input_parameters/q_path.html",
+       "plot-sed": "input_parameters/plot_SED.html",
+       "plot-cutoff-freq": "input_parameters/plot_cutoff_freq.html",
+       "plot-interval": "input_parameters/plot_interval.html",
+       "plot-color": "input_parameters/plot_color.html",
+       "colorbar-min": "input_parameters/colorbar_min.html",
+       "colorbar-max": "input_parameters/colorbar_max.html",
+       "use-contourf": "input_parameters/use_contourf.html",
+       "qpoint-slice-index": "input_parameters/qpoint_slice_index.html",
+       "plot-slice": "input_parameters/plot_slice.html",
+       "plot-partial-sed": "input_parameters/plot_partial_SED.html",
+       "if-show-figures": "input_parameters/if_show_figures.html",
+       "lorentz": "input_parameters/lorentz.html",
+       "peak-height": "input_parameters/peak_height.html",
+       "peak-prominence": "input_parameters/peak_prominence.html",
+       "initial-guess-hwhm": "input_parameters/initial_guess_hwhm.html",
+       "peak-max-hwhm": "input_parameters/peak_max_hwhm.html",
+       "lorentz-fit-cutoff": "input_parameters/lorentz_fit_cutoff.html",
+       "modulate-factor": "input_parameters/modulate_factor.html",
+       "lorentz-fit-all-qpoint": "input_parameters/lorentz_fit_all_qpoint.html",
+       "re-output-total-freq-lifetime": "input_parameters/re_output_total_freq_lifetime.html",
+       "with-eigs": "input_parameters/with_eigs.html"
+     };
+     function redirectHash() {
+       var key = window.location.hash ? window.location.hash.slice(1) : "";
+       if (pages[key]) {
+         window.location.replace(pages[key]);
+       }
+     }
+     redirectHash();
+     window.addEventListener("hashchange", redirectHash);
+   }());
+   </script>
 
+.. rubric:: Parameter pages
 
 .. rst-class:: parameter-index
 
-.. list-table:: Parameter index for ``input_SED.in``
+.. list-table:: ``input_SED.in`` parameter pages
    :header-rows: 1
    :widths: 24 24 52
 

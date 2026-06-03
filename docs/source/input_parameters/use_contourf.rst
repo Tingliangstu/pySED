@@ -8,7 +8,8 @@ use_contourf
    use_contourf = 1
 
 **Meaning**
-   Force contour-style plotting instead of image-style plotting.
+   Controls whether pySED uses contour-style plotting for the SED map. Enable
+   it when contour filling gives a cleaner multi-path figure.
 
 **Default**
    ``0``.

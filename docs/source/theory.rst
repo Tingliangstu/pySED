@@ -171,10 +171,9 @@ Allowed Wave Vectors
 
 In periodic systems, only wave vectors commensurate with the MD supercell are
 allowed. pySED follows the same commensurate-supercell q-point idea used in
-dynasor's q-point tools [dynasor_qpoints]_, and the implementation in
-``pySED/construct_BZ.py`` credits dynasor's lattice helper as the reference for
-this path construction. For a one-dimensional direction, the Born-von Karman
-boundary condition gives
+dynasor 2 [Dynasor2025]_, and the implementation in ``pySED/construct_BZ.py``
+credits dynasor's lattice helper as the reference for this path construction.
+For a one-dimensional direction, the Born-von Karman boundary condition gives
 
 .. math::
 
@@ -296,7 +295,8 @@ Therefore:
 Small differences between finite-temperature SED and lattice-dynamics reference
 branches can come from anharmonicity, the exchange-correlation level used to
 generate Born charges, or differences between the MD potential and the reference
-lattice-dynamics model.
+lattice-dynamics model. For qNEP-style long-range electrostatic models and
+their use in polar materials, see the qNEP article [qNEP2026]_.
 
 References
 ----------
@@ -312,7 +312,12 @@ References
    from the spectral energy density," *Physical Review B* **81**, 081411
    (2010). https://doi.org/10.1103/PhysRevB.81.081411
 
-.. [dynasor_qpoints] dynasor documentation, "q-points", especially
-   ``get_supercell_qpoints_along_path`` for q-points commensurate with a
-   supercell along a path.
-   https://dynasor.materialsmodeling.org/reference/q_points.html
+.. [Dynasor2025] E. Berger, E. Fransson, F. Eriksson, E. Lindgren,
+   G. Wahnström, T. H. Rod, and P. Erhart, "Dynasor 2: From simulation to
+   experiment through correlation functions," *Computer Physics
+   Communications* **316**, 109759 (2025).
+   https://doi.org/10.1016/j.cpc.2025.109759
+
+.. [qNEP2026] X. Wu, T. Liang, W. Wang, J. Ma, Z. Fan, J. Xu, S. Volz,
+   and M. Nomura, "Data-driven flipping engineering for high thermal
+   anisotropy." https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5864374

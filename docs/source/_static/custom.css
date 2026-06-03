@@ -63,6 +63,11 @@
     background: #fff7f0;
 }
 
+.rst-content ul.publication-list li {
+    line-height: 1.55;
+    margin-bottom: 0.85em;
+}
+
 html.writer-html5 .rst-content dl[class]:not(.option-list):not(.field-list):not(.footnote):not(.glossary):not(.simple)>dt {
     border-top: solid 3px #955e47;
     border-left: none;

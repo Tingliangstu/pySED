@@ -8,7 +8,9 @@ q_path_name
    q_path_name = 'GMKG'
 
 **Meaning**
-   Labels for high-symmetry points used on the SED plot.
+   Labels for the high-symmetry points used on the SED plot. The number of
+   labels should be ``num_qpaths + 1`` and should match the coordinate triples
+   in ``q_path``.
 
 **Default**
    ``GA``.

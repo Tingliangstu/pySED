@@ -8,8 +8,9 @@ rescale_prim
    rescale_prim = 1
 
 **Meaning**
-   Reconstruct the primitive cell from the actual trajectory cell when the
-   trajectory cell differs from the ideal ``prim_unitcell * supercell_dim``.
+   Controls whether pySED reconstructs the primitive cell from the actual
+   trajectory cell. This is useful after NPT relaxation, where the final cell
+   may differ slightly from the ideal ``prim_unitcell * supercell_dim``.
 
 **Default**
    ``1``.

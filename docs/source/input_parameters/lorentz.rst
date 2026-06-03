@@ -8,7 +8,9 @@ lorentz
    lorentz = 1
 
 **Meaning**
-   Enable Lorentzian fitting for the selected q-point or for all q-points.
+   Turns Lorentzian peak fitting on or off. Use it in plot/fitting mode after
+   SED data already exists; pySED then fits detected peaks and can output
+   phonon lifetimes.
 
 **Default**
    ``0``.

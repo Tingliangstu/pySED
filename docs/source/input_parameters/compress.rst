@@ -8,8 +8,10 @@ compress
    compress = 1
 
 **Meaning**
-   Compress trajectory coordinates and velocities into an HDF5 file before SED
-   computation.
+   Controls whether pySED first stores the trajectory coordinates and
+   velocities in an HDF5 file before calculating SED. Keeping this enabled is
+   usually recommended because it avoids repeatedly parsing large trajectory
+   files.
 
 **Default**
    ``1``.

@@ -8,7 +8,9 @@ plot_slice
    plot_slice = 1
 
 **Meaning**
-   Plot the SED spectrum at one q-point.
+   Controls whether pySED plots a one-dimensional SED spectrum at a selected
+   q-point. This is useful for choosing ``peak_height`` and
+   ``peak_prominence`` before Lorentzian fitting.
 
 **Default**
    ``0``.

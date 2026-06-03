@@ -10,6 +10,11 @@ same workflow:
 4. Run pySED in plotting mode with ``plot_SED = 1``.
 5. Optionally fit Lorentzian peaks and compare with lattice dynamics.
 
+Each material section links to its example folder and embeds representative
+output figures from that system, so users can inspect the expected SED result
+before running the workflow. The advanced notes also embed the Partial SED and
+LO-TO splitting images discussed in the linked GitHub issues.
+
 1D Systems
 ----------
 
@@ -101,8 +106,8 @@ SED with lattice-dynamics branches:
    :width: 85%
    :align: center
 
-MoS2 Out-of-Plane Modes
-~~~~~~~~~~~~~~~~~~~~~~~
+MoS\ :sub:`2` Out-of-Plane Modes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Purpose**
    Learn how to analyze low-frequency out-of-plane modes in a layered
@@ -124,9 +129,9 @@ MoS2 Out-of-Plane Modes
    cd ../SED
    pysed input_SED.in
 
-The MoS2 example uses a ``12 x 12 x 16`` supercell and the q-path ``G-A``. The
-low-frequency range is important, so the example uses ``plot_cutoff_freq = 2``
-and a small ``plot_interval``.
+The MoS\ :sub:`2` example uses a ``12 x 12 x 16`` supercell and the q-path
+``G-A``. The low-frequency range is important, so the example uses
+``plot_cutoff_freq = 2`` and a small ``plot_interval``.
 
 **Fitting**
    The folder includes Lorentzian fitting results and
@@ -228,7 +233,7 @@ In plot mode:
 3. ``plot_partial_SED = 3 x`` plots only the x-direction contribution for atom
 type 3.
 
-The following SrTiO3 cubic examples from
+The following SrTiO\ :sub:`3` cubic examples from
 `issue #39 <https://github.com/Tingliangstu/pySED/issues/39>`_ show atom-type
 and direction-resolved partial SED output for Sr atoms:
 
@@ -270,7 +275,7 @@ the material requires it. Differences between finite-temperature SED and
 lattice dynamics can also come from anharmonicity or from the level of theory
 used for the potential, Born charges, and dielectric constants.
 
-The following BaTiO3 examples from
+The following BaTiO\ :sub:`3` examples from
 `issue #31 <https://github.com/Tingliangstu/pySED/issues/31>`_ illustrate the
 trajectory-dependence of the LO-TO splitting:
 

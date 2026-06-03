@@ -8,13 +8,14 @@ num_atoms
    num_atoms = 13824
 
 **Meaning**
-   Number of atoms in the MD supercell.
+   Number of atoms in the MD supercell used for the trajectory. It must match
+   both the trajectory file and the atom mapping in ``basis.in``.
 
 **Default**
    ``0``. This must be set for real calculations.
 
 **Example**
-   In the MoS2 GPUMD example, ``num_atoms = 13824``.
+   In the MoS\ :sub:`2` GPUMD example, ``num_atoms = 13824``.
 
 **Notes**
    The value must match the maximum atom id in ``basis.in``. pySED stops if

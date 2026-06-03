@@ -8,7 +8,9 @@ time_step
    time_step = 1
 
 **Meaning**
-   MD time step in femtoseconds.
+   MD time step in femtoseconds. pySED uses this value with
+   ``output_data_stride`` to convert trajectory frame spacing into frequency
+   units.
 
 **Default**
    ``0``. This must be set.

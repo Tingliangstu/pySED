@@ -8,7 +8,8 @@ plot_cutoff_freq
    plot_cutoff_freq = 20
 
 **Meaning**
-   Maximum frequency shown in the SED map, in THz.
+   Maximum frequency shown in the SED plot, in THz. Use it to focus the figure
+   on the frequency range of interest instead of plotting the full FFT range.
 
 **Default**
    ``None``.

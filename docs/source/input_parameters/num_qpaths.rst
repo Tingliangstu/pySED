@@ -8,7 +8,9 @@ num_qpaths
    num_qpaths = 3
 
 **Meaning**
-   Number of path segments.
+   Number of q-path segments to plot. For example, a path ``G-M-K-G`` has three
+   segments, so ``num_qpaths = 3`` and ``q_path`` must contain four coordinate
+   triples.
 
 **Default**
    ``None``. Set it explicitly.

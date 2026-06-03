@@ -8,7 +8,9 @@ lorentz_fit_cutoff
    lorentz_fit_cutoff = 20
 
 **Meaning**
-   Maximum frequency included in Lorentzian fitting, in THz.
+   Maximum frequency included in Lorentzian fitting, in THz. Use it to fit only
+   the frequency range where the SED peaks are meaningful and avoid fitting
+   noisy high-frequency regions.
 
 **Default**
    ``None``.

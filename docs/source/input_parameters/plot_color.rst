@@ -8,7 +8,8 @@ plot_color
    plot_color = 'RdBu_r'
 
 **Meaning**
-   Matplotlib colormap for the SED intensity.
+   Matplotlib colormap used for the SED intensity map. This changes only the
+   visual style of the plot, not the calculated SED values.
 
 **Default**
    ``RdBu_r``.

@@ -8,7 +8,8 @@ lorentz_fit_all_qpoint
    lorentz_fit_all_qpoint = 1
 
 **Meaning**
-   Fit all q-points and collect frequency-lifetime data.
+   Runs Lorentzian fitting for every generated q-point and collects the fitted
+   frequencies and lifetimes into the total lifetime output file.
 
 **Default**
    ``0``.

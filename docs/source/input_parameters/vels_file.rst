@@ -8,7 +8,8 @@ vels_file
    vels_file = 'vels.dat'
 
 **Meaning**
-   LAMMPS velocity trajectory.
+   Path to the LAMMPS velocity trajectory file. Use this only when
+   ``file_format = 'lammps'``.
 
 **Default**
    ``vels.dat``.

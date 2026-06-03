@@ -8,7 +8,8 @@ output_hdf5
    output_hdf5 = 'vel_pos_compress.hdf5'
 
 **Meaning**
-   Name of the compressed trajectory database.
+   File name for the compressed HDF5 trajectory database written or read by
+   pySED when ``compress = 1``.
 
 **Default**
    ``vel_pos_compress.hdf5``.

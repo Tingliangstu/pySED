@@ -8,8 +8,9 @@ peak_height
    peak_height = 8.0e-7
 
 **Meaning**
-   Minimum absolute SED intensity passed to ``scipy.signal.find_peaks`` through
-   the ``height`` argument.
+   Minimum SED intensity required for pySED to treat a point in a q-slice as a
+   real peak. It is the basic intensity cutoff for automatic Lorentzian peak
+   fitting.
 
 **Default**
    No parser default.

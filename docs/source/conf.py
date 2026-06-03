@@ -26,13 +26,32 @@ source_suffix = {
     '.rst': 'restructuredtext',
 }
 
+_SUBSCRIPT_MAP = str.maketrans({
+    '0': '₀',
+    '1': '₁',
+    '2': '₂',
+    '3': '₃',
+    '4': '₄',
+    '5': '₅',
+    '6': '₆',
+    '7': '₇',
+    '8': '₈',
+    '9': '₉',
+    '+': '₊',
+    '-': '₋',
+})
+
 
 def _markdown_links_to_rst(text):
     def convert_link(match):
         label = match.group(1)
         url = match.group(2)
-        label = re.sub(r'<sub>(.*?)</sub>', r'\1', label)
-        label = label.replace('&theta;', 'theta').replace('\\&', '&')
+
+        def convert_subscript(sub_match):
+            return sub_match.group(1).translate(_SUBSCRIPT_MAP)
+
+        label = re.sub(r'<sub>(.*?)</sub>', convert_subscript, label)
+        label = label.replace('&theta;', 'θ').replace('&theta', 'θ').replace('\\&', '&')
         return f'`{label} <{url}>`_'
 
     return re.sub(r'\[([^\]]+)\]\(([^)]+)\)', convert_link, text)
@@ -63,6 +82,7 @@ def _sync_publications_page():
         text = data.decode('utf-8', errors='replace')
     lines = text.replace('\r\n', '\n').replace('\r', '\n').splitlines()
     output = []
+    publication_class_pending = False
     for line in lines:
         stripped = line.strip()
         if stripped == '# Publications using pySED':
@@ -80,10 +100,15 @@ def _sync_publications_page():
                 '',
             ])
         elif stripped.startswith('## '):
-            title = re.sub(r'\s*\(\d+\)\s*$', '', stripped[3:])
+            title = stripped[3:]
             output.extend(['', title, '-' * len(title), ''])
+            publication_class_pending = True
         elif stripped.startswith('* '):
+            if publication_class_pending:
+                output.extend(['.. rst-class:: publication-list', ''])
+                publication_class_pending = False
             output.append('- ' + _markdown_links_to_rst(stripped[2:]))
+            output.append('')
         elif stripped:
             output.append(_markdown_links_to_rst(stripped))
         elif output and output[-1] != '':

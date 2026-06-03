@@ -8,8 +8,9 @@ peak_prominence
    peak_prominence = 6.0e-7
 
 **Meaning**
-   Minimum peak prominence passed to ``scipy.signal.find_peaks`` through the
-   ``prominence`` argument.
+   Minimum amount by which a peak must stand out from its surrounding
+   background before pySED fits it. Use this to avoid fitting small noise
+   features as phonon peaks.
 
 **Default**
    No parser default.

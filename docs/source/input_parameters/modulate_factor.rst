@@ -8,8 +8,9 @@ modulate_factor
    modulate_factor = 2
 
 **Meaning**
-   Shrinks the fitting range around each detected peak by shifting the left and
-   right fitting boundaries inward.
+   Narrows the fitting window around each detected peak before the Lorentzian
+   fit. This can help when neighboring peaks or background intensity disturb
+   the fit.
 
 **Default**
    ``0``.

@@ -8,7 +8,8 @@ colorbar_min
    colorbar_min = -20
 
 **Meaning**
-   Lower colorbar limit after log scaling.
+   Lower limit of the SED color scale after log scaling. Increase it to hide
+   weak background noise; decrease it to reveal low-intensity branches.
 
 **Default**
    ``None``.

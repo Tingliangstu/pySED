@@ -8,7 +8,9 @@ use_parallel
    use_parallel = 1
 
 **Meaning**
-   Enable multiprocessing over q-points.
+   Enables multiprocessing over q-points. It can speed up SED calculation, but
+   each worker needs memory, so serial mode can be safer on memory-limited
+   machines.
 
 **Default**
    ``1``.

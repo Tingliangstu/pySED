@@ -8,7 +8,9 @@ output_partial
    output_partial = 1
 
 **Meaning**
-   Output partial SED components for atom types and Cartesian directions.
+   Controls whether pySED writes atom-type and Cartesian-direction resolved SED
+   files. Enable it when you want to plot contributions such as one atom type
+   in the ``x``, ``y``, or ``z`` direction.
 
 **Default**
    ``0``.

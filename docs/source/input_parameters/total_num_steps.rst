@@ -8,7 +8,9 @@ total_num_steps
    total_num_steps = 500000
 
 **Meaning**
-   Total number of MD steps in the production trajectory used for SED.
+   Total number of MD steps in the production trajectory used for SED. This is
+   the trajectory length used for spectral analysis, not the equilibration
+   length.
 
 **Default**
    ``0``. This must be set.
