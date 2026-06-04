@@ -12,7 +12,7 @@ from pathlib import Path
 project = 'pySED'
 copyright = '2025, Ting Liang; Wenwu Jiang'
 author = 'Ting Liang; Wenwu Jiang'
-release = '1.0.0'
+release = '2.4.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
