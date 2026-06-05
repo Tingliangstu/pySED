@@ -6,7 +6,9 @@
 
 * Penghua Ying, Ting Liang, Yun Chen, Yan Chen, Shiyun Xiong, Zheyong Fan, Jianbin Xu, Yilun Liu, [Structurally Triggered Breakdown of the Phonon Gas Model in Crystalline Metal-Organic Frameworks](https://arxiv.org/abs/2604.03783)
 
-## 2026 (18)
+## 2026 (19)
+
+* Duohao Zhang, Xinlu Cheng, Hong Zhang, [Unraveling Thermal Transport Mechanisms in Monolayer CrSi<sub>2</sub>N<sub>4</sub> Using Machine-Learned Potentials](https://doi.org/10.1039/D6CP01105E), Physical Chemistry Chemical Physics, Accepted Manuscript (2026)
 
 * Yilin Fang, Weiyi Li, Guiyun Hang, Jintao Wang, Xiyao Yun, Wan xiao Guo, Tao Wang, and Wenli Yu, [New Insights into Thermal Transport in ¦Å-CL-20 Revealed by Machine-Learned Potentials and Mode-Projection Analysis](https://doi.org/10.1021/acs.jpca.6c00862), The Journal of Physical Chemistry A, (2026).
 
