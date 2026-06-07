@@ -118,6 +118,17 @@ def main():
         q_path_name             : Name of q-path. Default='GA'. Tips: for gaphene, one can set q_path_name = 'GMKG'.
         q_path                  : Q-points in fractional coordinates. Tips: for q_path = 'GA', q_path = 0.0 0.0 0.0  0.5 0.0 0.0.
 
+    [ Scattering / Q-advisor ]
+        scattering              : Enable experiment-facing scattering mode (1=yes, 0=no). Default = 0.
+        scattering_mode         : Input-file mode. Currently supports 'q_advisor'.
+        scattering_qpoints_option : Q source: 'path', 'mesh', 'file', or 'points'. Default = 'path'.
+        scattering_qpoint_coordinates : 'reduced' or 'cartesian'. Default = 'reduced'.
+        scattering_q_policy     : 'strict' rejects non-commensurate Q; 'nearest' maps to nearest allowed Q.
+        scattering_q_path_steps : Optional points per q_path segment for selected-Q sampling.
+        scattering_q_file       : Text file with one Q point per row when scattering_qpoints_option = file.
+        scattering_q_mesh_H/K/L : Scalar or start stop num mesh axes when scattering_qpoints_option = mesh.
+        scattering_output_prefix: Prefix for q-advisor report files.
+
     ────────────────────────────────────────────────────────────
     [ Plotting Options ]
         plot_SED                : Plot/fitting mode (1) or compute mode (0). Default: plot_SED = 0.
@@ -186,6 +197,33 @@ def main():
 
     ### **************** Read the input parameter file and get the control parameters ******************
     params = My_Parsers.get_parse_input(input_file)
+
+    ## **************** Experiment-facing scattering/q-advisor mode ******************
+    if getattr(params, 'scattering', False):
+        print('\n******************* You are in the Scattering/Q-advisor mode ********************')
+        from pySED.scattering_input import ScatteringInputError, run_scattering_from_input
+        try:
+            scattering_result = run_scattering_from_input(params)
+        except (ScatteringInputError, ValueError) as exc:
+            print('\n**************** ERROR: Scattering input workflow failed ****************')
+            print(str(exc))
+            written_files = getattr(exc, 'written_files', {})
+            if written_files:
+                print('\nPartial q-advisor files were written:')
+                for name, path in written_files.items():
+                    print('  {}: {}'.format(name, path))
+            exit(1)
+
+        report = scattering_result['report']
+        print('\n******** Q-advisor finished: {}/{} Q-points are commensurate ********'
+              .format(report.num_commensurate, report.num_points))
+        print('******** Suggested diagonal supercell: {} ********'
+              .format(report.suggested_diagonal_supercell.tolist()))
+        print('******** Written files ********')
+        for name, path in scattering_result['written_files'].items():
+            print('  {}: {}'.format(name, path))
+        print('\n******* Scattering/Q-advisor mode is done. Use the written nearest or phonopy Q-points for DSF/EELS workflows. *******\n')
+        exit()
 
     ## **************** Select the SED-modes (compute or plot-including-fitting mode) ******************
     if params.plot_SED:

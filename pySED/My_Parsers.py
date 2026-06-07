@@ -19,6 +19,30 @@ def parse_float_or_fraction(token):
     except ValueError:
         return float(Fraction(token))
 
+def parse_optional_float(token):
+    value = str(token).strip('\'"').lower()
+    if value in ('none', 'null', 'nan'):
+        return None
+    return float(token)
+
+def parse_mesh_axis(tokens):
+    values = np.array([parse_float_or_fraction(token) for token in tokens], dtype=float)
+    if values.size == 1:
+        return float(values[0])
+    if values.size == 3:
+        return values
+    raise ValueError("mesh axis must be a scalar or start stop num")
+
+def parse_int_list(tokens):
+    values = [parse_float_or_fraction(token) for token in tokens]
+    integers = []
+    for value in values:
+        integer = int(round(value))
+        if not np.isclose(value, integer):
+            raise ValueError("expected integer value")
+        integers.append(integer)
+    return np.array(integers, dtype=int)
+
 class get_parse_input(object):
     def __init__(self, input_file='input_SED.in'):
 
@@ -37,7 +61,14 @@ class get_parse_input(object):
             'peak_height', 'peak_prominence', 'initial_guess_hwhm',
             'peak_max_hwhm', 'lorentz_fit_cutoff', 'modulate_factor',
             'lorentz_fit_all_qpoint', 'with_eigs', 'plot_color', 'colorbar_min',
-            'colorbar_max', 'output_partial', 'plot_partial_SED'
+            'colorbar_max', 'output_partial', 'plot_partial_SED',
+            'scattering', 'scattering_mode', 'scattering_qpoints_option',
+            'scattering_qpoint_coordinates', 'scattering_qpoints',
+            'scattering_q_file', 'scattering_q_mesh_H', 'scattering_q_mesh_K',
+            'scattering_q_mesh_L', 'scattering_q_path_steps',
+            'scattering_q_policy', 'scattering_preserve_image',
+            'scattering_max_error_reduced', 'scattering_max_error_cartesian',
+            'scattering_report_efficiency', 'scattering_output_prefix'
         }
 
         ## ************ Control parameters ************
@@ -93,8 +124,29 @@ class get_parse_input(object):
         ## ********** eigenvector from phonopy for further development
         self.with_eigs = None
 
+        ## ********** experiment-facing scattering/q-advisor controls
+        self.scattering = False
+        self.scattering_mode = 'q_advisor'
+        self.scattering_qpoints_option = 'path'
+        self.scattering_qpoint_coordinates = 'reduced'
+        self.scattering_qpoints = None
+        self.scattering_q_file = None
+        self.scattering_q_mesh_H = 0.0
+        self.scattering_q_mesh_K = 0.0
+        self.scattering_q_mesh_L = 0.0
+        self.scattering_q_path_steps = None
+        self.scattering_q_policy = 'strict'
+        self.scattering_preserve_image = True
+        self.scattering_max_error_reduced = None
+        self.scattering_max_error_cartesian = None
+        self.scattering_report_efficiency = True
+        self.scattering_output_prefix = None
+
         self._pending_q_path_tokens = None
-        input_txt = open(self.input_file, 'r').readlines()
+        try:
+            input_txt = open(self.input_file, 'r', encoding='utf-8-sig').readlines()
+        except UnicodeDecodeError:
+            input_txt = open(self.input_file, 'r').readlines()
 
         for line in input_txt:
             # strip inline comments and skip blank/comment lines
@@ -196,6 +248,107 @@ class get_parse_input(object):
 
                 except:
                     print_error('q_path', input_file)
+
+            # Experiment-facing scattering controls
+            elif txt[0] == 'scattering':
+                try:
+                    self.scattering = bool(int(txt[txt.index('=') + 1]))
+                except:
+                    print_error('scattering', input_file)
+
+            elif txt[0] == 'scattering_mode':
+                try:
+                    self.scattering_mode = str(txt[txt.index('=') + 1].strip('\'"')).lower()
+                except:
+                    print_error('scattering_mode', input_file)
+
+            elif txt[0] == 'scattering_qpoints_option':
+                try:
+                    self.scattering_qpoints_option = str(txt[txt.index('=') + 1].strip('\'"')).lower()
+                except:
+                    print_error('scattering_qpoints_option', input_file)
+
+            elif txt[0] == 'scattering_qpoint_coordinates':
+                try:
+                    self.scattering_qpoint_coordinates = str(txt[txt.index('=') + 1].strip('\'"')).lower()
+                except:
+                    print_error('scattering_qpoint_coordinates', input_file)
+
+            elif txt[0] == 'scattering_qpoints':
+                try:
+                    tokens = txt[(txt.index('=') + 1):]
+                    if len(tokens) == 0 or len(tokens) % 3 != 0:
+                        print_error('scattering_qpoints', input_file)
+                    values = [parse_float_or_fraction(token) for token in tokens]
+                    self.scattering_qpoints = np.array(values, dtype=float).reshape(-1, 3)
+                except:
+                    print_error('scattering_qpoints', input_file)
+
+            elif txt[0] == 'scattering_q_file':
+                try:
+                    self.scattering_q_file = str(txt[txt.index('=') + 1].strip('\'"'))
+                except:
+                    print_error('scattering_q_file', input_file)
+
+            elif txt[0] == 'scattering_q_mesh_H':
+                try:
+                    self.scattering_q_mesh_H = parse_mesh_axis(txt[(txt.index('=') + 1):])
+                except:
+                    print_error('scattering_q_mesh_H', input_file)
+
+            elif txt[0] == 'scattering_q_mesh_K':
+                try:
+                    self.scattering_q_mesh_K = parse_mesh_axis(txt[(txt.index('=') + 1):])
+                except:
+                    print_error('scattering_q_mesh_K', input_file)
+
+            elif txt[0] == 'scattering_q_mesh_L':
+                try:
+                    self.scattering_q_mesh_L = parse_mesh_axis(txt[(txt.index('=') + 1):])
+                except:
+                    print_error('scattering_q_mesh_L', input_file)
+
+            elif txt[0] == 'scattering_q_path_steps':
+                try:
+                    self.scattering_q_path_steps = parse_int_list(txt[(txt.index('=') + 1):])
+                except:
+                    print_error('scattering_q_path_steps', input_file)
+
+            elif txt[0] == 'scattering_q_policy':
+                try:
+                    self.scattering_q_policy = str(txt[txt.index('=') + 1].strip('\'"')).lower()
+                except:
+                    print_error('scattering_q_policy', input_file)
+
+            elif txt[0] == 'scattering_preserve_image':
+                try:
+                    self.scattering_preserve_image = bool(int(txt[txt.index('=') + 1]))
+                except:
+                    print_error('scattering_preserve_image', input_file)
+
+            elif txt[0] == 'scattering_max_error_reduced':
+                try:
+                    self.scattering_max_error_reduced = parse_optional_float(txt[txt.index('=') + 1])
+                except:
+                    print_error('scattering_max_error_reduced', input_file)
+
+            elif txt[0] == 'scattering_max_error_cartesian':
+                try:
+                    self.scattering_max_error_cartesian = parse_optional_float(txt[txt.index('=') + 1])
+                except:
+                    print_error('scattering_max_error_cartesian', input_file)
+
+            elif txt[0] == 'scattering_report_efficiency':
+                try:
+                    self.scattering_report_efficiency = bool(int(txt[txt.index('=') + 1]))
+                except:
+                    print_error('scattering_report_efficiency', input_file)
+
+            elif txt[0] == 'scattering_output_prefix':
+                try:
+                    self.scattering_output_prefix = str(txt[txt.index('=') + 1].strip('\'"'))
+                except:
+                    print_error('scattering_output_prefix', input_file)
 
             # whether or not to build hdf5 database
             elif txt[0] == 'compress':

@@ -22,6 +22,38 @@ The table below lists the parameters accepted by the pySED input file. Each
 parameter has its own page with the parameter name as the title, plus syntax,
 meaning, defaults, examples, practical notes, and related parameters.
 
+Experimental Scattering/Q-Advisor Mode
+--------------------------------------
+
+The scattering extension can also be launched from ``input_SED.in``.  The first
+CLI-facing mode is the q-advisor, which checks whether requested experimental
+``Q`` points are commensurate with the finite MD supercell before DSF, EELS, or
+mode-resolved visibility calculations are attempted.
+
+.. code-block:: text
+
+   scattering = 1
+   scattering_mode = q_advisor
+   scattering_qpoints_option = path
+   scattering_qpoint_coordinates = reduced
+   scattering_q_policy = strict
+   scattering_q_path_steps = 4
+   scattering_output_prefix = q_eels_advisor
+
+   prim_unitcell = 1 0 0  0 1 0  0 0 1
+   supercell_dim = 4 4 1
+   num_qpaths = 1
+   q_path = 0.0 0.0 0.0  0.5 0.0 0.0
+
+``scattering_qpoints_option`` may be ``path`` (reuse ``q_path``), ``mesh``
+(``scattering_q_mesh_H/K/L`` are scalar or ``start stop num`` axes), ``file``
+(``scattering_q_file`` contains one Q point per row), or ``points`` (inline
+triplets through ``scattering_qpoints``).  ``scattering_q_policy = strict``
+rejects non-commensurate points after writing the nearest-Q report, while
+``nearest`` accepts the nearest commensurate points.  The q-advisor writes CSV
+and text summaries, nearest reduced Q points, and folded phonopy Q points for
+subsequent DSF/EELS workflows.
+
 .. toctree::
    :hidden:
    :maxdepth: 1

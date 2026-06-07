@@ -28,6 +28,24 @@ Navigate to the downloaded directory and install using one of the following meth
     cd pySED
     pip install .
 
+The default installation is CPU-only and does not require any CUDA packages.
+For optional CuPy acceleration in the pySED scattering kernels, choose the extra
+that matches your CUDA runtime:
+
+.. code-block:: bash
+
+    pip install ".[gpu-cuda12x]"
+
+or, for CUDA 11.x environments:
+
+.. code-block:: bash
+
+    pip install ".[gpu-cuda11x]"
+
+Then request the GPU backend explicitly in the scattering API, for example
+``compute_dsf(..., backend="cupy")``.  If CuPy is not installed, the CPU backend
+remains available through ``backend="cpu"``.
+
 **Alternative method (via setup script):**
 
 .. code-block:: bash

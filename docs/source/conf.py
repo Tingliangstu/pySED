@@ -17,7 +17,13 @@ release = '2.4.0'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ['recommonmark', 'sphinx_markdown_tables', 'nbsphinx', 'sphinx.ext.mathjax']
+extensions = [
+    'recommonmark',
+    'sphinx_markdown_tables',
+    'nbsphinx',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.autodoc',
+]
 
 templates_path = ['_templates']
 exclude_patterns = ['notebook/Test_num_qpoints.ipynb']

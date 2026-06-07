@@ -23,6 +23,8 @@ maps, and fit Lorentzian peaks to estimate phonon lifetimes.
    tutorials
    example
    theory
+   scattering
+   scattering_api
    tips
    publications
    reference

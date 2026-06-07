@@ -37,6 +37,10 @@ setup(
         "scipy",
         "psutil",
     ],
+    extras_require={
+        "gpu-cuda11x": ["cupy-cuda11x"],
+        "gpu-cuda12x": ["cupy-cuda12x"],
+    },
     license='MIT License',
     entry_points={
         'console_scripts': [
