@@ -318,6 +318,9 @@ References
    Communications* **316**, 109759 (2025).
    https://doi.org/10.1016/j.cpc.2025.109759
 
-.. [qNEP2026] X. Wu, T. Liang, W. Wang, J. Ma, Z. Fan, J. Xu, S. Volz,
-   and M. Nomura, "Data-driven flipping engineering for high thermal
-   anisotropy." https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5864374
+.. [qNEP2026] Z. Fan, B. Tang, E. Berger, E. Berger, E. Fransson, K. Xu,
+   Z. Yan, Z. Liu, Z. Song, H. Dong, S. Chen, L. Li, Z. Wang, Y. Zhu,
+   J. Wiktor, and P. Erhart, "qNEP: A highly efficient neuroevolution
+   potential with dynamic charges for large-scale atomistic simulations,"
+   *Journal of Chemical Theory and Computation* **22**, 4787-4801 (2026).
+   https://doi.org/10.1021/acs.jctc.6c00146
