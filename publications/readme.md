@@ -1,6 +1,8 @@
 # Publications using pySED
 
-## Preprints (2)
+## Preprints (3)
+
+* Jianmin Yang, Lin Xie, [Lattice-mediated Geometric Frustration Drives Fast Ionic Transport](https://arxiv.org/abs/2606.22345)
 
 * Xin Wu, Ting Liang, Weitao Wang, Jiangjiang Ma, Zheyong Fan, Jianbin Xu, Sebastian Volz, Masahiro Nomura, [Data-driven flipping engineering for high thermal anisotropy](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5864374)
 
