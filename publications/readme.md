@@ -1,6 +1,8 @@
 # Publications using pySED
 
-## Preprints (3)
+## Preprints (4)
+
+* Wenjiang Zhou, Fuwei Yang, Yuxi Wang, Weiheng Li, Wujuan Yan, Kexin Zhang, Bai Song, [Intrinsically low thermal conductivity of stoichiometric lithium niobate: Experimental measurement and microscopic origin](https://arxiv.org/abs/2607.01673)
 
 * Jianmin Yang, Lin Xie, [Lattice-mediated Geometric Frustration Drives Fast Ionic Transport](https://arxiv.org/abs/2606.22345)
 
