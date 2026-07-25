@@ -1,18 +1,22 @@
 # Publications using pySED
 
-## Preprints (4)
+## Preprints (5)
 
 * Wenjiang Zhou, Fuwei Yang, Yuxi Wang, Weiheng Li, Wujuan Yan, Kexin Zhang, Bai Song, [Intrinsically low thermal conductivity of stoichiometric lithium niobate: Experimental measurement and microscopic origin](https://arxiv.org/abs/2607.01673)
 
 * Jianmin Yang, Lin Xie, [Lattice-mediated Geometric Frustration Drives Fast Ionic Transport](https://arxiv.org/abs/2606.22345)
 
+* Wenwu Jiang, Huasong Qin, Yilun Liu, Wengen Ouyang, Oded Hod, Michael Urbakh, [Strain and Twist Engineering of Interfacial Thermal Transport in Homo- and Hetero-Interfaces of Graphene and Hexagonal Boron Nitride](https://arxiv.org/abs/2604.26300)
+
 * Xin Wu, Ting Liang, Weitao Wang, Jiangjiang Ma, Zheyong Fan, Jianbin Xu, Sebastian Volz, Masahiro Nomura, [Data-driven flipping engineering for high thermal anisotropy](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5864374)
 
 * Penghua Ying, Ting Liang, Yun Chen, Yan Chen, Shiyun Xiong, Zheyong Fan, Jianbin Xu, Yilun Liu, [Structurally Triggered Breakdown of the Phonon Gas Model in Crystalline Metal-Organic Frameworks](https://arxiv.org/abs/2604.03783)
 
-## 2026 (19)
+## 2026 (20)
 
-* Duohao Zhang, Xinlu Cheng, Hong Zhang, [Unraveling Thermal Transport Mechanisms in Monolayer CrSi<sub>2</sub>N<sub>4</sub> Using Machine-Learned Potentials](https://doi.org/10.1039/D6CP01105E), Physical Chemistry Chemical Physics, Accepted Manuscript (2026)
+* Zhongyin Cao, Mei Ge, Jiangjiang Ma, Junfeng Zhang, [Isomer-driven electronic topology and extreme thermal-mechanical responses in 2D C<sub>32</sub> fullerene networks](https://doi.org/10.1039/D6TC01170E), Journal of Materials Chemistry C, (2026)
+
+* Duohao Zhang, Xinlu Cheng, Hong Zhang, [Unraveling Thermal Transport Mechanisms in Monolayer CrSi<sub>2</sub>N<sub>4</sub> Using Machine-Learned Potentials](https://doi.org/10.1039/D6CP01105E), Physical Chemistry Chemical Physics, **28**, 15284 (2026)
 
 * Yilin Fang, Weiyi Li, Guiyun Hang, Jintao Wang, Xiyao Yun, Wan xiao Guo, Tao Wang, and Wenli Yu, [New Insights into Thermal Transport in ¦Å-CL-20 Revealed by Machine-Learned Potentials and Mode-Projection Analysis](https://doi.org/10.1021/acs.jpca.6c00862), The Journal of Physical Chemistry A, (2026).
 
