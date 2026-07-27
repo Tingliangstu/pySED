@@ -12,7 +12,9 @@
 
 * Penghua Ying, Ting Liang, Yun Chen, Yan Chen, Shiyun Xiong, Zheyong Fan, Jianbin Xu, Yilun Liu, [Structurally Triggered Breakdown of the Phonon Gas Model in Crystalline Metal-Organic Frameworks](https://arxiv.org/abs/2604.03783)
 
-## 2026 (20)
+## 2026 (21)
+
+* Soonsung So, Joo-Hyoung Lee, [Role of high-frequency phonons in interfacial thermal transport across MoS<sub>2</sub>/black phosphorus interfaces](https://doi.org/10.1016/j.applthermaleng.2026.132564), Applied Thermal Engineering, 132564 (2026)
 
 * Zhongyin Cao, Mei Ge, Jiangjiang Ma, Junfeng Zhang, [Isomer-driven electronic topology and extreme thermal-mechanical responses in 2D C<sub>32</sub> fullerene networks](https://doi.org/10.1039/D6TC01170E), Journal of Materials Chemistry C, (2026)
 
