@@ -141,7 +141,7 @@ class BZ_methods(object):
     def _construct_BZ_path(self, params):
 
         # Get q_path and number of q-paths
-        q_path = np.array(params.q_path).reshape(-1, 3)
+        q_path = np.array(params.q_path, dtype=object).reshape(-1, 3)
         num_qpaths = params.num_qpaths
 
         BZ_Path = BZPathHelper(params.prim_unitcell, self.supercell)
@@ -154,7 +154,7 @@ class BZ_methods(object):
         label_map = {"G": "Γ"}
 
         def fmt_vec(x):
-            return "(" + ", ".join(f"{v:.4f}" for v in x) + ")"
+            return "(" + ", ".join(f"{float(v):.4f}" for v in x) + ")"
 
         def shortest_distance(q1_cart, q2_cart):
             """Shortest reciprocal distance between two q-points"""
@@ -354,8 +354,10 @@ class BZPathHelper:
         if not fractions_list:
             return np.zeros((0, 3)), np.zeros((0,))
 
+        start_float = np.asarray(start_frac, dtype=float)
+        end_float = np.asarray(end_frac, dtype=float)
         q_frac_points = np.array([
-            start_frac + float(f) * (end_frac - start_frac)
+            start_float + float(f) * (end_float - start_float)
             for f in fractions_list
         ])
 
@@ -388,7 +390,10 @@ class BZPathHelper:
             end of line in reduced supercell coordinates
         """
 
-        if np.allclose(start_frac, end_frac):
+        if np.allclose(
+            np.asarray(start_frac, dtype=float),
+            np.asarray(end_frac, dtype=float),
+        ):
             return [Fraction(0, 1)]
 
         s = np.array([self._as_commensurate_fraction(x) for x in start_frac])
@@ -441,10 +446,13 @@ class BZPathHelper:
         e.g. 0.33333 for 1/3. Treat nearby small-denominator fractions as
         the intended value, otherwise preserve the decimal value.
         """
-        frac = Fraction(str(float(value)))
+        if isinstance(value, Fraction):
+            return value
+
+        frac = Fraction(float(value))
         simple = frac.limit_denominator(max_denominator)
 
         if abs(float(simple) - float(value)) <= atol:
             return simple
 
-        return frac
+        return frac.limit_denominator()
