@@ -13,11 +13,24 @@ def print_error(txt, input_file):
           'please check it and see README.\n'.format(txt, input_file))
     exit()
 
-def parse_float_or_fraction(token):
-    try:
-        return float(token)
-    except ValueError:
-        return float(Fraction(token))
+def parse_float_or_fraction(token, max_simple_denominator=12, atol=1e-5):
+    """
+    Parse a q-path coordinate without losing explicitly supplied fractions.
+
+    Fractional input such as ``7/15`` is kept exact. Decimal input close to a
+    common small-denominator value, such as ``0.33333`` for ``1/3``, is
+    normalized to that value. Other decimals are preserved exactly as written.
+    """
+    value = Fraction(token)
+
+    if '/' in token:
+        return value
+
+    simple = value.limit_denominator(max_simple_denominator)
+    if abs(value - simple) <= Fraction(str(atol)):
+        return simple
+
+    return value
 
 class get_parse_input(object):
     def __init__(self, input_file='input_SED.in'):
@@ -94,7 +107,8 @@ class get_parse_input(object):
         self.with_eigs = None
 
         self._pending_q_path_tokens = None
-        input_txt = open(self.input_file, 'r').readlines()
+        with open(self.input_file, 'r') as input_stream:
+            input_txt = input_stream.readlines()
 
         for line in input_txt:
             # strip inline comments and skip blank/comment lines
@@ -191,7 +205,10 @@ class get_parse_input(object):
                     needed = (self.num_qpaths + 1) * 3
                     if len(tokens) < needed:
                         print_error('q_path', input_file)
-                    self.q_path = np.array([parse_float_or_fraction(token) for token in tokens[:needed]])
+                    self.q_path = np.array(
+                        [parse_float_or_fraction(token) for token in tokens[:needed]],
+                        dtype=object,
+                    )
                     self.q_path = self.q_path.reshape(self.num_qpaths+1, 3)
 
                 except:
@@ -427,7 +444,10 @@ class get_parse_input(object):
             needed = (self.num_qpaths + 1) * 3
             if len(self._pending_q_path_tokens) < needed:
                 print_error('q_path', input_file)
-            self.q_path = np.array([parse_float_or_fraction(token) for token in self._pending_q_path_tokens[:needed]])
+            self.q_path = np.array(
+                [parse_float_or_fraction(token) for token in self._pending_q_path_tokens[:needed]],
+                dtype=object,
+            )
             self.q_path = self.q_path.reshape(self.num_qpaths+1, 3)
 
 if __name__ == "__main__":
