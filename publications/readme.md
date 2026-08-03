@@ -12,7 +12,9 @@
 
 * Penghua Ying, Ting Liang, Yun Chen, Yan Chen, Shiyun Xiong, Zheyong Fan, Jianbin Xu, Yilun Liu, [Structurally Triggered Breakdown of the Phonon Gas Model in Crystalline Metal-Organic Frameworks](https://arxiv.org/abs/2604.03783)
 
-## 2026 (21)
+## 2026 (22)
+
+* Hao Xing, Yingqi Huang, Yuenan Li, Xiao Wu, Chengyang Yuan, Lei Yang, Yongchen Song, [Guest-Induced Vibrational Reconstruction and Thermal Conductivity Reduction in CH<sub>4</sub>-CO<sub>2</sub> Mixed Hydrates](https://doi.org/10.1021/acs.energyfuels.6c02625), Energy \& Fuels, (2026)
 
 * Soonsung So, Joo-Hyoung Lee, [Role of high-frequency phonons in interfacial thermal transport across MoS<sub>2</sub>/black phosphorus interfaces](https://doi.org/10.1016/j.applthermaleng.2026.132564), Applied Thermal Engineering, 132564 (2026)
 
