@@ -12,7 +12,9 @@
 
 * Penghua Ying, Ting Liang, Yun Chen, Yan Chen, Shiyun Xiong, Zheyong Fan, Jianbin Xu, Yilun Liu, [Structurally Triggered Breakdown of the Phonon Gas Model in Crystalline Metal-Organic Frameworks](https://arxiv.org/abs/2604.03783)
 
-## 2026 (22)
+## 2026 (23)
+
+* Feiyue Qin, Yunting Jia, Qianfei Ma, Lina Liu, [Flat Phonon Band Induced Suppression of Thermal Transport in Hybrid Kagome and Kagome Graphene](https://doi.org/10.1016/j.physb.2026.419174), Physica B: Condensed Matter, 419174 (2026)
 
 * Hao Xing, Yingqi Huang, Yuenan Li, Xiao Wu, Chengyang Yuan, Lei Yang, Yongchen Song, [Guest-Induced Vibrational Reconstruction and Thermal Conductivity Reduction in CH<sub>4</sub>-CO<sub>2</sub> Mixed Hydrates](https://doi.org/10.1021/acs.energyfuels.6c02625), Energy \& Fuels, (2026)
 
