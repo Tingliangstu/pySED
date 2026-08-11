@@ -11,7 +11,7 @@ import seaborn as sns
 
 # for structure
 from ase.io import read
-from pySED.construct_BZ import BZPathHelper
+from pySED.sed.construct_BZ import BZPathHelper
 
 #*************************** Set Seaborn style *************************
 sns.set(style="ticks")

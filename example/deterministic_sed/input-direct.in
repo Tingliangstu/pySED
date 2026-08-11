@@ -1,0 +1,22 @@
+# Same deterministic calculation without an intermediate NetCDF cache
+action = compute
+method = sed
+backend = numpy
+trajectory_file = trajectory.dump
+trajectory_read_mode = direct
+trajectory_prefetch = 1
+lammps_unit = metal
+out_files_name = synthetic_direct
+num_atoms = 8
+total_num_steps = 2560
+time_step = 1
+output_data_stride = 10
+num_blocks = 4
+max_cores = 1
+basis_lattice_file = basis.in
+prim_unitcell = 1 0 0  0 1 0  0 0 1
+supercell_dim = 2 2 2
+rescale_prim = 0
+num_qpaths = 1
+q_path_name = GX
+q_path = 0 0 0  1/2 0 0

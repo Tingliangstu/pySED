@@ -1,2 +1,6 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Historical generated results are checksum-addressed binary artifacts.
+/example/legacy/pySED-2.4/outputs/** -text -diff
+/tools/legacy/pySED-2.4/outputs/** -text -diff

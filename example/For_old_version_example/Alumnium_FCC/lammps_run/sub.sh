@@ -6,7 +6,7 @@
 #SBATCH -o outfile_%J.vasp
 #SBATCH -e errfile_%J.vasp
 
-run_lammps_file="in.vels"
+run_lammps_file="in.lammps"
 
 source /public3/soft/modules/module.sh
 module load mpi/intel/20.0.4-ls

@@ -1,10 +1,9 @@
-# 📢 pySED Jupyter Tutorial: Calculating Spectral Energy Density (SED) for MoS<sub>2<sub/>
+# pySED 3.0 MoS2 notebook tutorial
 
-This guide walks you through using **pySED** to compute the **Spectral Energy Density (SED)** of a **MoS<sub>2<sub/>** system entirely in **GPUMD**.
+The notebook in `MoS2/SED_MoS2.ipynb` is a lightweight companion to the
+command-line example. It explains the v3 `input.in`, generates the structure,
+and invokes the public `pySED` command rather than importing internal modules.
 
-It is strongly recommended that you reproduce this tutorial **exactly** before applying the method to your own system.
-
-Use this tutorial together with the
-[online manual](https://pysed.readthedocs.io/en/latest/) and the
-[`input_SED.in` parameter guide](https://pysed.readthedocs.io/en/latest/input_parameters.html)
-when changing the SED settings.
+The committed notebook is not executed during documentation builds because
+the GPUMD trajectory is intentionally not stored in Git. Run GPUMD first, then
+execute the command cell locally.

@@ -1,0 +1,11 @@
+# pySED 3.0 trajectory-output block for the historical PTCDI-C8 run.
+# Insert this block after equilibration in the production LAMMPS input stored
+# in lammps_run.rar. Keep the same timestep and production length as input.in.
+
+variable dump_stride equal 32
+dump pysed all custom ${dump_stride} trajectory.dump id type x y z vx vy vz
+dump_modify pysed sort id
+
+# The production integrator and run length belong here:
+# fix production all nve
+# run 1048576

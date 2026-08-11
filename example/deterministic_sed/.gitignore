@@ -1,0 +1,7 @@
+trajectory.dump
+*.pysed.nc
+synthetic*
+SED-*-qpoint.png
+Fitting-Qpoint/
+Lifetime/
+Fitting-Frequency-Lifetime.png
