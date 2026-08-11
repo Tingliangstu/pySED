@@ -13,7 +13,7 @@ num_qpaths
    triples.
 
 **Default**
-   ``None``. Set it explicitly.
+   ``1``.
 
 **Notes**
    A path with labels ``GMKG`` has three segments: Gamma to M, M to K, and K to

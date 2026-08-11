@@ -1,0 +1,51 @@
+Migrating from pySED 2.4
+==========================
+
+pySED 3.0 is a breaking upgrade. Rename ``input_SED.in`` to ``input.in``,
+use one trajectory file, and select work through ``action``.
+
+Parameter replacements
+----------------------
+
+.. list-table::
+   :header-rows: 1
+   :widths: 32 68
+
+   * - Removed v2.4 parameter
+     - v3 replacement
+   * - ``plot_SED``, ``lorentz``
+     - ``action = compute | plot | fit | thinking``
+   * - ``file_format``
+     - Automatic detection from ``trajectory_file``.
+   * - ``dump_xyz_file``, ``pos_file``, ``vels_file``
+     - One ``trajectory_file``; LAMMPS must combine positions and velocities.
+   * - ``num_splits``
+     - ``num_blocks``.
+   * - ``compress``, ``output_hdf5``
+     - ``trajectory_read_mode`` and an automatic ``.pysed.nc`` cache.
+   * - ``use_parallel``
+     - ``max_cores = 1`` for serial or a larger value for multiprocessing.
+   * - ``peak_height``, ``peak_prominence``
+     - Dimensionless ``peak_min_significance``.
+   * - ``lorentz_fit_cutoff``
+     - ``lorentz_fit_freq_min`` and ``lorentz_fit_freq_max``.
+   * - ``with_eigs``
+     - Removed without replacement.
+
+Old names are rejected with migration guidance; there is no v2.4 compatibility
+mode. SED output is now explicitly eV/THz, so old ``.SED`` files must not be
+treated as v3 reference data. Repository examples preserve their historical
+v2.4 outputs under ``example/legacy/pySED-2.4/outputs``.
+
+LAMMPS migration
+----------------
+
+Replace two dumps such as ``pos.dat`` and ``vels.dat`` with one:
+
+.. code-block:: text
+
+   dump pysed all custom ${dump_stride} trajectory.dump id type x y z vx vy vz
+   dump_modify pysed sort id
+
+Then set ``trajectory_file = trajectory.dump`` and the appropriate
+``lammps_unit``.

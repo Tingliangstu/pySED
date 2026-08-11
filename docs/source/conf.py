@@ -12,15 +12,16 @@ from pathlib import Path
 project = 'pySED'
 copyright = '2025, Ting Liang; Wenwu Jiang'
 author = 'Ting Liang; Wenwu Jiang'
-release = '2.4.0'
+release = '3.0.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = ['recommonmark', 'sphinx_markdown_tables', 'nbsphinx', 'sphinx.ext.mathjax']
+nbsphinx_execute = 'never'
 
 templates_path = ['_templates']
-exclude_patterns = ['notebook/Test_num_qpoints.ipynb']
+exclude_patterns = []
 
 source_suffix = {
     '.rst': 'restructuredtext',

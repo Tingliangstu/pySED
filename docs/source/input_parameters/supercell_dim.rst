@@ -16,11 +16,17 @@ supercell_dim
    ``1 1 1``.
 
 **Notes**
-   This is one of the most important parameters in ``input_SED.in`` because it
+   This is one of the most important parameters in the current input file because it
    determines the repetition matrix used for commensurate q-point selection.
    pySED does not use a separate ``num_qpoints`` parameter; the available
    q-points are determined by ``supercell_dim``, the primitive cell, the
    trajectory cell, and ``q_path``.
+
+   When :doc:`dump_group_supercell <dump_group_supercell>` is supplied, it replaces the
+   trajectory cell for this commensurability calculation and permits a
+   non-diagonal repetition matrix. ``supercell_dim`` is then not used to infer
+   the local Q grid; pySED obtains the repetition matrix directly from
+   local cell and ``prim_unitcell``.
 
    For a simple diagonal supercell with repetition matrix
    :math:`P=\mathrm{diag}(N_x,N_y,N_z)`, a path from Gamma to the zone boundary
@@ -53,6 +59,7 @@ Related parameters
 
 - :doc:`prim_unitcell <prim_unitcell>`
 - :doc:`basis_lattice_file <basis_lattice_file>`
+- :doc:`dump_group_supercell <dump_group_supercell>`
 - :doc:`num_qpaths <num_qpaths>`
 - :doc:`q_path_name <q_path_name>`
 - :doc:`q_path <q_path>`

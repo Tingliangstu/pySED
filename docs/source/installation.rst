@@ -1,66 +1,40 @@
 Installation
 ============
 
-**pySED** can be installed either from the source code or via the PyPI repository.  
-Installing from source is **highly recommended**, as it is actively maintained and provides the latest updates.
+Use an isolated Python 3.10-or-newer environment.
 
-Download the Source Code
----------------------------
-
-You can download the source code from GitHub:
+From PyPI
+---------
 
 .. code-block:: bash
 
-    git clone https://github.com/Tingliangstu/pySED.git
+   python -m pip install pySED
 
-Alternatively, you may download the package directly from the  
-`pySED GitHub repository <https://github.com/Tingliangstu/pySED>`_.
-
-Install pySED
-----------------
-
-Navigate to the downloaded directory and install using one of the following methods:
-
-**Recommended method (via pip):**
+From source
+-----------
 
 .. code-block:: bash
 
-    cd pySED
-    pip install .
+   git clone https://github.com/Tingliangstu/pySED.git
+   cd pySED
+   python -m pip install .
 
-**Alternative method (via setup script):**
-
-.. code-block:: bash
-
-    python setup.py install --user --prefix=
-
-Add Scripts to PATH
------------------------
-
-For convenience, you may want to copy or link the files inside the `scripts` folder  
-to a location included in your **$PATH** environment variable.
-
-.. note::
-
-    Depending on your operating system or environment configuration, if you are using conda environment this step may be done automatically.
-
-Verify Installation
-----------------------
-
-To confirm that pySED is installed correctly, run:
+Verify the command:
 
 .. code-block:: bash
 
-    pySED -h
+   pySED -h
 
-or
+Optional CuPy backend
+---------------------
+
+Install the wheel matching the installed CUDA Toolkit, for example:
 
 .. code-block:: bash
 
-    pysed -h
+   python -m pip install cupy-cuda12x
+   # or, for a CUDA 13 installation:
+   python -m pip install cupy-cuda13x
 
-This will display the help message, including usage instructions and descriptions of input parameters.
-
-.. tip::
-
-    You can always use the `-h` flag to explore available options and understand how to prepare input files for pySED.
+Then select ``backend = cupy``. A normal CPU installation does not require
+CUDA or CuPy.

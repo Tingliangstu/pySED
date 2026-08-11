@@ -19,7 +19,6 @@ plot_interval
 Related parameters
 ------------------
 
-- :doc:`plot_SED <plot_SED>`
 - :doc:`plot_cutoff_freq <plot_cutoff_freq>`
 - :doc:`plot_color <plot_color>`
 - :doc:`colorbar_min <colorbar_min>`

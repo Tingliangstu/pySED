@@ -22,7 +22,6 @@ plot_cutoff_freq
 Related parameters
 ------------------
 
-- :doc:`plot_SED <plot_SED>`
 - :doc:`plot_interval <plot_interval>`
 - :doc:`plot_color <plot_color>`
 - :doc:`colorbar_min <colorbar_min>`

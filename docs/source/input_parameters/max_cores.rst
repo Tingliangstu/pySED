@@ -8,19 +8,15 @@ max_cores
    max_cores = 4
 
 **Meaning**
-   Maximum number of CPU worker processes used when ``use_parallel = 1``. More
-   cores can speed up q-point calculations, but they also increase memory use.
+   Maximum number of NumPy CPU worker processes. ``max_cores = 1`` runs the SED
+   kernel serially; larger values enable multiprocessing.
 
 **Default**
    ``4``.
 
 **Notes**
    More cores can reduce compute time but increase memory use because each worker
-   handles trajectory data.
+   handles trajectory data. This setting is ignored by the single-GPU CuPy SED
+   kernel.
 
 :doc:`Back to Parameter Index <../input_parameters>`
-
-Related parameters
-------------------
-
-- :doc:`use_parallel <use_parallel>`

@@ -5,13 +5,13 @@ plot_partial_SED
 
 .. code-block:: text
 
-   plot_partial_SED = 3
-   plot_partial_SED = 3 x
+   plot_partial_SED = O
+   plot_partial_SED = O x
 
 **Meaning**
-   Plot the partial SED for a one-based atom type index. With only the type
-   index, pySED sums x, y, and z directions. With a direction, pySED plots only
-   that component.
+   Plot the partial SED for an element symbol. With only the element, pySED
+   sums x, y, and z directions. With a direction, pySED plots only that
+   component.
 
 **Default**
    ``0``.
@@ -20,7 +20,10 @@ plot_partial_SED
    ``x``, ``y``, or ``z``.
 
 **Notes**
-   Requires partial files generated earlier with ``output_partial = 1``.
+   Requires partial files generated earlier with ``output_partial = 1``. For
+   example, ``plot_partial_SED = O y`` reads
+   ``<out_files_name>_partial_SED/<basename>.SED_O_y``, where ``basename`` is
+   the final path component of ``out_files_name``.
 
 :doc:`Back to Parameter Index <../input_parameters>`
 
@@ -28,7 +31,6 @@ Related parameters
 ------------------
 
 - :doc:`output_partial <output_partial>`
-- :doc:`plot_SED <plot_SED>`
 - :doc:`plot_cutoff_freq <plot_cutoff_freq>`
 - :doc:`plot_interval <plot_interval>`
 - :doc:`plot_color <plot_color>`

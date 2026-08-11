@@ -156,10 +156,10 @@ The total SED is recovered by summing over all species and directions:
    \sum_s \sum_{\alpha=x,y,z}
    \Phi'_{s,\alpha}(\mathbf{q},\omega).
 
-In the input file, use ``output_partial = 1`` during the SED-computing mode.
-pySED writes one partial SED file for each atom type and direction. In plotting
-mode, use ``plot_partial_SED = 3`` to plot the sum of ``x+y+z`` for type 3, or
-``plot_partial_SED = 3 x`` to plot only the x-direction contribution of type 3.
+In the input file, use ``output_partial = 1`` during computation. pySED
+writes one partial SED file for each element and direction. In plotting mode,
+use ``plot_partial_SED = Si`` to plot the sum of ``x+y+z`` for silicon,
+or ``plot_partial_SED = Si x`` for its x-direction contribution.
 
 Partial SED is not the same as local or spatial-bin SED. The standard SED method
 requires a mapping between the supercell and the primitive cell to define
@@ -171,7 +171,8 @@ Allowed Wave Vectors
 
 In periodic systems, only wave vectors commensurate with the MD supercell are
 allowed. pySED follows the same commensurate-supercell q-point idea used in
-dynasor 2 [Dynasor2025]_, and the implementation in ``pySED/construct_BZ.py``
+dynasor 2 [Dynasor2025]_, and the implementation in
+``pySED/sed/construct_BZ.py``
 credits dynasor's lattice helper as the reference for this path construction.
 For a one-dimensional direction, the Born-von Karman boundary condition gives
 
@@ -268,9 +269,10 @@ fitting, and the lifetime is written in ps using the relation implemented in
    =
    \frac{1}{2\pi\gamma_{\mathrm{THz}}}.
 
-Use the single-q-point fitting workflow first to tune ``peak_height``,
-``peak_prominence``, ``initial_guess_hwhm``, ``peak_max_hwhm``, and
-``lorentz_fit_cutoff`` before fitting all q-points.
+Use the single-Q workflow first to tune ``peak_min_significance``,
+``initial_guess_hwhm``, ``peak_max_hwhm``, and the
+``lorentz_fit_freq_min``/``lorentz_fit_freq_max`` interval before fitting
+all Q points. See :doc:`peak_fitting` and :doc:`sed_units`.
 
 LO-TO Splitting
 ---------------
