@@ -12,7 +12,9 @@
 
 * Penghua Ying, Ting Liang, Yun Chen, Yan Chen, Shiyun Xiong, Zheyong Fan, Jianbin Xu, Yilun Liu, [Structurally Triggered Breakdown of the Phonon Gas Model in Crystalline Metal-Organic Frameworks](https://arxiv.org/abs/2604.03783)
 
-## 2026 (23)
+## 2026 (24)
+
+* Mengjie Li, Wenwu Jiang, Huasong Qin, Wengen Ouyang, Chun Li, [Counterintuitive Temperature-Dependent Interfacial Thermal Resistance in Twisted van der Waals Interfaces](https://doi.org/10.1021/acsami.6c07853), ACS Applied Materials \& Interfaces, (2026)
 
 * Feiyue Qin, Yunting Jia, Qianfei Ma, Lina Liu, [Flat Phonon Band Induced Suppression of Thermal Transport in Hybrid Kagome and Kagome Graphene](https://doi.org/10.1016/j.physb.2026.419174), Physica B: Condensed Matter, 419174 (2026)
 
