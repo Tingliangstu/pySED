@@ -1,0 +1,1296 @@
+"""CLI parser-to-pipeline trajectory integration tests."""
+
+import importlib.util
+import io
+import os
+import unittest
+from contextlib import redirect_stdout
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from types import SimpleNamespace
+from unittest.mock import Mock, patch
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+from pySED.parser import read_input
+from pySED.parameters import methods, validate_qpoint_slice_index
+from pySED.pipeline import (
+    _run_thinking,
+    run,
+    step_compute_sed,
+    step_fit_sed,
+    step_plot_sed,
+    step_prepare_trajectory,
+)
+from pySED.sed import FileIO
+from pySED.sed.construct_BZ import BZ_methods
+from pySED.sed.Plot_SED import (
+    _print_color_scale,
+    _prepare_sed_for_log_scale,
+    _resolve_color_limits,
+    plot_bands,
+    plot_lifetime_summary,
+    plot_slice,
+    resolve_slice_frequency_limit,
+    resolve_slice_frequency_start,
+    resolve_slice_output_path,
+)
+
+NETCDF4_AVAILABLE = importlib.util.find_spec("netCDF4") is not None
+
+GPUMD_TEXT = """\
+1
+Lattice="5 0 0 0 5 0 0 0 5" Properties=species:S:1:pos:R:3:vel:R:3
+Si 0 0 0 0.001 0.002 0.003
+"""
+
+
+class ParserTests(unittest.TestCase):
+    def test_sed_is_the_only_available_method(self):
+        self.assertEqual(set(methods), {"sed"})
+
+    def test_all_v2_parameter_names_report_migration_guidance(self):
+        legacy_names = (
+            "compress",
+            "dump_xyz_file",
+            "file_format",
+            "lorentz",
+            "lorentz_fit_cutoff",
+            "num_splits",
+            "output_hdf5",
+            "peak_height",
+            "peak_prominence",
+            "plot_SED",
+            "pos_file",
+            "use_parallel",
+            "vels_file",
+            "with_eigs",
+        )
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            for legacy_name in legacy_names:
+                with self.subTest(parameter=legacy_name):
+                    input_file = root / f"{legacy_name}.in"
+                    input_file.write_text(
+                        f"action = plot\n{legacy_name} = 1\n",
+                        encoding="utf-8",
+                    )
+                    with self.assertRaisesRegex(
+                        ValueError,
+                        rf"parameter '{legacy_name}' was removed in pySED 3\.0",
+                    ):
+                        read_input(input_file)
+
+    def test_plot_fails_when_required_sed_outputs_are_missing(self):
+        with TemporaryDirectory() as directory:
+            params = SimpleNamespace(
+                out_files_name=str(Path(directory) / "missing"),
+            )
+
+            with self.assertRaisesRegex(FileNotFoundError, "SED"):
+                step_plot_sed(params)
+
+    def test_fit_failure_propagates_without_a_false_success_message(self):
+        with TemporaryDirectory() as directory:
+            params = SimpleNamespace(
+                method="sed",
+                action="fit",
+                out_files_name=str(Path(directory) / "missing"),
+            )
+            output = io.StringIO()
+
+            with (
+                redirect_stdout(output),
+                self.assertRaisesRegex(FileNotFoundError, "SED"),
+            ):
+                run(params)
+
+        self.assertNotIn("finished successfully", output.getvalue())
+
+    def test_thinking_fits_after_sed_data_and_requested_plots_exist(self):
+        """Thinking should fit only after data and plot outputs are ready."""
+
+        with TemporaryDirectory() as directory:
+            previous_directory = os.getcwd()
+            os.chdir(directory)
+            try:
+                output = Path(directory) / "SrTiO3"
+                for suffix in (".SED", ".Qpts", ".THz"):
+                    output.with_suffix(suffix).touch()
+                output.with_name("SrTiO3-SED.png").touch()
+
+                params = SimpleNamespace(
+                    out_files_name=str(output),
+                    plot_partial_SED=False,
+                    plot_slice=False,
+                    qpoint_slice_index=3,
+                    lorentz_fit_all_qpoint=False,
+                )
+                steps = {
+                    "compute": Mock(),
+                    "plot": Mock(),
+                    "fit": Mock(),
+                }
+
+                _run_thinking(params, steps)
+
+                steps["compute"].assert_not_called()
+                steps["plot"].assert_not_called()
+                steps["fit"].assert_called_once_with(params)
+            finally:
+                os.chdir(previous_directory)
+
+    def test_explicit_fit_overwrites_existing_all_qpoint_results(self):
+        """Explicit fit overrides the auto-fit switch and existing output."""
+
+        data = SimpleNamespace(q_distances=np.array([0.0, 0.5]))
+        params = SimpleNamespace(
+            action="fit",
+            lorentz_fit_all_qpoint=True,
+            qpoint_slice_index=0,
+            if_show_figures=True,
+            plot_lorentz=True,
+        )
+        output = io.StringIO()
+
+        with (
+            patch("pySED.pipeline._require_plot_data"),
+            patch("pySED.pipeline._fit_ready", return_value=True),
+            patch(
+                "pySED.pipeline.FileIO.load_data",
+                return_value=data,
+            ),
+            patch("pySED.pipeline.Lorentz.lorentz") as fit,
+            patch(
+                "pySED.pipeline.FileIO.deal_total_fre_lifetime"
+            ) as combine,
+            patch(
+                "pySED.pipeline.FileIO.read_lifetime_data",
+                return_value=(np.array([1.0]), np.array([2.0])),
+            ),
+            patch(
+                "pySED.pipeline.Plot_SED.plot_lifetime_summary",
+                return_value="Fitting-Frequency-Lifetime.png",
+            ) as plot_lifetime,
+            redirect_stdout(output),
+        ):
+            fit.side_effect = [
+                SimpleNamespace(
+                    fit_clusters=[
+                        {
+                            "peak_number": 1,
+                            "incomplete_peak_shapes": np.array([False]),
+                        },
+                        {
+                            "peak_number": 2,
+                            "incomplete_peak_shapes": np.array([True]),
+                        },
+                    ]
+                ),
+                SimpleNamespace(
+                    fit_clusters=[
+                        {
+                            "peak_number": 3,
+                            "incomplete_peak_shapes": np.array([True]),
+                        },
+                        {
+                            "peak_number": 4,
+                            "incomplete_peak_shapes": np.array([True]),
+                        },
+                    ]
+                ),
+            ]
+            combine.return_value = (
+                "Lifetime/Fitting-All-Qpoints.Fre_lifetime",
+                7,
+            )
+            step_fit_sed(params)
+
+        self.assertEqual(fit.call_count, 2)
+        combine.assert_called_once_with(params, 2)
+        message = output.getvalue()
+        self.assertIn("      Total Q-points       : 2", message)
+        self.assertIn("Fitting Q-point #0 (1/2) ...", message)
+        self.assertIn("Fitting Q-point #1 (2/2) ...", message)
+        self.assertEqual(
+            message.count("  " + "-" * 58),
+            2,
+        )
+        self.assertIn("All-Q fitting summary", message)
+        self.assertIn("      Q-points processed  : 2", message)
+        self.assertIn("      Fitted modes        : 7", message)
+        self.assertIn(
+            f"      {'Lifetime data':<20}: "
+            "Lifetime/Fitting-All-Qpoints.Fre_lifetime",
+            message,
+        )
+        self.assertEqual(
+            params.lifetime_figure_output,
+            "Fitting-Frequency-Lifetime.png",
+        )
+        self.assertEqual(
+            getattr(params, "lifetime_figure_action", "written"),
+            "written",
+        )
+        self.assertIn(
+            f"      {'Q-point figures':<20}: Fitting-Qpoint",
+            message,
+        )
+        self.assertIn("All-Q spectral fitting complete", message)
+        self.assertIn("  >  Q-points to inspect", message)
+        self.assertIn(
+            "      Incomplete line shapes: 3 peaks across 2 Q-points",
+            message,
+        )
+        self.assertIn("      Q-point #0       : peak 2", message)
+        self.assertIn("      Q-point #1       : peaks 3, 4", message)
+        self.assertIn(
+            "      Check these figures in Fitting-Qpoint/.",
+            message,
+        )
+        self.assertIn(
+            "      Adjust peak_min_significance if needed.",
+            message,
+        )
+        plot_lifetime.assert_called_once()
+        self.assertLess(
+            message.index("  >  Q-points to inspect"),
+            message.index("  Tip: Check all fit figures"),
+        )
+        self.assertIn(
+            "  Tip: Check all fit figures. To refine one Q point",
+            message,
+        )
+        self.assertIn(
+            "       qpoint_slice_index, adjust peak_min_significance and",
+            message,
+        )
+        self.assertIn(
+            "       fitting_function = auto | lorentz | dho, then set",
+            message,
+        )
+        self.assertIn(
+            "       re_output_total_freq_lifetime = 1.",
+            message,
+        )
+        self.assertNotIn("LORENTZ", message)
+
+    def test_single_q_refit_can_rebuild_combined_lifetime_data(self):
+        data = SimpleNamespace(
+            qpoints=np.zeros((3, 3)),
+            q_distances=np.arange(3.0),
+        )
+        params = SimpleNamespace(
+            lorentz_fit_all_qpoint=False,
+            qpoint_slice_index=1,
+            re_output_total_freq_lifetime=True,
+        )
+        output = io.StringIO()
+
+        with (
+            patch("pySED.pipeline._require_plot_data"),
+            patch(
+                "pySED.pipeline.FileIO.load_data",
+                return_value=data,
+            ),
+            patch("pySED.pipeline.Lorentz.lorentz"),
+            patch(
+                "pySED.pipeline.FileIO.deal_total_fre_lifetime",
+                return_value=(
+                    "Lifetime/Fitting-All-Qpoints.Fre_lifetime",
+                    12,
+                ),
+            ) as combine,
+            patch(
+                "pySED.pipeline.FileIO.read_lifetime_data",
+                return_value=(np.array([1.0]), np.array([2.0])),
+            ),
+            patch(
+                "pySED.pipeline.Plot_SED.plot_lifetime_summary",
+                return_value="Fitting-Frequency-Lifetime.png",
+            ) as plot_lifetime,
+            redirect_stdout(output),
+        ):
+            step_fit_sed(params)
+
+        combine.assert_called_once_with(params, 3)
+        self.assertIn("Combined lifetime data rebuilt", output.getvalue())
+        self.assertIn(
+            "Lifetime/Fitting-All-Qpoints.Fre_lifetime (12 modes)",
+            output.getvalue(),
+        )
+        self.assertIn("Single-Q spectral fit done", output.getvalue())
+        plot_lifetime.assert_called_once()
+        self.assertEqual(params.lifetime_figure_action, "redrawn")
+
+    def test_lifetime_outputs_are_grouped_and_combined(self):
+        with TemporaryDirectory() as directory:
+            previous_directory = os.getcwd()
+            os.chdir(directory)
+            try:
+                lifetime_directory = Path("Lifetime")
+                lifetime_directory.mkdir()
+                header = "Generated by pySED\nFrequency (THz) lifetime (ps)\n"
+                (lifetime_directory / "Fitting-0-qpoint.Fre_lifetime").write_text(
+                    header + "1.000000 2.00000000\n",
+                    encoding="utf-8",
+                )
+                (lifetime_directory / "Fitting-1-qpoint.Fre_lifetime").write_text(
+                    header + "3.000000 4.00000000\n",
+                    encoding="utf-8",
+                )
+                combined_file = (
+                    lifetime_directory / "Fitting-All-Qpoints.Fre_lifetime"
+                )
+                combined_file.write_text(
+                    header + "99.000000 99.00000000\n",
+                    encoding="utf-8",
+                )
+
+                output_file, total_modes = FileIO.deal_total_fre_lifetime(
+                    SimpleNamespace(),
+                    2,
+                )
+                frequency, lifetime = FileIO.read_lifetime_data(output_file)
+                combined_text = combined_file.read_text(encoding="utf-8")
+            finally:
+                os.chdir(previous_directory)
+
+        self.assertEqual(
+            Path(output_file),
+            Path("Lifetime") / "Fitting-All-Qpoints.Fre_lifetime",
+        )
+        self.assertEqual(total_modes, 2)
+        np.testing.assert_allclose(frequency, [1.0, 3.0])
+        np.testing.assert_allclose(lifetime, [2.0, 4.0])
+        self.assertNotIn("99.000000", combined_text)
+
+    def test_lifetime_summary_uses_frequency_and_log_lifetime_axes(self):
+        with TemporaryDirectory() as directory:
+            previous_directory = os.getcwd()
+            os.chdir(directory)
+            try:
+                with (
+                    patch("matplotlib.figure.Figure.savefig") as savefig,
+                    patch("pySED.sed.Plot_SED.plt.close"),
+                ):
+                    output_path = plot_lifetime_summary(
+                        np.array([1.0, 2.0, 3.0]),
+                        np.array([10.0, 1.0, 0.1]),
+                    )
+                    figure = plt.gcf()
+            finally:
+                os.chdir(previous_directory)
+
+        self.assertEqual(
+            Path(output_path),
+            Path("Fitting-Frequency-Lifetime.png"),
+        )
+        self.assertEqual(figure.axes[0].get_xlabel(), "Frequency (THz)")
+        self.assertEqual(figure.axes[0].get_ylabel(), "Lifetime")
+        self.assertEqual(figure.axes[0].get_yscale(), "log")
+        self.assertFalse(
+            any(
+                line.get_visible()
+                for line in (
+                    figure.axes[0].get_xgridlines()
+                    + figure.axes[0].get_ygridlines()
+                )
+            )
+        )
+        savefig.assert_called_once()
+        plt.close(figure)
+
+    def test_completion_reports_new_lifetime_figure_before_success(self):
+        params = SimpleNamespace(method="sed", action="fit")
+
+        def write_lifetime_figure(received_params):
+            received_params.lifetime_figure_output = (
+                "Fitting-Frequency-Lifetime.png"
+            )
+
+        output = io.StringIO()
+        with (
+            patch.dict(
+                "pySED.pipeline.STEP_MAP",
+                {"sed": {"fit": write_lifetime_figure}},
+                clear=True,
+            ),
+            redirect_stdout(output),
+        ):
+            run(params)
+
+        message = output.getvalue()
+        figure_line = (
+            "Lifetime figure written: Fitting-Frequency-Lifetime.png"
+        )
+        success_line = "pySED task finished successfully."
+        self.assertIn(figure_line, message)
+        self.assertIn(success_line, message)
+        self.assertLess(message.index(figure_line), message.index(success_line))
+
+    def test_thinking_defers_trajectory_preparation_to_compute(self):
+        params = SimpleNamespace(method="sed", action="thinking")
+
+        with (
+            patch("pySED.pipeline.step_prepare_trajectory") as prepare,
+            patch("pySED.pipeline._run_thinking") as thinking,
+        ):
+            run(params)
+
+        prepare.assert_not_called()
+        thinking.assert_called_once()
+
+    def test_completion_reports_redrawn_lifetime_figure(self):
+        params = SimpleNamespace(method="sed", action="fit")
+
+        def redraw_lifetime_figure(received_params):
+            received_params.lifetime_figure_output = (
+                "Fitting-Frequency-Lifetime.png"
+            )
+            received_params.lifetime_figure_action = "redrawn"
+
+        output = io.StringIO()
+        with (
+            patch.dict(
+                "pySED.pipeline.STEP_MAP",
+                {"sed": {"fit": redraw_lifetime_figure}},
+                clear=True,
+            ),
+            redirect_stdout(output),
+        ):
+            run(params)
+
+        self.assertIn(
+            "Lifetime figure redrawn: Fitting-Frequency-Lifetime.png",
+            output.getvalue(),
+        )
+
+    def test_plot_progress_identifies_dispersion_and_single_q_stages(self):
+        """Plot progress should be explicit and column-aligned."""
+
+        data = SimpleNamespace(
+            qpoints=np.array(
+                [[0.0, 0.0, 0.0], [0.5, 0.25, 0.0]]
+            ),
+            freq_fft=np.array([0.0, 5.0, 10.0, 15.0]),
+        )
+        params = SimpleNamespace(
+            input_file="/work/SrTiO3.in",
+            out_files_name="SrTiO3",
+            plot_slice=True,
+            qpoint_slice_index=1,
+            plot_partial_SED=False,
+            plot_cutoff_freq=12.0,
+            plot_lorentz=False,
+            lorentz_fit_freq_max=8.0,
+        )
+        output = io.StringIO()
+
+        with (
+            patch("pySED.pipeline._require_plot_data"),
+            patch("pySED.pipeline.FileIO.load_data", return_value=data),
+            patch("pySED.pipeline.Plot_SED.plot_bands"),
+            patch("pySED.pipeline.Plot_SED.plot_slice"),
+            redirect_stdout(output),
+        ):
+            step_plot_sed(params)
+
+        message = output.getvalue()
+        self.assertIn("Plotting SED dispersion", message)
+        self.assertIn("      Component       : total SED", message)
+        self.assertIn("Plotting single-q SED", message)
+        self.assertIn(
+            "      q-point index   : 1 (zero-based)",
+            message,
+        )
+        self.assertIn(
+            "      q-point         : (0.5, 0.25, 0)",
+            message,
+        )
+        self.assertIn(
+            "      Frequency range : 0 to 12 THz "
+            "(adjust with plot_cutoff_freq in SrTiO3.in)",
+            message,
+        )
+        self.assertIn(
+            "      Y-axis          : "
+            "SED (eV/THz), logarithmic scale",
+            message,
+        )
+        self.assertIn("SED plotting complete", message)
+
+    def test_color_scale_output_explains_units_and_input_controls(self):
+        """The ln color scale should use a dimensionless physical ratio."""
+
+        params = SimpleNamespace(
+            colorbar_min=None,
+            colorbar_max=None,
+            input_file="/work/SrTiO3.in",
+        )
+        output = io.StringIO()
+
+        with redirect_stdout(output):
+            _print_color_scale(params, -12.0, 0.0)
+
+        message = output.getvalue()
+        self.assertIn(
+            "      Colorbar        : "
+            "ln[SED / (eV/THz)] (dimensionless)",
+            message,
+        )
+        self.assertIn(
+            "      colorbar_min    : -12 (automatic, ln scale)",
+            message,
+        )
+        self.assertIn(
+            "      colorbar_max    : 0 (automatic, ln scale)",
+            message,
+        )
+        self.assertIn(
+            "      Fine-tune with  : colorbar_min / colorbar_max "
+            "in SrTiO3.in",
+            message,
+        )
+
+    def test_dispersion_colorbar_uses_dimensionless_reference_ratio(self):
+        """The heatmap label should state its physical reference value."""
+
+        data = SimpleNamespace(
+            sed_avg=np.exp(
+                np.array(
+                    [
+                        [-4.0, -3.5],
+                        [-3.0, -2.5],
+                        [-2.0, -1.5],
+                    ]
+                )
+            ),
+            qpoints=np.array([[0.0, 0.0, 0.0], [0.5, 0.0, 0.0]]),
+            freq_fft=np.array([0.0, 1.0, 2.0]),
+            q_distances=np.array([0.0, 1.0]),
+            q_labels={0.0: "G", 1.0: "X"},
+        )
+        params = SimpleNamespace(
+            colorbar_min=-4.0,
+            colorbar_max=0.0,
+            input_file="/work/SrTiO3.in",
+            plot_color="RdBu_r",
+            plot_interval=1.0,
+            num_qpaths=1,
+            use_contourf=False,
+            plot_cutoff_freq=2.0,
+            plot_partial_SED=False,
+            out_files_name="SrTiO3",
+            if_show_figures=False,
+        )
+
+        with (
+            patch("pySED.sed.Plot_SED.plt.savefig"),
+            redirect_stdout(io.StringIO()),
+        ):
+            plot_bands(data, params)
+            figure = plt.gcf()
+
+        self.assertEqual(
+            figure.axes[1].get_ylabel(),
+            r"$\ln\!\left[\mathrm{SED}(\mathbf{q},\omega)"
+            r"/(\mathrm{eV/THz})\right]$",
+        )
+        plt.close(figure)
+
+    def test_slice_frequency_limit_uses_the_matching_plot_control(self):
+        """Plain plots and Lorentz overlays should use their own cutoffs."""
+
+        thz = np.array([0.0, 5.0, 10.0, 15.0])
+        params = SimpleNamespace(
+            plot_lorentz=False,
+            plot_cutoff_freq=12.0,
+            lorentz_fit_freq_max=8.0,
+        )
+        self.assertEqual(
+            resolve_slice_frequency_limit(thz, params),
+            (12.0, "plot_cutoff_freq"),
+        )
+
+        params.plot_lorentz = True
+        self.assertEqual(
+            resolve_slice_frequency_limit(thz, params),
+            (8.0, "lorentz_fit_freq_max"),
+        )
+
+    def test_lorentz_slice_uses_start_and_reports_fit_figure(self):
+        thz = np.array([0.0, 5.0, 10.0, 15.0])
+        params = SimpleNamespace(
+            qpoint_slice_index=3,
+            plot_lorentz=True,
+            plot_partial_SED=False,
+            lorentz_fit_freq_min=2.0,
+        )
+
+        self.assertEqual(
+            resolve_slice_frequency_start(thz, params),
+            (2.0, "lorentz_fit_freq_min"),
+        )
+        self.assertEqual(
+            resolve_slice_output_path(params, lorentz=True),
+            str(Path("Fitting-Qpoint") / "Fitting-3-qpoint.png"),
+        )
+
+    def test_qpoint_slice_index_uses_zero_based_data_bounds(self):
+        """Slice indices must stay within the loaded q-point range."""
+
+        data = SimpleNamespace(
+            qpoints=np.zeros((10, 3)),
+        )
+
+        params = SimpleNamespace(qpoint_slice_index=10)
+        with self.assertRaisesRegex(
+            ValueError,
+            r"qpoint_slice_index = 10 is out of range: "
+            r"10 q-points are available; valid zero-based "
+            r"indices are 0 to 9\.",
+        ):
+            validate_qpoint_slice_index(params, data.qpoints)
+
+        for q_index in (0, 9):
+            params = SimpleNamespace(qpoint_slice_index=q_index)
+            validate_qpoint_slice_index(params, data.qpoints)
+
+    def test_qpoint_slice_index_rejects_negative_input(self):
+        """Negative indices are invalid because the input is zero-based."""
+
+        with TemporaryDirectory() as directory:
+            input_file = Path(directory) / "input.in"
+            input_file.write_text(
+                "action = plot\nqpoint_slice_index = -1\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(
+                ValueError,
+                r"qpoint_slice_index must be non-negative \(zero-based\)",
+            ):
+                read_input(input_file)
+
+    def test_qpoint_slice_does_not_require_lorentz_fit_state(self):
+        """A plain q-point plot must work without running a fit first."""
+
+        data = SimpleNamespace(
+            sed_avg=np.array([[1.0], [2.0], [3.0]]),
+            qpoints=np.array([[0.0, 0.0, 0.0]]),
+            freq_fft=np.array([0.0, 1.0, 2.0]),
+        )
+        params = SimpleNamespace(
+            qpoint_slice_index=0,
+            lorentz_fit_freq_max=None,
+            plot_partial_SED=False,
+            if_show_figures=False,
+        )
+
+        with (
+            patch("pySED.sed.Plot_SED.plt.savefig") as savefig,
+            patch("pySED.sed.Plot_SED.plt.close"),
+        ):
+            plot_slice(data, params)
+            figure = plt.gcf()
+
+        savefig.assert_called_once()
+        self.assertEqual(savefig.call_args.args[0], "SED-0-qpoint.png")
+        self.assertEqual(
+            figure.axes[0].get_ylabel(),
+            r"$\Phi(\mathbf{q},\omega)$ (eV/THz)",
+        )
+        plt.close(figure)
+
+    def test_sed_color_scale_uses_natural_log_limits(self):
+        """Dispersion colors should reproduce the original ln rendering."""
+
+        params = SimpleNamespace(
+            colorbar_min=None,
+            colorbar_max=None,
+        )
+        sed = np.exp(np.array([-22.8, -16.0, -10.2]))
+        vmin, vmax = _resolve_color_limits(
+            sed,
+            params,
+        )
+        self.assertEqual(vmin, -22.0)
+        self.assertEqual(vmax, -10.0)
+
+        rendered = _prepare_sed_for_log_scale(
+            np.exp(np.array([[-30.0, -16.0, -5.0]])),
+            vmin,
+            vmax,
+        )
+        np.testing.assert_allclose(
+            rendered,
+            np.array([[vmin, -16.0, vmax]]),
+        )
+
+    def test_colorbar_limits_accept_natural_log_values(self):
+        """Input validation should accept negative ln-scale limits."""
+
+        with TemporaryDirectory() as directory:
+            input_file = Path(directory) / "input.in"
+            input_file.write_text(
+                "action = plot\n"
+                "colorbar_min = -12\n"
+                "colorbar_max = 0\n",
+                encoding="utf-8",
+            )
+
+            params = read_input(input_file)
+            self.assertEqual(params.colorbar_min, -12.0)
+            self.assertEqual(params.colorbar_max, 0.0)
+
+    def test_partial_sed_files_use_element_names_and_ev_per_thz(self):
+        """Partial outputs should be readable by their public element names."""
+
+        with TemporaryDirectory() as directory:
+            previous_directory = os.getcwd()
+            os.chdir(directory)
+            try:
+                params = SimpleNamespace(
+                    out_files_name="SrTiO3",
+                    output_partial=1,
+                    plot_partial_SED=True,
+                    plot_partial_element="O",
+                    plot_partial_dir="y",
+                )
+                phonons = SimpleNamespace(
+                    sed_avg=np.arange(4 * 2 * 3 * 3, dtype=float).reshape(
+                        4,
+                        2,
+                        3,
+                        3,
+                    ),
+                    type_symbols=("O", "Ti", "Sr"),
+                    freq_fft=np.arange(4, dtype=float),
+                )
+                lattice = SimpleNamespace(
+                    reduced_qpoints=np.zeros((2, 3)),
+                    q_distances=(0.0, 1.0),
+                    q_labels=((0.0, "G"), (1.0, "X")),
+                )
+                partial_dir = Path("SrTiO3_partial_SED")
+                partial_dir.mkdir()
+                legacy_oxygen_y = (
+                    partial_dir / "SrTiO3.SED_type1_y"
+                )
+                legacy_oxygen_y.write_text("old", encoding="utf-8")
+
+                FileIO.write_output(phonons, params, lattice)
+
+                oxygen_y = partial_dir / "SrTiO3.SED_O_y"
+                self.assertTrue(oxygen_y.is_file())
+                self.assertFalse(legacy_oxygen_y.exists())
+
+                loaded = FileIO.load_data(params)
+                np.testing.assert_allclose(
+                    loaded.sed_avg,
+                    phonons.sed_avg[:, :, 0, 1],
+                )
+                for sed_file in (Path("SrTiO3.SED"), oxygen_y):
+                    header = sed_file.read_text(
+                        encoding="utf-8"
+                    ).splitlines()[0]
+                    self.assertIn("unit: eV/THz", header)
+                    self.assertIn(
+                        "each column corresponds to one q-point "
+                        "(same order as the .Qpts file)",
+                        header,
+                    )
+            finally:
+                os.chdir(previous_directory)
+
+    def test_explicit_compute_runs_when_sed_already_exists(self) -> None:
+        with TemporaryDirectory() as directory:
+            output = Path(directory) / "result"
+            output.with_suffix(".SED").write_text("old", encoding="utf-8")
+            params = SimpleNamespace(
+                out_files_name=str(output),
+                total_num_steps=4,
+                output_data_stride=1,
+                num_blocks=2,
+                trajectory_prefetch=False,
+            )
+            bz_info = object()
+            sed = Mock()
+            first_block = SimpleNamespace(
+                data={"cells": np.eye(3)[None, :, :]},
+            )
+            second_block = SimpleNamespace(
+                data={"cells": np.eye(3)[None, :, :]},
+            )
+            raw_blocks = iter([first_block, second_block])
+            trajectory = SimpleNamespace(
+                info=object(),
+                iter_blocks=Mock(return_value=raw_blocks),
+            )
+            output = io.StringIO()
+
+            with (
+                patch("pySED.pipeline.step_prepare_trajectory"),
+                patch(
+                    "pySED.pipeline.trajectory_block_source",
+                    return_value=trajectory,
+                ),
+                patch(
+                    "pySED.pipeline.construct_BZ.BZ_methods",
+                    return_value=bz_info,
+                ),
+                patch(
+                    "pySED.pipeline.Phonon.spectral_energy_density",
+                    return_value=sed,
+                ),
+                patch("pySED.pipeline.FileIO.write_output") as write_output,
+                patch(
+                    "pySED.pipeline.time.perf_counter",
+                    side_effect=(10.0, 12.0, 20.0, 23.0),
+                ),
+                redirect_stdout(output),
+            ):
+                step_compute_sed(params)
+
+            sed.compute_sed.assert_called_once_with(
+                params,
+                bz_info,
+                first_block,
+                raw_blocks,
+            )
+            write_output.assert_called_once_with(sed, params, bz_info)
+            message = output.getvalue()
+            self.assertIn("SED compute done (13.0 s)", message)
+            self.assertIn("Initial read/setup : 2.0 s", message)
+            self.assertIn("SED calculation    : 8.0 s", message)
+            self.assertIn("Output/finalization: 3.0 s", message)
+
+    def test_dump_group_supercell_overrides_the_trajectory_cell_for_bz(self) -> None:
+        params = SimpleNamespace(
+            out_files_name="result",
+            total_num_steps=4,
+            output_data_stride=1,
+            num_blocks=2,
+            trajectory_prefetch=False,
+            dump_group_supercell=np.eye(3) * 4.0,
+        )
+        bz_info = object()
+        sed = Mock()
+        first_block = SimpleNamespace(
+            data={"cells": np.eye(3)[None, :, :]},
+        )
+        second_block = SimpleNamespace(
+            data={"cells": np.eye(3)[None, :, :]},
+        )
+        trajectory = SimpleNamespace(
+            info=object(),
+            iter_blocks=Mock(return_value=iter([first_block, second_block])),
+        )
+
+        with (
+            patch("pySED.pipeline.step_prepare_trajectory"),
+            patch(
+                "pySED.pipeline.trajectory_block_source",
+                return_value=trajectory,
+            ),
+            patch(
+                "pySED.pipeline.construct_BZ.BZ_methods",
+                return_value=bz_info,
+            ) as make_bz,
+            patch(
+                "pySED.pipeline.Phonon.spectral_energy_density",
+                return_value=sed,
+            ),
+            patch("pySED.pipeline.FileIO.write_output"),
+        ):
+            step_compute_sed(params)
+
+        make_bz.assert_called_once()
+        called_params, called_cell = make_bz.call_args.args
+        self.assertIs(called_params, params)
+        np.testing.assert_allclose(called_cell, np.eye(3) * 4.0)
+
+    def test_single_trajectory_configuration(self) -> None:
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            basis_file = root / "basis.in"
+            basis_file.write_text(
+                "test structure\n"
+                "atoms_ids unitcell_index basis_index mass_types\n"
+                "1 1 1 15.9994\n",
+                encoding="utf-8",
+            )
+            input_file = root / "input.in"
+            input_file.write_text(
+                "action = plot\n"
+                "trajectory_file = movie.nc\n"
+                "lammps_unit = metal\n"
+                "netcdf_compression_level = 0\n"
+                "netcdf_batch_size = 64\n"
+                "output_partial = 1\n"
+                f"basis_lattice_file = {basis_file}\n"
+                "plot_partial_SED = O y\n",
+                encoding="utf-8",
+            )
+
+            params = read_input(str(input_file))
+
+            self.assertEqual(
+                params.trajectory_file,
+                str((root / "movie.nc").resolve()),
+            )
+            self.assertEqual(params.lammps_unit, "metal")
+            self.assertEqual(params.netcdf_compression_level, 0)
+            self.assertEqual(params.netcdf_batch_size, 64)
+            self.assertFalse(hasattr(params, "trajectory_path"))
+            self.assertFalse(hasattr(params, "source_format"))
+            self.assertTrue(params.output_partial)
+            self.assertEqual(params.plot_partial_element, "O")
+            self.assertEqual(params.plot_partial_dir, "y")
+            self.assertFalse(hasattr(params, "plot_partial_type"))
+            self.assertEqual(params.trajectory_read_mode, "cache")
+            self.assertTrue(params.trajectory_prefetch)
+
+    def test_dump_group_supercell_is_parsed_and_requires_fixed_primitive(self) -> None:
+        with TemporaryDirectory() as directory:
+            input_file = Path(directory) / "input.in"
+            input_file.write_text(
+                "method = sed\n"
+                "action = plot\n"
+                "rescale_prim = 0\n"
+                "dump_group_supercell = 4 0 0  0 4 0  0 0 4\n",
+                encoding="utf-8",
+            )
+
+            params = read_input(str(input_file))
+            np.testing.assert_allclose(
+                params.dump_group_supercell, np.eye(3) * 4
+            )
+
+            input_file.write_text(
+                "method = sed\n"
+                "action = plot\n"
+                "dump_group_supercell = 4 0 0  0 4 0  0 0 4\n",
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(
+                ValueError, "dump_group_supercell is for a local group trajectory"
+            ):
+                read_input(str(input_file))
+
+    def test_dump_group_supercell_supports_a_non_diagonal_repetition_matrix(self) -> None:
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            basis_file = root / "basis.in"
+            basis_file.write_text(
+                "test structure\n"
+                "atoms_ids unitcell_index basis_index mass_types\n"
+                + "".join(
+                    f"{atom_id} {atom_id} 1 58.6934\n"
+                    for atom_id in range(1, 6145)
+                ),
+                encoding="utf-8",
+            )
+            input_file = root / "input.in"
+            input_file.write_text(
+                "action = compute\n"
+                "method = sed\n"
+                "num_atoms = 6144\n"
+                "total_num_steps = 10\n"
+                "time_step = 1\n"
+                "output_data_stride = 1\n"
+                "num_blocks = 1\n"
+                f"basis_lattice_file = {basis_file}\n"
+                "prim_unitcell = 2.522249888492 0 0 "
+                "1.261124944246 2.184332478127 0 "
+                "-1.261124944246 -0.728110826042 2.059408410199\n"
+                "dump_group_supercell = 80.711996431757 0 0 "
+                "40.355998215879 69.898639300061 0 "
+                "0 0 12.356450461196\n"
+                "rescale_prim = 0\n"
+                "num_qpaths = 2\n"
+                "q_path_name = GKX\n"
+                "q_path = 0 0 0  3/4 3/8 -3/8  1 1/2 -1/2\n",
+                encoding="utf-8",
+            )
+
+            params = read_input(str(input_file))
+            bz = BZ_methods(
+                params,
+                params.dump_group_supercell,
+                box_info=False,
+                qpoints_info=False,
+            )
+
+            self.assertEqual(bz.num_qpoints, 18)
+            np.testing.assert_allclose(
+                bz.qpoints[[0, 12, 17]],
+                [[0, 0, 0], [1.86832756, 0, 0], [2.49110341, 0, 0]],
+                atol=1.0e-8,
+            )
+
+            params.dump_group_supercell = np.array(
+                [[16, 0, 0], [0, 32, 0], [2, 2, 6]]
+            ) @ params.prim_unitcell
+            with self.assertRaisesRegex(
+                ValueError, "The local cell does not match basis.in"
+            ):
+                BZ_methods(
+                    params,
+                    params.dump_group_supercell,
+                    box_info=False,
+                    qpoints_info=False,
+                )
+
+            params.dump_group_supercell = np.eye(3)
+            with self.assertRaisesRegex(
+                ValueError,
+                "The local cell cannot be matched to prim_unitcell",
+            ):
+                BZ_methods(
+                    params,
+                    params.dump_group_supercell,
+                    box_info=False,
+                    qpoints_info=False,
+                )
+
+    def test_netcdf_tuning_parameters_are_validated(self) -> None:
+        with TemporaryDirectory() as directory:
+            input_file = Path(directory) / "input.in"
+            for setting, message in (
+                ("netcdf_compression_level = 10", "between 0 and 9"),
+                ("netcdf_batch_size = 0", "must be positive"),
+            ):
+                input_file.write_text(
+                    f"action = plot\n{setting}\n",
+                    encoding="utf-8",
+                )
+                with (
+                    self.subTest(setting=setting),
+                    self.assertRaisesRegex(ValueError, message),
+                ):
+                    read_input(str(input_file))
+
+    def test_partial_sed_rejects_unknown_element(self) -> None:
+        with TemporaryDirectory() as directory:
+            input_file = Path(directory) / "input.in"
+            input_file.write_text(
+                "plot_partial_SED = NotAnElement y\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(
+                ValueError,
+                "was not found in the periodic table",
+            ):
+                read_input(str(input_file))
+
+    def test_partial_sed_element_must_exist_in_structure(self) -> None:
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            basis_file = root / "basis.in"
+            basis_file.write_text(
+                "test structure\n"
+                "atoms_ids unitcell_index basis_index mass_types\n"
+                "1 1 1 28.0855\n",
+                encoding="utf-8",
+            )
+            input_file = root / "input.in"
+            input_file.write_text(
+                "action = plot\n"
+                f"basis_lattice_file = {basis_file}\n"
+                "plot_partial_SED = O y\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(
+                ValueError,
+                "was not found in the input structure",
+            ):
+                read_input(str(input_file))
+
+    def test_malformed_inputs_are_rejected(self) -> None:
+        cases = {
+            "missing_equals": (
+                "action plot\n",
+                "expected 'key = value'",
+            ),
+            "unknown_parameter": (
+                "action = plot\nnum_atom = 10\n",
+                "parameter 'num_atom' is not valid",
+            ),
+            "extra_scalar_value": (
+                "action = plot\nnum_atoms = 10 extra\n",
+                "requires exactly 1 value",
+            ),
+            "duplicate_parameter": (
+                "action = plot\naction = fit\n",
+                "parameter 'action' is repeated",
+            ),
+            "invalid_boolean": (
+                "action = plot\noutput_partial = 2\n",
+                "must be 0 or 1",
+            ),
+            "invalid_backend": (
+                "action = plot\nbackend = unknown\n",
+                "backend 'unknown' is not available",
+            ),
+            "invalid_trajectory_read_mode": (
+                "action = plot\ntrajectory_read_mode = parallel\n",
+                "trajectory_read_mode must be 'cache' or 'direct'",
+            ),
+        }
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            for name, (text, message) in cases.items():
+                with self.subTest(name=name):
+                    input_file = root / f"{name}.in"
+                    input_file.write_text(text, encoding="utf-8")
+                    with self.assertRaisesRegex(ValueError, message):
+                        read_input(input_file)
+
+    def test_q_path_labels_are_validated(self) -> None:
+        with TemporaryDirectory() as directory:
+            input_file = Path(directory) / "input.in"
+            input_file.write_text(
+                "action = plot\n"
+                "num_qpaths = 2\n"
+                "q_path_name = GX\n"
+                "q_path = 0 0 0  0.5 0 0  0.5 0.5 0\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(
+                ValueError,
+                "q_path_name requires 3 labels",
+            ):
+                read_input(input_file)
+
+    def test_compute_requires_positive_sampling_values(self) -> None:
+        with TemporaryDirectory() as directory:
+            input_file = Path(directory) / "input.in"
+            input_file.write_text(
+                "action = compute\n"
+                "time_step = 0\n"
+                "output_data_stride = 1\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(
+                ValueError,
+                "time_step must be positive",
+            ):
+                read_input(input_file)
+
+    @unittest.skipUnless(NETCDF4_AVAILABLE, "netCDF4 is not installed")
+    def test_pipeline_prepares_text_for_compute(self) -> None:
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            trajectory_directory = root / "trajectory"
+            trajectory_directory.mkdir()
+            trajectory = trajectory_directory / "dump.xyz"
+            trajectory.write_text(GPUMD_TEXT, encoding="utf-8")
+            input_file = root / "input.in"
+            input_file.write_text(
+                "action = plot\n"
+                f"trajectory_file = {trajectory}\n"
+                "netcdf_compression_level = 0\n"
+                "netcdf_batch_size = 64\n",
+                encoding="utf-8",
+            )
+
+            params = read_input(str(input_file))
+            step_prepare_trajectory(params)
+
+            self.assertEqual(params.source_format, "gpumd_xyz")
+            self.assertTrue(Path(params.trajectory_path).is_file())
+            self.assertEqual(
+                Path(params.trajectory_path).name,
+                "dump.xyz.pysed.nc",
+            )
+            self.assertEqual(Path(params.trajectory_path).parent, root)
+            self.assertFalse(
+                (trajectory_directory / "dump.xyz.pysed.nc").exists()
+            )
+            from netCDF4 import Dataset
+            with Dataset(params.trajectory_path, "r") as dataset:
+                self.assertFalse(
+                    dataset.variables["coordinates"].filters()["zlib"]
+                )
+                self.assertEqual(dataset.pysed_compression_level, 0)
+
+            cached_params = read_input(str(input_file))
+            cached_params.trajectory_file = params.trajectory_path
+            step_prepare_trajectory(cached_params)
+            self.assertEqual(cached_params.source_format, "gpumd_xyz")
+            self.assertEqual(
+                cached_params.trajectory_path,
+                params.trajectory_path,
+            )
+
+    def test_pipeline_can_read_text_directly_without_creating_a_cache(self):
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            trajectory = root / "dump.xyz"
+            trajectory.write_text(GPUMD_TEXT, encoding="utf-8")
+            input_file = root / "input.in"
+            input_file.write_text(
+                "action = plot\n"
+                f"trajectory_file = {trajectory}\n"
+                "trajectory_read_mode = direct\n"
+                "trajectory_prefetch = 1\n",
+                encoding="utf-8",
+            )
+
+            params = read_input(str(input_file))
+            step_prepare_trajectory(params)
+
+            self.assertEqual(params.source_format, "gpumd_xyz")
+            self.assertEqual(params.trajectory_path, str(trajectory))
+            self.assertTrue(params.trajectory_prefetch)
+            self.assertFalse((root / "dump.xyz.pysed.nc").exists())
+
+    @unittest.skipUnless(NETCDF4_AVAILABLE, "netCDF4 is not installed")
+    def test_pipeline_reads_gpumd_netcdf_directly(self) -> None:
+        from netCDF4 import Dataset
+
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            trajectory = root / "movie.nc"
+            with Dataset(
+                str(trajectory),
+                "w",
+                format="NETCDF3_64BIT_OFFSET",
+            ) as dataset:
+                dataset.program = "GPUMD"
+                dataset.createDimension("frame", 1)
+                dataset.createDimension("atom", 1)
+                dataset.createDimension("spatial", 3)
+                coordinates = dataset.createVariable(
+                    "coordinates",
+                    "f4",
+                    ("frame", "atom", "spatial"),
+                )
+                coordinates.units = "angstrom"
+                coordinates[:] = [[[0, 0, 0]]]
+
+            input_file = root / "input.in"
+            input_file.write_text(
+                "action = plot\n"
+                f"trajectory_file = {trajectory}\n"
+                "trajectory_read_mode = direct\n",
+                encoding="utf-8",
+            )
+
+            params = read_input(str(input_file))
+            step_prepare_trajectory(params)
+
+            self.assertEqual(params.source_format, "gpumd_netcdf")
+            self.assertEqual(params.trajectory_path, str(trajectory))
+            self.assertFalse((root / "movie.nc.pysed.nc").exists())
+
+
+if __name__ == "__main__":
+    unittest.main()
