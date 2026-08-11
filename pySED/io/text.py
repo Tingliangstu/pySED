@@ -63,7 +63,7 @@ def _make_progress_reporter(total_bytes: int) -> ProgressCallback:
         elapsed = max(time.perf_counter() - started, 1.0e-9)
         speed_mib = consumed_bytes / elapsed / (1024**2)
         sys.stdout.write(
-            f"\r  🚀 Writing NetCDF [{bar}] {percent:3d}%"
+            f"\r  Writing NetCDF [{bar}] {percent:3d}%"
             f" | {num_frames:,} frames | {speed_mib:6.1f} MiB/s"
         )
         sys.stdout.flush()
@@ -480,7 +480,7 @@ def convert_text_trajectory(
         else f"zlib level {compression_level}"
     )
     print(
-        "\n  🚀 Converting text trajectory to NetCDF"
+        "\n  Converting text trajectory to NetCDF"
         f"\n     Source      : {source}"
         f"\n     Output      : {output}"
         f"\n     Format      : {source_format}"

@@ -110,7 +110,7 @@ class BZ_methods(object):
                     "\n************************** Structural information "
                     "*****************************"
                 )
-                print("\n🚀 Local-group SED mode is active.")
+                print("\nLocal-group SED mode is active.")
                 print(
                     "   The Q-point grid is built from the local cell "
                     "specified by dump_group_supercell in the input file."
@@ -160,12 +160,12 @@ class BZ_methods(object):
             params.prim_unitcell = expected_prim_unitcell
             if self.box_info:
                 print(
-                    "\n⚠️ pySED identified that structural optimization is likely performed using the NVT ensemble.")
+                    "\nNOTE: pySED identified that structural optimization is likely performed using the NVT ensemble.")
 
         else:
             if self.box_info:
                 print(
-                    "\n⚠️Warning⚠️: The cell matrix in the trajectory is different from calculated "
+                    "\nWARNING: The cell matrix in the trajectory is different from calculated "
                     "by the primitive cell and supercell dimensions.")
                 print("This suggests that structural optimization is likely performed using the NPT ensemble.")
 
@@ -210,7 +210,7 @@ class BZ_methods(object):
         q_distances = []
         q_labels = []
 
-        label_map = {"G": "Γ"}
+        label_map = {"G": r"$\Gamma$"}
 
         def fmt_vec(x):
             return "(" + ", ".join(f"{v:.4f}" for v in x) + ")"
@@ -243,7 +243,7 @@ class BZ_methods(object):
             qpoints_cart, _ = BZ_Path.build_commensurate_path(q_start, q_end)
 
             if not len(qpoints_cart):
-                print(f'\n⚠️Warnings⚠️: \nNo commensurate q-points found along path'
+                print(f'\nWARNING: \nNo commensurate q-points found along path'
                       f' segment {i}: from {start_label}: {fmt_vec(q_start)} to {end_label}: {fmt_vec(q_end)}')
 
                 if q_labels and prev_end_label is not None and prev_end_distance is not None:
@@ -276,8 +276,8 @@ class BZ_methods(object):
             # For distance
             distances_segment = []
 
-            if end_label == "Γ":
-                if prev_end_label is not None and start_label != "Γ":
+            if end_label == r"$\Gamma$":
+                if prev_end_label is not None and start_label != r"$\Gamma$":
                     cumulative_distance += last_delta
                 if q_labels:
                     new_dist = cumulative_distance

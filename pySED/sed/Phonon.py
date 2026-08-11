@@ -495,7 +495,7 @@ class spectral_energy_density:
         elapsed = time.time() - start_time
         if self.backend == "cupy":
             self._print_gpu_timing_profile(elapsed)
-            print("\n  🚀🚀 CuPy cached GPU memory has been released.")
+            print("\n  CuPy cached GPU memory has been released.")
         print(
             "\n************ Total SED calculation time: "
             f"{elapsed:.2f} seconds. ************"
@@ -510,7 +510,7 @@ class spectral_energy_density:
                 "different directions *******"
             )
             print(
-                "  🚀🚀 Element -> mass mapping "
+                "  Element -> mass mapping "
                 "(mass in amu; used for partial SED filenames):"
             )
             for type_index, mass in enumerate(unique_masses):
@@ -644,7 +644,7 @@ class spectral_energy_density:
             + active_workers * worker_peak
         )
         print(
-            "\n  🚀🚀 Estimated peak CPU array memory: "
+            "\n  Estimated peak CPU array memory: "
             f"{estimated_bytes / 1e9:.2f} GB "
             "(trajectory block reading + SED arrays; "
             "excluding Python overhead)."
@@ -877,7 +877,7 @@ class spectral_energy_density:
         self._gpu_q_batch_size = selected_batch
         used_bytes = total_bytes - free_bytes
         print(
-            "\n  🚀🚀 GPU memory before SED: "
+            "\n  GPU memory before SED: "
             f"{used_bytes / 1e9:.2f} GB used; "
             f"{free_bytes / 1e9:.2f} GB available "
             f"of {total_bytes / 1e9:.2f} GB."
@@ -930,7 +930,7 @@ class spectral_energy_density:
         )
         if self._gpu_total_bytes:
             print(
-                "\n  🚀🚀 Observed GPU memory after SED blocks: "
+                "\n  Observed GPU memory after SED blocks: "
                 f"{self._gpu_observed_used_bytes / 1e9:.2f} GB used "
                 f"of {self._gpu_total_bytes / 1e9:.2f} GB."
             )

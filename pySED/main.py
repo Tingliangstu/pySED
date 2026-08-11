@@ -42,6 +42,15 @@ def _print_banner() -> None:
     print(f"\n{LOGO}\n\n{TAGLINE}\n")
 
 
+def _configure_console_encoding() -> None:
+    """Prevent locale-limited Windows terminals from aborting a run."""
+
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            reconfigure(errors="replace")
+
+
 def _print_run_summary(input_file, params) -> None:
     if params.backend == "cupy":
         backend = "CuPy (single GPU)"
@@ -123,6 +132,7 @@ def _detect_input_file() -> str:
 def main() -> int:
     """Run the command and return a process exit status."""
 
+    _configure_console_encoding()
     try:
         input_file = _detect_input_file()
         if not os.path.isfile(input_file):
