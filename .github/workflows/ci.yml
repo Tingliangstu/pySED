@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: Tests (${{ matrix.os }}, Python ${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.10", "3.12", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install pySED and test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[test]"
+      - name: Run CPU test suite
+        run: python -m pytest -q
+
+  docs:
+    name: Documentation (warnings are errors)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: docs/requirements.txt
+      - name: Install pySED and documentation dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+          python -m pip install -r docs/requirements.txt
+      - name: Build HTML documentation
+        run: >-
+          sphinx-build -W --keep-going -b html
+          docs/source "$RUNNER_TEMP/pysed-docs"
+
+  package:
+    name: Build and installed-wheel smoke test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Build distributions
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build twine
+          python -m build
+          python -m twine check dist/*
+      - name: Install wheel in a fresh environment
+        run: |
+          python -m venv "$RUNNER_TEMP/pysed-smoke"
+          "$RUNNER_TEMP/pysed-smoke/bin/python" -m pip install --upgrade pip
+          "$RUNNER_TEMP/pysed-smoke/bin/python" -m pip install "$GITHUB_WORKSPACE"/dist/*.whl
+      - name: Smoke-test all supported CLI aliases
+        run: |
+          cd "$RUNNER_TEMP"
+          "$RUNNER_TEMP/pysed-smoke/bin/pySED" -h
+          "$RUNNER_TEMP/pysed-smoke/bin/pysed" -h
+          "$RUNNER_TEMP/pysed-smoke/bin/PYSED" -h
+          "$RUNNER_TEMP/pysed-smoke/bin/python" -c "import importlib.metadata as m; assert m.version('pySED') == '3.0.0'"
