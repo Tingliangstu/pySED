@@ -1,21 +1,36 @@
-'''
-@author:
-**************************  LiangTing ***************************
-        liangting.zj@gmail.com --- Refer from Ty Sterling's script
-************************ 2021/4/26 23:03:21 *********************
-'''
+# =============================================================================
+#     Copyright 2025-2026 Ting Liang and pySED development team
+#     This file is part of pySED.
+#     pySED is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#     pySED is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#     You should have received a copy of the GNU General Public License
+#     along with pySED.  If not, see <http://www.gnu.org/licenses/>.
+# =============================================================================
+
 # Python modules
-import os
-import numpy as np
-import h5py
-from fractions import Fraction
 import math
-import warnings
+import os
+from fractions import Fraction
+
+import numpy as np
+
 from pySED.structure import generate_data
 
 
 class BZ_methods(object):
-    def __init__(self, params, box_info=True, qpoints_info=True):
+    def __init__(
+        self,
+        params,
+        box_in_traj,
+        box_info=True,
+        qpoints_info=True,
+    ):
 
         self.box_info = box_info
         self.qpoints_info = qpoints_info
@@ -26,7 +41,7 @@ class BZ_methods(object):
         self.cell_ref_ids = self.cell_ref_ids.reshape(len(self.cell_ref_ids))
 
         # Compare lattice cell
-        self._compare_cell(params)
+        self._compare_cell(params, box_in_traj)
 
         ############## Construct Brillouin zone ################
         # calculate direct lattice vectors (for orthogonal or triclinic lattice vectors)
@@ -81,19 +96,53 @@ class BZ_methods(object):
 
         return primitive_cell
 
-    def _compare_cell(self, params):
+    def _compare_cell(self, params, box_in_traj):
 
         ########## Output simulation cell informations ############
-        with h5py.File(params.output_hdf5, 'r') as database:
-            box_in_traj = database['box'][()]
+        box_in_traj = np.asarray(box_in_traj, dtype=float)
 
         # Here is important, means that the supercells used for MD simulation can be different from primitive cells.
         self.supercell = box_in_traj
 
+        if getattr(params, "dump_group_supercell", None) is not None:
+            if self.box_info:
+                print(
+                    "\n************************** Structural information "
+                    "*****************************"
+                )
+                print("\n🚀 Local-group SED mode is active.")
+                print(
+                    "   The Q-point grid is built from the local cell "
+                    "specified by dump_group_supercell in the input file."
+                )
+                print(
+                    "   Atom positions and velocities are read unchanged "
+                    "from the trajectory."
+                )
+                print(
+                    "   The full simulation cell stored in the trajectory "
+                    "is not used for this local Q grid."
+                )
+                print(
+                    "\nLocal cell specified for this dumped group "
+                    "is (Angstrom):"
+                )
+                for row in self.supercell:
+                    print(
+                        "  {: .8e}    {: .8e}    {: .8e}".format(
+                            row[0], row[1], row[2]
+                        )
+                    )
+            return
+
         expected_prim_unitcell = params.prim_unitcell
         expected_box = generate_data.structure_maker.calculate_supercell_matrix(expected_prim_unitcell,
                                                                                 params.supercell_dim)
-        if str(params.file_format).lower() == 'lammps':
+        if params.source_format in {
+            'lammps_dump',
+            'lammps_netcdf',
+            'gpumd_netcdf',
+        }:
             expected_box = generate_data.structure_maker.calculate_restricted_cell(expected_box)
             expected_prim_unitcell = generate_data.structure_maker.calculate_restricted_cell(expected_prim_unitcell)
 
@@ -111,7 +160,7 @@ class BZ_methods(object):
             params.prim_unitcell = expected_prim_unitcell
             if self.box_info:
                 print(
-                    "\n⚠️pySED identified that structural optimization is likely performed using the NVT ensemble.")
+                    "\n⚠️ pySED identified that structural optimization is likely performed using the NVT ensemble.")
 
         else:
             if self.box_info:
@@ -144,7 +193,17 @@ class BZ_methods(object):
         q_path = np.array(params.q_path, dtype=object).reshape(-1, 3)
         num_qpaths = params.num_qpaths
 
-        BZ_Path = BZPathHelper(params.prim_unitcell, self.supercell)
+        try:
+            BZ_Path = BZPathHelper(params.prim_unitcell, self.supercell)
+        except ValueError as error:
+            if getattr(params, "dump_group_supercell", None) is not None:
+                raise ValueError(
+                    "The local cell cannot be matched to prim_unitcell.\n"
+                    "Use the local cell and primitive cell created for the "
+                    "same dumped group."
+                ) from error
+            raise
+        self._validate_dump_group_supercell(params, BZ_Path)
 
         qpoints_list = []
         reduced_qpoints_list = []
@@ -154,7 +213,7 @@ class BZ_methods(object):
         label_map = {"G": "Γ"}
 
         def fmt_vec(x):
-            return "(" + ", ".join(f"{float(v):.4f}" for v in x) + ")"
+            return "(" + ", ".join(f"{v:.4f}" for v in x) + ")"
 
         def shortest_distance(q1_cart, q2_cart):
             """Shortest reciprocal distance between two q-points"""
@@ -269,6 +328,23 @@ class BZ_methods(object):
         # End q-point information section with asterisks
         if self.qpoints_info:
             print("\n**************** The total number of q-points generated is {}  ****************".format(self.num_qpoints))
+
+    def _validate_dump_group_supercell(self, params, bz_path):
+        """Check that the local cell and basis.in describe the same group."""
+
+        if getattr(params, "dump_group_supercell", None) is None:
+            return
+
+        repetitions = abs(int(round(np.linalg.det(bz_path.P))))
+        basis_cells = int(self.unitcell_index.max())
+        if repetitions != basis_cells:
+            raise ValueError(
+                "The local cell does not match basis.in.\n"
+                f"basis.in describes {basis_cells} primitive cells, but "
+                f"dump_group_supercell describes {repetitions}.\n"
+                "Use the local cell and basis.in created for the same "
+                "dumped group."
+            )
 
 
 class BZPathHelper:

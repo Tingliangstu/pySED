@@ -1,9 +1,17 @@
-'''
-@author:
-**************************  LiangTing ***************************
-                      liangting.zj@gmail.com
-************************ 2021/4/22 23:03:21 *********************
-'''
+# =============================================================================
+#     Copyright 2025-2026 Ting Liang and pySED development team
+#     This file is part of pySED.
+#     pySED is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#     pySED is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#     You should have received a copy of the GNU General Public License
+#     along with pySED.  If not, see <http://www.gnu.org/licenses/>.
+# =============================================================================
 
 import numpy as np
 import sys
@@ -14,7 +22,7 @@ class structure_maker(object):
     def __init__(self, structure_file_name='POSCAR',
                        lammps_data_flag=False,
                        lammps_infile_name=None,
-                       description='Create LAMMPS or GPUMD data for SED method by using pySED Codes'):
+                       description='Create LAMMPS or GPUMD data for SED method by using pySED'):
         """
         Generate the required file for SED projects (including lammps data for running lammps and basis.in for Reciprocal space)
         :param structure_file_name: input file for primitive structure (POSCAR file is recommended).
@@ -100,7 +108,7 @@ class structure_maker(object):
             fid.write('{0:d}\n'.format(self.num_atoms))
 
             lattice_str = 'Lattice="{0:10.10f} {1:10.10f} {2:10.10f} {3:10.10f} {4:10.10f} {5:10.10f} {6:10.10f} ' \
-                          '{7:10.10f} {8:10.10f}" Properties=species:S:1:pos:R:3 config_type="SED by pySED codes"'.format(
+                          '{7:10.10f} {8:10.10f}" Properties=species:S:1:pos:R:3 config_type="SED by pySED"'.format(
                            lattice[0, 0], lattice[0, 1], lattice[0, 2],
                            lattice[1, 0], lattice[1, 1], lattice[1, 2],
                            lattice[2, 0], lattice[2, 1], lattice[2, 2])
