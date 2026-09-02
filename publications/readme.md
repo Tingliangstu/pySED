@@ -12,7 +12,9 @@
 
 * Penghua Ying, Ting Liang, Yun Chen, Yan Chen, Shiyun Xiong, Zheyong Fan, Jianbin Xu, Yilun Liu, [Structurally Triggered Breakdown of the Phonon Gas Model in Crystalline Metal-Organic Frameworks](https://arxiv.org/abs/2604.03783)
 
-## 2026 (24)
+## 2026 (25)
+
+* Sen Dang, Zhijie Zhang, Menghang Sun, Kai Jia, Xiyao Dong, Bo Wen, Shen Wang, Xiaolong Lyu, Yaxin Chen, Lili Li, Kai Xi, Shujiang Ding, Guorui Yang, [Electric/Thermal Coupling Field Promotes Phonon Delocalization to Accelerate Defect-Repair Kinetics in Spent LiFePO<sub>4</sub>](https://doi.org/10.1002/anie.1597082), Angewandte Chemie International Edition, e1597082 (2026)
 
 * Mengjie Li, Wenwu Jiang, Huasong Qin, Wengen Ouyang, Chun Li, [Counterintuitive Temperature-Dependent Interfacial Thermal Resistance in Twisted van der Waals Interfaces](https://doi.org/10.1021/acsami.6c07853), ACS Applied Materials \& Interfaces, (2026)
 
