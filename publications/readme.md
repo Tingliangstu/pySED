@@ -12,7 +12,9 @@
 
 * Penghua Ying, Ting Liang, Yun Chen, Yan Chen, Shiyun Xiong, Zheyong Fan, Jianbin Xu, Yilun Liu, [Structurally Triggered Breakdown of the Phonon Gas Model in Crystalline Metal-Organic Frameworks](https://arxiv.org/abs/2604.03783)
 
-## 2026 (26)
+## 2026 (27)
+
+* Xiguang Wu, Jianlian Huang, Weikuan Li, Yuxuan Guo, Wei Zhang, Yajuan Cheng, Gang Zhang, Shiyun Xiong, [Insights into lattice thermal transport mechanisms in layered chalcogenides X<sub>2</sub>PdY<sub>6</sub> (X = Nb, Ta; Y = S, Se) via machine learning molecular dynamics simulations](https://doi.org/10.70401/tx.2026.0031), Thermo-X, **2**, 202625 (2026)
 
 * Shuo Wang, Yuqi Liu, Shujun Zhou, Xiaoming Xiu, Haikuan Dong, [Structure-dependent thermal transport in two-dimensional PdTe<sub>2</sub>](https://doi.org/10.1016/j.ijheatmasstransfer.2026.129470), International Journal of Heat and Mass Transfer, **271**, 129470 (2026)
 
