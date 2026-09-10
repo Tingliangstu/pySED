@@ -12,6 +12,10 @@
 
 * Penghua Ying, Ting Liang, Yun Chen, Yan Chen, Shiyun Xiong, Zheyong Fan, Jianbin Xu, Yilun Liu, [Structurally Triggered Breakdown of the Phonon Gas Model in Crystalline Metal-Organic Frameworks](https://arxiv.org/abs/2604.03783)
 
+## 2027 (1)
+
+* Qikun Tian, Ruyi Li, Hongkai Zhang, Enbo Zhang, Xiong Zheng, Huimin Wang, Zhenzhen Qin, Guangzhao Qin, [Atomic-level engineering thermal transport anisotropy in C<sub>24</sub> monolayers for directional heat spreading](https://doi.org/10.70401/tx.2026.0032), Thermo-X, **3**, 202626 (2027)
+
 ## 2026 (27)
 
 * Xiguang Wu, Jianlian Huang, Weikuan Li, Yuxuan Guo, Wei Zhang, Yajuan Cheng, Gang Zhang, Shiyun Xiong, [Insights into lattice thermal transport mechanisms in layered chalcogenides X<sub>2</sub>PdY<sub>6</sub> (X = Nb, Ta; Y = S, Se) via machine learning molecular dynamics simulations](https://doi.org/10.70401/tx.2026.0031), Thermo-X, **2**, 202625 (2026)
