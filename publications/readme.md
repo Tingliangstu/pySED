@@ -14,7 +14,9 @@
 
 * Qikun Tian, Ruyi Li, Hongkai Zhang, Enbo Zhang, Xiong Zheng, Huimin Wang, Zhenzhen Qin, Guangzhao Qin, [Atomic-level engineering thermal transport anisotropy in C<sub>24</sub> monolayers for directional heat spreading](https://doi.org/10.70401/tx.2026.0032), Thermo-X, **3**, 202626 (2027)
 
-## 2026 (28)
+## 2026 (29)
+
+* Xinran Zhang, Shuo Wang, Yinglong Hu, Yuan Ren, Ke Deng, Yuqiao Guo, Jing Peng, Zhiliang Pan, Hao Ma, [Direct Experimental Validation of Parallel Thermal Transport in Fiber-Aligned All-Organic Composites](https://doi.org/10.1021/acs.nanolett.6c03032), Nano Letters, (2026)
 
 * Wenjiang Zhou, Fuwei Yang, Yuxi Wang, Weiheng Li, Wujuan Yan, Kexin Zhang, Bai Song, [Intrinsically low thermal conductivity of stoichiometric lithium niobate: Experimental measurement and microscopic origin](https://doi.org/10.1103/ww2h-mrg7), Physical Review Materials, **10**, 094607 (2026)
 
