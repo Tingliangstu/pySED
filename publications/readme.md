@@ -14,7 +14,9 @@
 
 * Qikun Tian, Ruyi Li, Hongkai Zhang, Enbo Zhang, Xiong Zheng, Huimin Wang, Zhenzhen Qin, Guangzhao Qin, [Atomic-level engineering thermal transport anisotropy in C<sub>24</sub> monolayers for directional heat spreading](https://doi.org/10.70401/tx.2026.0032), Thermo-X, **3**, 202626 (2027)
 
-## 2026 (29)
+## 2026 (30)
+
+* Wenwu Jiang, Hekai Bu, Xin Wu, Masahiro Nomura, Yong Ni, [Nanopore-Induced Thickness Independence of In-Plane Thermal Transport in Few-Layer Graphitic Carbon Nitride](https://doi.org/10.1021/acsami.6c10149), ACS Applied Materials \& Interfaces, (2026)
 
 * Xinran Zhang, Shuo Wang, Yinglong Hu, Yuan Ren, Ke Deng, Yuqiao Guo, Jing Peng, Zhiliang Pan, Hao Ma, [Direct Experimental Validation of Parallel Thermal Transport in Fiber-Aligned All-Organic Composites](https://doi.org/10.1021/acs.nanolett.6c03032), Nano Letters, (2026)
 
