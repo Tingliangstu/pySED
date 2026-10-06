@@ -14,7 +14,9 @@
 
 * Qikun Tian, Ruyi Li, Hongkai Zhang, Enbo Zhang, Xiong Zheng, Huimin Wang, Zhenzhen Qin, Guangzhao Qin, [Atomic-level engineering thermal transport anisotropy in C<sub>24</sub> monolayers for directional heat spreading](https://doi.org/10.70401/tx.2026.0032), Thermo-X, **3**, 202626 (2027)
 
-## 2026 (30)
+## 2026 (31)
+
+* Fuwei Yang, Wenjiang Zhou, Yelingyi Wang, Yuxi Wang, Deli Peng, Quanshui Zheng, Bai Song, [Moving Heterointerface with Robustly High Thermal Conductance](https://doi.org/10.1103/yzn5-723b), Physical Review X, **16**, 041005 (2026)
 
 * Wenwu Jiang, Hekai Bu, Xin Wu, Masahiro Nomura, Yong Ni, [Nanopore-Induced Thickness Independence of In-Plane Thermal Transport in Few-Layer Graphitic Carbon Nitride](https://doi.org/10.1021/acsami.6c10149), ACS Applied Materials \& Interfaces, (2026)
 
