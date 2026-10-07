@@ -14,7 +14,9 @@
 
 * Qikun Tian, Ruyi Li, Hongkai Zhang, Enbo Zhang, Xiong Zheng, Huimin Wang, Zhenzhen Qin, Guangzhao Qin, [Atomic-level engineering thermal transport anisotropy in C<sub>24</sub> monolayers for directional heat spreading](https://doi.org/10.70401/tx.2026.0032), Thermo-X, **3**, 202626 (2027)
 
-## 2026 (31)
+## 2026 (32)
+
+* Zhihao Li, Jianhong Hu, Panpan Peng, Peng Cao, Hui Zhang, Yujie Zong, Yanhui Wu, Hongchao Wang, [Mode-Resolved Phonon Dynamics Under Chemical Pressure in SnTe Thermoelectrics](https://doi.org/10.1002/advs.78136), Advanced Science, e78136 (2026)
 
 * Fuwei Yang, Wenjiang Zhou, Yelingyi Wang, Yuxi Wang, Deli Peng, Quanshui Zheng, Bai Song, [Moving Heterointerface with Robustly High Thermal Conductance](https://doi.org/10.1103/yzn5-723b), Physical Review X, **16**, 041005 (2026)
 
