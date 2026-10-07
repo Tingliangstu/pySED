@@ -63,7 +63,16 @@ You can always use the `-h` flag to explore available options and understand how
 	
 ## Publications using pySED
 
-Please visit the [publications page](https://github.com/Tingliangstu/pySED/tree/main/publications).
+Representative publications that use `pySED` are listed below:
+
+- Fuwei Yang, Wenjiang Zhou, Yelingyi Wang, Yuxi Wang, Deli Peng, Quanshui Zheng, Bai Song, [Moving Heterointerface with Robustly High Thermal Conductance](https://doi.org/10.1103/yzn5-723b), Physical Review X, **16**, 041005 (2026).
+- Ziyang Wang, Bingqi Linghui, Donghao Li, Jie Zhu, Dawei Tang, [Systematic investigation of interfacial heat transport at Metal/GaN interfaces: Experimental and simulation validation](https://doi.org/10.1016/j.ijheatmasstransfer.2026.128564), International Journal of Heat and Mass Transfer, **261**, 128564 (2026).
+- Jincheng Yue, Rongkun Chen, Xinkai Sun, Yinong Liu, Xiaolong Li, Shiqian Hu, [Phonon overdamping defines the ultimate limit of lattice thermal conductivity](https://doi.org/10.1103/jhfd-vzjy), Physical Review B, **113**, L161401 (2026).
+- Xinyuan Ma, Peng-Hu Du, Chenxin Zhang, Qing Zhang, Qian Wang, [Ultralow and Twist-Tolerant Thermal Conductivity in Two-Dimensional Pentagonal Covalent Organic Frameworks](https://doi.org/10.1021/acsnano.5c12577), ACS Nano, **20**, 349 (2026).
+- Ke Li, Hao Ma, [Decoding the thermal conductivity of ionic covalent organic frameworks: Optical phonons as key determinants revealed by neuroevolution potential](https://doi.org/10.1016/j.mtphys.2025.101724), Materials Today Physics, **54**, 101724 (2025).
+- Wenwu Jiang, Ting Liang, Hekai Bu, Jianbin Xu, Wengen Ouyang, [Moiré-Driven Interfacial Thermal Transport in Twisted Transition Metal Dichalcogenides](https://doi.org/10.1021/acsnano.4c12148), ACS Nano, **19**, 16287 (2025).
+
+For the complete list, please visit the [publications page](https://github.com/Tingliangstu/pySED/tree/main/publications).
 
 
 ## Usage
