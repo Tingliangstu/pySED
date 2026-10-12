@@ -14,7 +14,9 @@
 
 * Qikun Tian, Ruyi Li, Hongkai Zhang, Enbo Zhang, Xiong Zheng, Huimin Wang, Zhenzhen Qin, Guangzhao Qin, [Atomic-level engineering thermal transport anisotropy in C<sub>24</sub> monolayers for directional heat spreading](https://doi.org/10.70401/tx.2026.0032), Thermo-X, **3**, 202626 (2027)
 
-## 2026 (33)
+## 2026 (34)
+
+* Yinjie Shen, Yunqing Tang, Jia Fu, Liqun Wang, Keyang Chen, Zhaoting Guo, Xiaoliang Liang, Yukui Cai, Zhanqiang Liu, and Dongyang Li, [Enthalpy-driven in-situ interfacial reconstruction for enhanced heat transfer across graphene/high-entropy alloy interfaces](https://doi.org/10.1016/j.applthermaleng.2026.132963), Applied Thermal Engineering, **305**, 132963 (2026)
 
 * Zifu Zang, Yushun Zhao, Chao Sui, Shaodong Sun, Kaiyi Zheng, Renjie Ding, Yongqiang Tao, Xiaodong He, and Chao Wang, [Effects of phase transitions and oxygen vacancies on thermal transport in yttrium-stabilized zirconia studied using neural network potentials](https://doi.org/10.1103/ntwm-4gf7), Physical Review B, **113**, 174117 (2026)
 
