@@ -14,7 +14,9 @@
 
 * Qikun Tian, Ruyi Li, Hongkai Zhang, Enbo Zhang, Xiong Zheng, Huimin Wang, Zhenzhen Qin, Guangzhao Qin, [Atomic-level engineering thermal transport anisotropy in C<sub>24</sub> monolayers for directional heat spreading](https://doi.org/10.70401/tx.2026.0032), Thermo-X, **3**, 202626 (2027)
 
-## 2026 (32)
+## 2026 (33)
+
+* Zifu Zang, Yushun Zhao, Chao Sui, Shaodong Sun, Kaiyi Zheng, Renjie Ding, Yongqiang Tao, Xiaodong He, and Chao Wang, [Effects of phase transitions and oxygen vacancies on thermal transport in yttrium-stabilized zirconia studied using neural network potentials](https://doi.org/10.1103/ntwm-4gf7), Physical Review B, **113**, 174117 (2026)
 
 * Zhihao Li, Jianhong Hu, Panpan Peng, Peng Cao, Hui Zhang, Yujie Zong, Yanhui Wu, Hongchao Wang, [Mode-Resolved Phonon Dynamics Under Chemical Pressure in SnTe Thermoelectrics](https://doi.org/10.1002/advs.78136), Advanced Science, e78136 (2026)
 
