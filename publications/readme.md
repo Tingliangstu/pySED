@@ -50,7 +50,7 @@
 
 * Duohao Zhang, Xinlu Cheng, Hong Zhang, [Unraveling Thermal Transport Mechanisms in Monolayer CrSi<sub>2</sub>N<sub>4</sub> Using Machine-Learned Potentials](https://doi.org/10.1039/D6CP01105E), Physical Chemistry Chemical Physics, **28**, 15284 (2026)
 
-* Yilin Fang, Weiyi Li, Guiyun Hang, Jintao Wang, Xiyao Yun, Wan xiao Guo, Tao Wang, and Wenli Yu, [New Insights into Thermal Transport in ��-CL-20 Revealed by Machine-Learned Potentials and Mode-Projection Analysis](https://doi.org/10.1021/acs.jpca.6c00862), The Journal of Physical Chemistry A, (2026).
+* Yilin Fang, Weiyi Li, Guiyun Hang, Jintao Wang, Xiyao Yun, Wan xiao Guo, Tao Wang, and Wenli Yu, [New Insights into Thermal Transport in ¦Å-CL-20 Revealed by Machine-Learned Potentials and Mode-Projection Analysis](https://doi.org/10.1021/acs.jpca.6c00862), The Journal of Physical Chemistry A, (2026).
 
 * Jincheng Yue, Rongkun Chen, Xinkai Sun, Yinong Liu, Xiaolong Li, and Shiqian Hu, [Phonon overdamping defines the ultimate limit of lattice thermal conductivity](https://journals.aps.org/prb/abstract/10.1103/jhfd-vzjy), Physical Review B, **113**, L161401, (2026).
 
@@ -102,7 +102,7 @@
 
 * Ke Li, Hao Ma, [Decoding the thermal conductivity of ionic covalent organic frameworks: Optical phonons as key determinants revealed by neuroevolution potential](https://www.sciencedirect.com/science/article/pii/S254252932500080X?via%3Dihub), Materials Today Physics, **54**, 101724 (2025)
 
-* Wenwu Jiang, Ting Liang, Hekai Bu, Jianbin Xu, Wengen Ouyang, [Moir��-Driven Interfacial Thermal Transport in Twisted Transition Metal Dichalcogenides](https://pubs.acs.org/doi/full/10.1021/acsnano.4c12148), ACS Nano, **19**, 16287 (2025).
+* Wenwu Jiang, Ting Liang, Hekai Bu, Jianbin Xu, Wengen Ouyang, [Moir¨¦-Driven Interfacial Thermal Transport in Twisted Transition Metal Dichalcogenides](https://pubs.acs.org/doi/full/10.1021/acsnano.4c12148), ACS Nano, **19**, 16287 (2025).
 
 * Xianteng Zhou, Yuanji Xu, Yue Chen, Fuyang Tian, [Mechanism on lattice thermal conductivity of carbon-vacancy and porous medium entropy ceramics](https://www.sciencedirect.com/science/article/pii/S1359646225000326), Scripta Materialia, **259**, 116568 (2025).
 
