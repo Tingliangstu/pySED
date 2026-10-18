@@ -1,12 +1,10 @@
 # Publications using pySED
 
-## Preprints (4)
+## Preprints (3)
 
 * Jianmin Yang, Lin Xie, [Lattice-mediated Geometric Frustration Drives Fast Ionic Transport](https://arxiv.org/abs/2606.22345)
 
 * Wenwu Jiang, Huasong Qin, Yilun Liu, Wengen Ouyang, Oded Hod, Michael Urbakh, [Strain and Twist Engineering of Interfacial Thermal Transport in Homo- and Hetero-Interfaces of Graphene and Hexagonal Boron Nitride](https://arxiv.org/abs/2604.26300)
-
-* Xin Wu, Ting Liang, Weitao Wang, Jiangjiang Ma, Zheyong Fan, Jianbin Xu, Sebastian Volz, Masahiro Nomura, [Data-driven flipping engineering for high thermal anisotropy](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5864374)
 
 * Penghua Ying, Ting Liang, Yun Chen, Yan Chen, Shiyun Xiong, Zheyong Fan, Jianbin Xu, Yilun Liu, [Structurally Triggered Breakdown of the Phonon Gas Model in Crystalline Metal-Organic Frameworks](https://arxiv.org/abs/2604.03783)
 
@@ -14,7 +12,9 @@
 
 * Qikun Tian, Ruyi Li, Hongkai Zhang, Enbo Zhang, Xiong Zheng, Huimin Wang, Zhenzhen Qin, Guangzhao Qin, [Atomic-level engineering thermal transport anisotropy in C<sub>24</sub> monolayers for directional heat spreading](https://doi.org/10.70401/tx.2026.0032), Thermo-X, **3**, 202626 (2027)
 
-## 2026 (34)
+## 2026 (35)
+
+* Xin Wu, Ting Liang, Weitao Wang, Jiangjiang Ma, Zheyong Fan, Jianbin Xu, Sebastian Volz, Masahiro Nomura, [Data-Driven Flipping Engineering for High Thermal Anisotropy in Janus Two-Dimensional Materials](https://doi.org/10.1021/acsnano.6c07922), ACS Nano, (2026)
 
 * Yinjie Shen, Yunqing Tang, Jia Fu, Liqun Wang, Keyang Chen, Zhaoting Guo, Xiaoliang Liang, Yukui Cai, Zhanqiang Liu, and Dongyang Li, [Enthalpy-driven in-situ interfacial reconstruction for enhanced heat transfer across graphene/high-entropy alloy interfaces](https://doi.org/10.1016/j.applthermaleng.2026.132963), Applied Thermal Engineering, **305**, 132963 (2026)
 
