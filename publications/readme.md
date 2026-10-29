@@ -12,11 +12,13 @@
 
 * Qikun Tian, Ruyi Li, Hongkai Zhang, Enbo Zhang, Xiong Zheng, Huimin Wang, Zhenzhen Qin, Guangzhao Qin, [Atomic-level engineering thermal transport anisotropy in C<sub>24</sub> monolayers for directional heat spreading](https://doi.org/10.70401/tx.2026.0032), Thermo-X, **3**, 202626 (2027)
 
-## 2026 (35)
+## 2026 (36)
 
 * Xin Wu, Ting Liang, Weitao Wang, Jiangjiang Ma, Zheyong Fan, Jianbin Xu, Sebastian Volz, Masahiro Nomura, [Data-Driven Flipping Engineering for High Thermal Anisotropy in Janus Two-Dimensional Materials](https://doi.org/10.1021/acsnano.6c07922), ACS Nano, (2026)
 
 * Yinjie Shen, Yunqing Tang, Jia Fu, Liqun Wang, Keyang Chen, Zhaoting Guo, Xiaoliang Liang, Yukui Cai, Zhanqiang Liu, and Dongyang Li, [Enthalpy-driven in-situ interfacial reconstruction for enhanced heat transfer across graphene/high-entropy alloy interfaces](https://doi.org/10.1016/j.applthermaleng.2026.132963), Applied Thermal Engineering, **305**, 132963 (2026)
+
+* Jian Zhang, Zhuo Zhao, Zhiyong Zhang, Yuan Cheng, and Gang Zhang, [Significant reduction in thermal conductivity of carbon nanotubes by amorphous gate oxides](https://doi.org/10.1039/D6CP01409G), Physical Chemistry Chemical Physics, **28**, 19341 (2026)
 
 * Zifu Zang, Yushun Zhao, Chao Sui, Shaodong Sun, Kaiyi Zheng, Renjie Ding, Yongqiang Tao, Xiaodong He, and Chao Wang, [Effects of phase transitions and oxygen vacancies on thermal transport in yttrium-stabilized zirconia studied using neural network potentials](https://doi.org/10.1103/ntwm-4gf7), Physical Review B, **113**, 174117 (2026)
 
