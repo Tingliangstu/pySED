@@ -53,6 +53,7 @@ output_data_stride
 Related parameters
 ------------------
 
+- :doc:`num_blocks <num_blocks>`
 - :doc:`time_step <time_step>`
 - :doc:`total_num_steps <total_num_steps>`
 - :doc:`plot_cutoff_freq <plot_cutoff_freq>`

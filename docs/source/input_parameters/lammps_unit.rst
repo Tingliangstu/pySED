@@ -26,5 +26,6 @@ lammps_unit
 Related parameters
 ------------------
 
+- :doc:`trajectory_file <trajectory_file>`
 - :doc:`out_files_name <out_files_name>`
 - :doc:`basis_lattice_file <basis_lattice_file>`

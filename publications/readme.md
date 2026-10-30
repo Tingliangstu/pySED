@@ -1,18 +1,44 @@
 # Publications using pySED
 
-## Preprints (5)
-
-* Wenjiang Zhou, Fuwei Yang, Yuxi Wang, Weiheng Li, Wujuan Yan, Kexin Zhang, Bai Song, [Intrinsically low thermal conductivity of stoichiometric lithium niobate: Experimental measurement and microscopic origin](https://arxiv.org/abs/2607.01673)
+## Preprints (3)
 
 * Jianmin Yang, Lin Xie, [Lattice-mediated Geometric Frustration Drives Fast Ionic Transport](https://arxiv.org/abs/2606.22345)
 
 * Wenwu Jiang, Huasong Qin, Yilun Liu, Wengen Ouyang, Oded Hod, Michael Urbakh, [Strain and Twist Engineering of Interfacial Thermal Transport in Homo- and Hetero-Interfaces of Graphene and Hexagonal Boron Nitride](https://arxiv.org/abs/2604.26300)
 
-* Xin Wu, Ting Liang, Weitao Wang, Jiangjiang Ma, Zheyong Fan, Jianbin Xu, Sebastian Volz, Masahiro Nomura, [Data-driven flipping engineering for high thermal anisotropy](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5864374)
-
 * Penghua Ying, Ting Liang, Yun Chen, Yan Chen, Shiyun Xiong, Zheyong Fan, Jianbin Xu, Yilun Liu, [Structurally Triggered Breakdown of the Phonon Gas Model in Crystalline Metal-Organic Frameworks](https://arxiv.org/abs/2604.03783)
 
-## 2026 (24)
+## 2027 (1)
+
+* Qikun Tian, Ruyi Li, Hongkai Zhang, Enbo Zhang, Xiong Zheng, Huimin Wang, Zhenzhen Qin, Guangzhao Qin, [Atomic-level engineering thermal transport anisotropy in C<sub>24</sub> monolayers for directional heat spreading](https://doi.org/10.70401/tx.2026.0032), Thermo-X, **3**, 202626 (2027)
+
+## 2026 (37)
+
+* Xinyuan Ma, Peng-Hu Du, Chenxin Zhang, Qing Zhang, Qian Wang, Puru Jena, [Curvature-Enhanced and Chirality-Modulated Anomalous Thermal Transport in Pentagonal Covalent Organic Framework Nanotubes](https://doi.org/10.1021/jacs.6c10614), Journal of the American Chemical Society, (2026)
+
+* Xin Wu, Ting Liang, Weitao Wang, Jiangjiang Ma, Zheyong Fan, Jianbin Xu, Sebastian Volz, Masahiro Nomura, [Data-Driven Flipping Engineering for High Thermal Anisotropy in Janus Two-Dimensional Materials](https://doi.org/10.1021/acsnano.6c07922), ACS Nano, (2026)
+
+* Yinjie Shen, Yunqing Tang, Jia Fu, Liqun Wang, Keyang Chen, Zhaoting Guo, Xiaoliang Liang, Yukui Cai, Zhanqiang Liu, and Dongyang Li, [Enthalpy-driven in-situ interfacial reconstruction for enhanced heat transfer across graphene/high-entropy alloy interfaces](https://doi.org/10.1016/j.applthermaleng.2026.132963), Applied Thermal Engineering, **305**, 132963 (2026)
+
+* Jian Zhang, Zhuo Zhao, Zhiyong Zhang, Yuan Cheng, and Gang Zhang, [Significant reduction in thermal conductivity of carbon nanotubes by amorphous gate oxides](https://doi.org/10.1039/D6CP01409G), Physical Chemistry Chemical Physics, **28**, 19341 (2026)
+
+* Zifu Zang, Yushun Zhao, Chao Sui, Shaodong Sun, Kaiyi Zheng, Renjie Ding, Yongqiang Tao, Xiaodong He, and Chao Wang, [Effects of phase transitions and oxygen vacancies on thermal transport in yttrium-stabilized zirconia studied using neural network potentials](https://doi.org/10.1103/ntwm-4gf7), Physical Review B, **113**, 174117 (2026)
+
+* Zhihao Li, Jianhong Hu, Panpan Peng, Peng Cao, Hui Zhang, Yujie Zong, Yanhui Wu, Hongchao Wang, [Mode-Resolved Phonon Dynamics Under Chemical Pressure in SnTe Thermoelectrics](https://doi.org/10.1002/advs.78136), Advanced Science, e78136 (2026)
+
+* Fuwei Yang, Wenjiang Zhou, Yelingyi Wang, Yuxi Wang, Deli Peng, Quanshui Zheng, Bai Song, [Moving Heterointerface with Robustly High Thermal Conductance](https://doi.org/10.1103/yzn5-723b), Physical Review X, **16**, 041005 (2026)
+
+* Wenwu Jiang, Hekai Bu, Xin Wu, Masahiro Nomura, Yong Ni, [Nanopore-Induced Thickness Independence of In-Plane Thermal Transport in Few-Layer Graphitic Carbon Nitride](https://doi.org/10.1021/acsami.6c10149), ACS Applied Materials \& Interfaces, (2026)
+
+* Xinran Zhang, Shuo Wang, Yinglong Hu, Yuan Ren, Ke Deng, Yuqiao Guo, Jing Peng, Zhiliang Pan, Hao Ma, [Direct Experimental Validation of Parallel Thermal Transport in Fiber-Aligned All-Organic Composites](https://doi.org/10.1021/acs.nanolett.6c03032), Nano Letters, (2026)
+
+* Wenjiang Zhou, Fuwei Yang, Yuxi Wang, Weiheng Li, Wujuan Yan, Kexin Zhang, Bai Song, [Intrinsically low thermal conductivity of stoichiometric lithium niobate: Experimental measurement and microscopic origin](https://doi.org/10.1103/ww2h-mrg7), Physical Review Materials, **10**, 094607 (2026)
+
+* Xiguang Wu, Jianlian Huang, Weikuan Li, Yuxuan Guo, Wei Zhang, Yajuan Cheng, Gang Zhang, Shiyun Xiong, [Insights into lattice thermal transport mechanisms in layered chalcogenides X<sub>2</sub>PdY<sub>6</sub> (X = Nb, Ta; Y = S, Se) via machine learning molecular dynamics simulations](https://doi.org/10.70401/tx.2026.0031), Thermo-X, **2**, 202625 (2026)
+
+* Shuo Wang, Yuqi Liu, Shujun Zhou, Xiaoming Xiu, Haikuan Dong, [Structure-dependent thermal transport in two-dimensional PdTe<sub>2</sub>](https://doi.org/10.1016/j.ijheatmasstransfer.2026.129470), International Journal of Heat and Mass Transfer, **271**, 129470 (2026)
+
+* Sen Dang, Zhijie Zhang, Menghang Sun, Kai Jia, Xiyao Dong, Bo Wen, Shen Wang, Xiaolong Lyu, Yaxin Chen, Lili Li, Kai Xi, Shujiang Ding, Guorui Yang, [Electric/Thermal Coupling Field Promotes Phonon Delocalization to Accelerate Defect-Repair Kinetics in Spent LiFePO<sub>4</sub>](https://doi.org/10.1002/anie.1597082), Angewandte Chemie International Edition, e1597082 (2026)
 
 * Mengjie Li, Wenwu Jiang, Huasong Qin, Wengen Ouyang, Chun Li, [Counterintuitive Temperature-Dependent Interfacial Thermal Resistance in Twisted van der Waals Interfaces](https://doi.org/10.1021/acsami.6c07853), ACS Applied Materials \& Interfaces, (2026)
 

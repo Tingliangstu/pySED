@@ -22,6 +22,7 @@ plot_color
 Related parameters
 ------------------
 
+- :doc:`action <action>`
 - :doc:`plot_cutoff_freq <plot_cutoff_freq>`
 - :doc:`plot_interval <plot_interval>`
 - :doc:`colorbar_min <colorbar_min>`

@@ -1,13 +1,18 @@
 Requirements
 ============
 
-pySED 3.0 requires Python 3.10 or newer. Its runtime dependencies are:
+**pySED** requires a few python modules to be installed in your computer in order to work properly.
+In general, pySED installation will automatically download the required packages.
+All this packages can be downloaded easily using PyPI or conda repositories.
 
-- NumPy;
-- SciPy;
-- netCDF4;
-- Matplotlib;
-- seaborn.
+Mandatory requirements
+----------------------
+- Python >= 3.10
+- numpy
+- seaborn (Visual SED images)
+- netCDF4 (Trajectory reading and reusable NetCDF caches)
+- scipy (For fast Lorentz fitting)
+- matplotlib (Plotting)
 
-A CUDA-capable GPU is optional. Install the CuPy wheel matching the CUDA
-Toolkit separately; CuPy is intentionally not a mandatory dependency.
+CuPy is optional for GPU computation; see :doc:`input_parameters/backend`.
+The MoS2 tutorial notebook also uses Jupyter and pandas.

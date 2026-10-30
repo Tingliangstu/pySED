@@ -1,21 +1,14 @@
-# High-entropy oxide SED with LAMMPS
+# 🧩 Legacy Example: High-Entropy Oxides
 
-This migrated case accompanies Yao *et al.*, “Thermal conduction mechanism of
-ferroelastic Zr–Y–Nb–Ta–Yb–O high-entropy oxides with glass-like thermal
-conductivity,” *Journal of the American Ceramic Society* (2022),
-[doi:10.1111/jace.18374](https://doi.org/10.1111/jace.18374).
+This is an older pySED-related example. Use it together with the
+[online manual](https://pysed.readthedocs.io/en/latest/) and the
+[`input.in` parameter guide](https://pysed.readthedocs.io/en/latest/input_parameters.html)
+when adapting it to current pySED workflows.
 
-Run `lammps_run/in.lammps` to create one sorted `trajectory.dump`, then:
+## Some data related to following publication
 
-```bash
-cd SED
-pySED input.in
-```
+1. Yao Y, Ren G, Yu Y, et al., [ Thermal conduction mechanism of ferroelastic Zr‐Y‐Yb‐Ta‐Nb‐O high‐entropy oxides with glass‐like thermal conductivity](https://ceramics.onlinelibrary.wiley.com/doi/10.1111/jace.18374).  Journal of the American Ceramic Society, 2022
 
-The migrated input fixes the former relative paths, supplies the
-`50 x 2 x 2` supercell, and replaces the malformed trailing input text and
-v2.4-only keys. Peak-derived lifetimes for this strongly anharmonic system
-should be interpreted cautiously.
+The SED method is used to calculate the phonon lifetime for Zr-0.668. Although the quantitative fit of SED peaks is not very good, resulting in less accurate phonon lifetimes.
 
-Historical v2.4 outputs are under
-`../../legacy/pySED-2.4/outputs/For_old_version_example/High_entropy_oxides/`.
+[Figure 6 in the original publication](https://doi.org/10.1111/jace.18374)

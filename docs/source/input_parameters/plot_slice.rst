@@ -27,6 +27,7 @@ plot_slice
 Related parameters
 ------------------
 
+- :doc:`action <action>`
 - :doc:`plot_cutoff_freq <plot_cutoff_freq>`
 - :doc:`plot_interval <plot_interval>`
 - :doc:`plot_color <plot_color>`

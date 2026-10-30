@@ -21,12 +21,12 @@ lorentz_fit_all_qpoint
    .. code-block:: text
 
       Fitting-Qpoint/
-      閳规壕鏀㈤埞鈧?Fitting-0-qpoint.png
-      閳规柡鏀㈤埞鈧?Fitting-<q-index>-qpoint.png
+         Fitting-0-qpoint.png
+         Fitting-<q-index>-qpoint.png
       Lifetime/
-      閳规壕鏀㈤埞鈧?Fitting-0-qpoint.Fre_lifetime
-      閳规壕鏀㈤埞鈧?Fitting-<q-index>-qpoint.Fre_lifetime
-      閳规柡鏀㈤埞鈧?Fitting-All-Qpoints.Fre_lifetime
+         Fitting-0-qpoint.Fre_lifetime
+         Fitting-<q-index>-qpoint.Fre_lifetime
+         Fitting-All-Qpoints.Fre_lifetime
       <out_files_name>-SED.png
       Fitting-Frequency-Lifetime.png
 

@@ -1,40 +1,70 @@
 Installation
 ============
 
-Use an isolated Python 3.10-or-newer environment.
+Installing **pySED** from source is **highly recommended**, as it is actively
+maintained. Use Python 3.10 or newer for pySED 3.0.
+The PyPI project named ``pysed`` is a different text-processing utility;
+do not use ``pip install pysed`` to install this SED package.
 
-From PyPI
----------
+Download the Source Code
+---------------------------
 
-.. code-block:: bash
-
-   python -m pip install pySED
-
-From source
------------
+You can download the source code from GitHub:
 
 .. code-block:: bash
 
-   git clone https://github.com/Tingliangstu/pySED.git
-   cd pySED
-   python -m pip install .
+    git clone https://github.com/Tingliangstu/pySED.git
+    cd pySED
+    git switch codex/pysed-3.0-architecture
 
-Verify the command:
+Alternatively, you may download the package directly from the
+`pySED 3.0 development branch <https://github.com/Tingliangstu/pySED/tree/codex/pysed-3.0-architecture>`_.
+The ``main`` branch currently contains the 2.4.x release.
+
+Install pySED
+----------------
+
+Navigate to the downloaded directory and install using one of the following methods:
+
+**Recommended method (via pip):**
 
 .. code-block:: bash
 
-   pySED -h
+    pip install .
 
-Optional CuPy backend
----------------------
-
-Install the wheel matching the installed CUDA Toolkit, for example:
+**Alternative method (via setup script):**
 
 .. code-block:: bash
 
-   python -m pip install cupy-cuda12x
-   # or, for a CUDA 13 installation:
-   python -m pip install cupy-cuda13x
+    python setup.py install --user --prefix=
 
-Then select ``backend = cupy``. A normal CPU installation does not require
-CUDA or CuPy.
+Add Scripts to PATH
+-----------------------
+
+For convenience, you may want to copy or link the files inside the `scripts` folder
+to a location included in your **$PATH** environment variable.
+
+.. note::
+
+    Depending on your operating system or environment configuration, if you are using conda environment this step may be done automatically.
+
+Verify Installation
+----------------------
+
+To confirm that pySED is installed correctly, run:
+
+.. code-block:: bash
+
+    pySED -h
+
+or
+
+.. code-block:: bash
+
+    pysed -h
+
+This will display the help message, including usage instructions and descriptions of input parameters.
+
+.. tip::
+
+    You can always use the `-h` flag to explore available options and understand how to prepare input files for pySED.

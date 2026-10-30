@@ -21,7 +21,7 @@ extensions = ['recommonmark', 'sphinx_markdown_tables', 'nbsphinx', 'sphinx.ext.
 nbsphinx_execute = 'never'
 
 templates_path = ['_templates']
-exclude_patterns = []
+exclude_patterns = ['notebook/Test_num_qpoints.ipynb']  # Historical, pre-3.0 exploration.
 
 source_suffix = {
     '.rst': 'restructuredtext',
@@ -150,7 +150,7 @@ html_context = {
     'display_github': True,  # Enable the display of the GitHub link
     'github_user': 'Tingliangstu',  # Replace with your GitHub username
     'github_repo': 'pySED',  # Replace with your repository name
-    'github_version': 'main',  # Your main branch name (usually 'main' or 'master')
+    'github_version': 'codex/pysed-3.0-architecture',  # Match this documentation branch.
     'conf_py_path': '/docs/source/',  # Path to your conf.py file
 }
 

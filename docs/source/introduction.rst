@@ -1,24 +1,23 @@
 Introduction
 ============
 
-The spectral energy density (SED) method projects atomic velocities from
-molecular-dynamics trajectories into reciprocal space. The resulting
-kinetic-energy-weighted map reveals finite-temperature vibrational dispersion;
-line widths can be fitted to estimate relaxation times.
+The **Spectral Energy Density (SED)** technique employed by **pySED** is a method that can directly
+predict phonon dispersion relations and their corresponding lifetimes from atomic velocities
+obtained in large-scale molecular dynamics (MD) simulations.
+SED represents the intensity of the kinetic energy distribution of a system across different phonon modes,
+effectively providing a dispersion weighted by the kinetic energy carried by each phonon.
 
-pySED 3.0 provides:
+**pySED** can read and process large-scale simulation trajectories from both `LAMMPS <https://www.lammps.org/#gsc.tab=0>`_ and `GPUMD <https://gpumd.org/>`_,
+enhancing its versatility and applicability in various research scenarios.
 
-- GPUMD extended-XYZ, combined LAMMPS custom-dump, and NetCDF readers;
-- reusable NetCDF caches or direct sequential text reading;
-- block-averaged NumPy computation with persistent worker processes;
-- an optional one-GPU CuPy backend;
-- exact rational Q-path input and commensurate finite-supercell Q points;
-- total, element-resolved, and Cartesian-resolved SED;
-- eV/THz one-sided spectra with energy-preserving normalization;
-- dispersion and single-Q plotting;
-- robust local peak detection, Lorentz and velocity-DHO fitting, automatic
-  AICc model choice, and linewidth-derived lifetime output.
+Main Features
+-------------
+- **SED Visualization**: Generates high-quality SED images for detailed analysis of phonon dispersion and lifetimes.
+- **Lorentzian Fitting**: Utilizes Lorentzian fitting to accurately model SED peaks.
+- **Comprehensive Peak Fitting**: Capable of fitting all peaks simultaneously to output phonon lifetimes or fitting them individually as needed.
+- **User-Friendly Interface**: Designed for simplicity and ease of use.
+- **Qualitative Phonon Lifetimes**: Provides qualitative insights into phonon lifetimes based on SED analysis.
+- **Parallel Processing**: Supports parallel execution to accelerate SED computations and obtain results quickly.
 
-The production workflow is eigenvector-free. Fitted peaks are therefore
-spectral features rather than automatic phonon-branch assignments; difficult
-or overlapping features require physical inspection.
+For the additional trajectory formats, CPU/GPU backends, and fitting options
+in pySED 3.0, see :doc:`sed_workflow` and :doc:`peak_fitting`.

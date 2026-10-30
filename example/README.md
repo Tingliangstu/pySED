@@ -1,22 +1,84 @@
-# pySED 3.0 examples
+# 📢 pySED Examples
 
-Every SED case uses the v3 control filename `input.in`. The recommended order
-is:
+This directory contains example workflows for calculating phonon spectral
+energy density (SED) with **pySED**. Please reproduce at least one example
+before applying pySED to a new material.
 
-1. generate the structure and `basis.in`;
-2. run GPUMD or LAMMPS to create one trajectory containing positions,
-   velocities, and cell information;
-3. run `pySED input.in` with `action = compute`;
-4. change the action to `plot` or `fit` and run the same command again.
+Use this directory together with the
+[online manual](https://pysed.readthedocs.io/en/latest/). If any setting in
+`input.in` is unclear, check the
+[`input.in` parameter guide](https://pysed.readthedocs.io/en/latest/input_parameters.html)
+first.
 
-The GPUMD cases are CNT, in-plane graphene, MoS2, and primitive-cell silicon.
-The cases under `For_old_version_example/` originated with earlier pySED
-releases but their inputs and LAMMPS dump commands have been migrated to v3.
+> The illustrations retain the original pySED 2.4 results. Recompute the SED
+> and fits with pySED 3.0 before comparing intensities or lifetimes. The
+> original numerical results remain in [the 2.4 archive](legacy/pySED-2.4/).
 
-`deterministic_sed/` is the smallest self-contained validation case. Its
-standard-library generator writes a combined LAMMPS custom dump with a known
-FFT-bin signal, so no external MD engine is required.
+---
 
-Generated v2.4 figures and numerical files are preserved under
-`legacy/pySED-2.4/outputs/` with a manifest and SHA-256 checksums. They are
-historical artifacts, not pySED 3.0 expected output.
+## 🧭 Workflow Map
+
+`[1. Structure] -> [2. GPUMD or LAMMPS MD] -> [3. pySED compute] -> [4. Plot/Fit] -> [5. LD check]`
+
+Each modern GPUMD example follows this sequence:
+
+- [x] **[1. Structure]** Generate `model.xyz` for GPUMD and `basis.in` for pySED.
+- [x] **[2. MD]** Run GPUMD to produce `dump.xyz` with positions and velocities.
+- [x] **[3. Compute]** Run pySED with `action = compute`.
+- [x] **[4. Plot/Fit]** Run pySED with `action = plot`; use `action = fit` for peak fitting.
+- [x] **[5. Validate]** Compare with lattice dynamics when an LD workflow is provided.
+
+For workflow automation, you can put the structure generation, MD run, pySED
+calculation, and plotting commands into a `.sh` script. See the
+[manual tips page](https://pysed.readthedocs.io/en/latest/tips.html) for a
+`run_SED.sh`-style example.
+
+`structure_maker` can read both POSCAR-style files and `.xyz` files as input
+structures. To use an `.xyz` file, set `structure_file_name='your_structure.xyz'`
+in the structure-generation script, then write `model.xyz` and `basis.in`.
+
+---
+
+## 🗂️ Recommended Examples
+
+| Dimension | Folder | Purpose | Preview |
+|---|---|---|---|
+| 1D | [`CNT`](CNT) | Carbon nanotube SED along the tube axis. | ![CNT SED](CNT/SED/CNT-SED.svg) |
+| 2D | [`In_plane_graphene_gpumd`](In_plane_graphene_gpumd) | In-plane graphene SED with LD comparison. | ![Graphene SED and LD](In_plane_graphene_gpumd/SED/compare_LD/Graphene.png) |
+| 2D/Layered | [`MoS2_gpumd`](MoS2_gpumd) | Low-frequency out-of-plane SED of layered MoS2. | ![MoS2 SED](MoS2_gpumd/SED/bulk_MoS2-SED.png) |
+| 3D | [`Silicon_primitive_gpumd`](Silicon_primitive_gpumd) | Bulk silicon SED with LD comparison. | ![Silicon SED and LD](Silicon_primitive_gpumd/SED/compare_LD/Silicon.png) |
+
+---
+
+## 🧩 Reference and Legacy Folders
+
+- **`Ref_Phonon_dispersion_from_phonopy`**
+  Legacy reference lattice-dynamics workflows using phonopy for previous
+  empirical-potential examples. They are kept to check whether SED branches
+  from those older workflows agree with harmonic phonon dispersions, but these
+  scripts may be removed or reorganized in future releases.
+
+- **`For_old_version_example`**
+  Older LAMMPS-based and legacy workflows. Start from the modern GPUMD examples
+  above unless you specifically need one of these older cases.
+
+- **`tutorials`**
+  Jupyter-based tutorial material, including a MoS2 notebook workflow.
+
+---
+
+## ✅ Quick Checks
+
+- [`num_atoms`](https://pysed.readthedocs.io/en/latest/input_parameters.html#num-atoms)
+  must match the trajectory and the maximum atom id in `basis.in`.
+- [`output_data_stride`](https://pysed.readthedocs.io/en/latest/input_parameters.html#output-data-stride)
+  must match the MD trajectory dump stride.
+- [`supercell_dim`](https://pysed.readthedocs.io/en/latest/input_parameters.html#supercell-dim)
+  must match the supercell used to generate `model.xyz` and `basis.in`.
+- Use [`plot_slice = 1`](https://pysed.readthedocs.io/en/latest/input_parameters.html#plot-slice)
+  to inspect a single q-point before fitting all q-points.
+- Use [`output_partial = 1`](https://pysed.readthedocs.io/en/latest/input_parameters.html#output-partial)
+  for atom-type and direction-resolved partial SED.
+
+**Author:** pySED development team
+**Version for these commands:** pySED 3.0
