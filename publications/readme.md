@@ -1,12 +1,10 @@
 # Publications using pySED
 
-## Preprints (4)
+## Preprints (3)
 
 * Jianmin Yang, Lin Xie, [Lattice-mediated Geometric Frustration Drives Fast Ionic Transport](https://arxiv.org/abs/2606.22345)
 
 * Wenwu Jiang, Huasong Qin, Yilun Liu, Wengen Ouyang, Oded Hod, Michael Urbakh, [Strain and Twist Engineering of Interfacial Thermal Transport in Homo- and Hetero-Interfaces of Graphene and Hexagonal Boron Nitride](https://arxiv.org/abs/2604.26300)
-
-* Xin Wu, Ting Liang, Weitao Wang, Jiangjiang Ma, Zheyong Fan, Jianbin Xu, Sebastian Volz, Masahiro Nomura, [Data-driven flipping engineering for high thermal anisotropy](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5864374)
 
 * Penghua Ying, Ting Liang, Yun Chen, Yan Chen, Shiyun Xiong, Zheyong Fan, Jianbin Xu, Yilun Liu, [Structurally Triggered Breakdown of the Phonon Gas Model in Crystalline Metal-Organic Frameworks](https://arxiv.org/abs/2604.03783)
 
@@ -14,11 +12,15 @@
 
 * Qikun Tian, Ruyi Li, Hongkai Zhang, Enbo Zhang, Xiong Zheng, Huimin Wang, Zhenzhen Qin, Guangzhao Qin, [Atomic-level engineering thermal transport anisotropy in C<sub>24</sub> monolayers for directional heat spreading](https://doi.org/10.70401/tx.2026.0032), Thermo-X, **3**, 202626 (2027)
 
-## 2026 (35)
+## 2026 (37)
 
 * Xinyuan Ma, Peng-Hu Du, Chenxin Zhang, Qing Zhang, Qian Wang, Puru Jena, [Curvature-Enhanced and Chirality-Modulated Anomalous Thermal Transport in Pentagonal Covalent Organic Framework Nanotubes](https://doi.org/10.1021/jacs.6c10614), Journal of the American Chemical Society, (2026)
 
+* Xin Wu, Ting Liang, Weitao Wang, Jiangjiang Ma, Zheyong Fan, Jianbin Xu, Sebastian Volz, Masahiro Nomura, [Data-Driven Flipping Engineering for High Thermal Anisotropy in Janus Two-Dimensional Materials](https://doi.org/10.1021/acsnano.6c07922), ACS Nano, (2026)
+
 * Yinjie Shen, Yunqing Tang, Jia Fu, Liqun Wang, Keyang Chen, Zhaoting Guo, Xiaoliang Liang, Yukui Cai, Zhanqiang Liu, and Dongyang Li, [Enthalpy-driven in-situ interfacial reconstruction for enhanced heat transfer across graphene/high-entropy alloy interfaces](https://doi.org/10.1016/j.applthermaleng.2026.132963), Applied Thermal Engineering, **305**, 132963 (2026)
+
+* Jian Zhang, Zhuo Zhao, Zhiyong Zhang, Yuan Cheng, and Gang Zhang, [Significant reduction in thermal conductivity of carbon nanotubes by amorphous gate oxides](https://doi.org/10.1039/D6CP01409G), Physical Chemistry Chemical Physics, **28**, 19341 (2026)
 
 * Zifu Zang, Yushun Zhao, Chao Sui, Shaodong Sun, Kaiyi Zheng, Renjie Ding, Yongqiang Tao, Xiaodong He, and Chao Wang, [Effects of phase transitions and oxygen vacancies on thermal transport in yttrium-stabilized zirconia studied using neural network potentials](https://doi.org/10.1103/ntwm-4gf7), Physical Review B, **113**, 174117 (2026)
 
@@ -50,7 +52,7 @@
 
 * Duohao Zhang, Xinlu Cheng, Hong Zhang, [Unraveling Thermal Transport Mechanisms in Monolayer CrSi<sub>2</sub>N<sub>4</sub> Using Machine-Learned Potentials](https://doi.org/10.1039/D6CP01105E), Physical Chemistry Chemical Physics, **28**, 15284 (2026)
 
-* Yilin Fang, Weiyi Li, Guiyun Hang, Jintao Wang, Xiyao Yun, Wan xiao Guo, Tao Wang, and Wenli Yu, [New Insights into Thermal Transport in Â¦Ã…-CL-20 Revealed by Machine-Learned Potentials and Mode-Projection Analysis](https://doi.org/10.1021/acs.jpca.6c00862), The Journal of Physical Chemistry A, (2026).
+* Yilin Fang, Weiyi Li, Guiyun Hang, Jintao Wang, Xiyao Yun, Wan xiao Guo, Tao Wang, and Wenli Yu, [New Insights into Thermal Transport in ¦Å-CL-20 Revealed by Machine-Learned Potentials and Mode-Projection Analysis](https://doi.org/10.1021/acs.jpca.6c00862), The Journal of Physical Chemistry A, (2026).
 
 * Jincheng Yue, Rongkun Chen, Xinkai Sun, Yinong Liu, Xiaolong Li, and Shiqian Hu, [Phonon overdamping defines the ultimate limit of lattice thermal conductivity](https://journals.aps.org/prb/abstract/10.1103/jhfd-vzjy), Physical Review B, **113**, L161401, (2026).
 
@@ -102,7 +104,7 @@
 
 * Ke Li, Hao Ma, [Decoding the thermal conductivity of ionic covalent organic frameworks: Optical phonons as key determinants revealed by neuroevolution potential](https://www.sciencedirect.com/science/article/pii/S254252932500080X?via%3Dihub), Materials Today Physics, **54**, 101724 (2025)
 
-* Wenwu Jiang, Ting Liang, Hekai Bu, Jianbin Xu, Wengen Ouyang, [MoirÂ¨Â¦-Driven Interfacial Thermal Transport in Twisted Transition Metal Dichalcogenides](https://pubs.acs.org/doi/full/10.1021/acsnano.4c12148), ACS Nano, **19**, 16287 (2025).
+* Wenwu Jiang, Ting Liang, Hekai Bu, Jianbin Xu, Wengen Ouyang, [Moir¨¦-Driven Interfacial Thermal Transport in Twisted Transition Metal Dichalcogenides](https://pubs.acs.org/doi/full/10.1021/acsnano.4c12148), ACS Nano, **19**, 16287 (2025).
 
 * Xianteng Zhou, Yuanji Xu, Yue Chen, Fuyang Tian, [Mechanism on lattice thermal conductivity of carbon-vacancy and porous medium entropy ceramics](https://www.sciencedirect.com/science/article/pii/S1359646225000326), Scripta Materialia, **259**, 116568 (2025).
 
