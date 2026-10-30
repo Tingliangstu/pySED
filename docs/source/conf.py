@@ -12,7 +12,7 @@ from pathlib import Path
 project = 'pySED'
 copyright = '2025, Ting Liang; Wenwu Jiang'
 author = 'Ting Liang; Wenwu Jiang'
-release = '2.4.0'
+release = '2.4.1'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -149,7 +149,7 @@ html_context = {
     'display_github': True,  # Enable the display of the GitHub link
     'github_user': 'Tingliangstu',  # Replace with your GitHub username
     'github_repo': 'pySED',  # Replace with your repository name
-    'github_version': 'main',  # Your main branch name (usually 'main' or 'master')
+    'github_version': 'v2.4.1',
     'conf_py_path': '/docs/source/',  # Path to your conf.py file
 }
 

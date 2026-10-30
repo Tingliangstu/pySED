@@ -1,5 +1,24 @@
 # Changelog
 
+## v2.4.1 - 2026-10-30
+
+### Fixes
+
+- Preserve explicitly supplied q-path fractions such as `7/15` and `-17/31`
+  exactly through parsing and commensurate q-point construction (#66).
+- Retain normalization of short decimal approximations near simple fractions
+  and support for programmatically supplied floating-point q paths.
+- Add regression coverage for exact fractional paths, including the expected
+  eight points on a 15 x 15 x 10 supercell path.
+
+### Legacy release
+
+- Preserve the 2.x input interface, HDF5 workflow, and MIT license.
+- Pin installation instructions to `v2.4.1` and preserve this release on the
+  `legacy/2.4` branch. Version 3.0 remains on its separate development branch;
+  no 3.0 implementation is included in this release.
+- Include documentation and publication-list updates made since v2.4.0.
+
 ## v2.4.0 - 2026-06-04
 
 ### ✨ Highlights

@@ -3,6 +3,15 @@
 
 # pySED
 
+## Version 2.4.1: legacy 2.x release
+
+This release preserves the 2.x input format, HDF5 workflow, and MIT license,
+and includes the exact fractional q-path fix. The old-version line is
+preserved on [legacy/2.4](https://github.com/Tingliangstu/pySED/tree/legacy/2.4);
+use the [v2.4.1 tag](https://github.com/Tingliangstu/pySED/releases/tag/v2.4.1)
+for this exact snapshot. Version 3.0 remains under development on a separate
+branch and is not included here.
+
 **To implement the [phonon SED (spectral energy desity) method in 2010](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.81.081411), phonon lifetime can be easily calculated.** 
 
 ## Main features
@@ -16,9 +25,9 @@
 
 ## Installation instructions
 
-1)  Download by git or from [source code](https://github.com/Tingliangstu/pySED). **Installing from source is highly recommended, as it is frequently maintained**.
+1) Download the fixed 2.4.1 release from GitHub:
 ```bash
-git clone https://github.com/Tingliangstu/pySED.git
+git clone --branch v2.4.1 --single-branch https://github.com/Tingliangstu/pySED.git
 ```
 2) Install
 ```bash
@@ -34,7 +43,7 @@ For convenience, you may want to copy (or link) the files inside scripts folder 
 
 3) If one prefers a one-line installation without cloning manually:
 ```bash
-pip install git+https://github.com/Tingliangstu/pySED.git
+python -m pip install "git+https://github.com/Tingliangstu/pySED.git@v2.4.1"
 ```
 
 4) Verify installation

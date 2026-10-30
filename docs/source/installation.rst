@@ -1,8 +1,10 @@
 Installation
 ============
 
-**pySED** can be installed either from the source code or via the PyPI repository.  
-Installing from source is **highly recommended**, as it is actively maintained and provides the latest updates.
+Install **pySED 2.4.1** from the tagged GitHub source below. This preserves
+the legacy 2.x workflow even after the main development branch moves to 3.0.
+The PyPI project named ``pysed`` is a different text-processing utility;
+do not use ``pip install pysed`` to install this SED package.
 
 Download the Source Code
 ---------------------------
@@ -11,10 +13,10 @@ You can download the source code from GitHub:
 
 .. code-block:: bash
 
-    git clone https://github.com/Tingliangstu/pySED.git
+    git clone --branch v2.4.1 --single-branch https://github.com/Tingliangstu/pySED.git
 
 Alternatively, you may download the package directly from the  
-`pySED GitHub repository <https://github.com/Tingliangstu/pySED>`_.
+`pySED 2.4.1 release <https://github.com/Tingliangstu/pySED/releases/tag/v2.4.1>`_.
 
 Install pySED
 ----------------
