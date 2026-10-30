@@ -12,7 +12,9 @@
 
 * Qikun Tian, Ruyi Li, Hongkai Zhang, Enbo Zhang, Xiong Zheng, Huimin Wang, Zhenzhen Qin, Guangzhao Qin, [Atomic-level engineering thermal transport anisotropy in C<sub>24</sub> monolayers for directional heat spreading](https://doi.org/10.70401/tx.2026.0032), Thermo-X, **3**, 202626 (2027)
 
-## 2026 (36)
+## 2026 (37)
+
+* Xinyuan Ma, Peng-Hu Du, Chenxin Zhang, Qing Zhang, Qian Wang, Puru Jena, [Curvature-Enhanced and Chirality-Modulated Anomalous Thermal Transport in Pentagonal Covalent Organic Framework Nanotubes](https://doi.org/10.1021/jacs.6c10614), Journal of the American Chemical Society, (2026)
 
 * Xin Wu, Ting Liang, Weitao Wang, Jiangjiang Ma, Zheyong Fan, Jianbin Xu, Sebastian Volz, Masahiro Nomura, [Data-Driven Flipping Engineering for High Thermal Anisotropy in Janus Two-Dimensional Materials](https://doi.org/10.1021/acsnano.6c07922), ACS Nano, (2026)
 
