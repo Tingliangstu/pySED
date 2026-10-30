@@ -94,6 +94,11 @@ inputs are under [`example/`](https://github.com/Tingliangstu/pySED/tree/main/ex
 Outputs from pySED 2.4 are retained only as labelled historical artifacts
 under `example/legacy/pySED-2.4/`.
 
+For maintaining the code, see the
+[architecture and reading guide](docs/source/code_architecture.rst):
+`Phonon.py` describes the block workflow, `sed_kernel.py` holds the formulas,
+and `backends/` owns CPU/GPU execution resources.
+
 ## Citation
 
 If pySED contributes to published work, please cite:

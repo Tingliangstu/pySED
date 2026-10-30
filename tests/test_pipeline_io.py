@@ -14,7 +14,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from pySED.parser import read_input
-from pySED.parameters import methods, validate_qpoint_slice_index
+from pySED.parameters import PARAMETERS, validate_common, validate_qpoint_slice_index
+from pySED.OutputPaths import slice_figure
 from pySED.pipeline import (
     _run_thinking,
     run,
@@ -23,9 +24,9 @@ from pySED.pipeline import (
     step_plot_sed,
     step_prepare_trajectory,
 )
-from pySED.sed import FileIO
-from pySED.sed.construct_BZ import BZ_methods
-from pySED.sed.Plot_SED import (
+from pySED import FileIO
+from pySED.construct_BZ import BZ_methods
+from pySED.Plot_SED import (
     _print_color_scale,
     _prepare_sed_for_log_scale,
     _resolve_color_limits,
@@ -34,7 +35,6 @@ from pySED.sed.Plot_SED import (
     plot_slice,
     resolve_slice_frequency_limit,
     resolve_slice_frequency_start,
-    resolve_slice_output_path,
 )
 
 NETCDF4_AVAILABLE = importlib.util.find_spec("netCDF4") is not None
@@ -48,7 +48,10 @@ Si 0 0 0 0.001 0.002 0.003
 
 class ParserTests(unittest.TestCase):
     def test_sed_is_the_only_available_method(self):
-        self.assertEqual(set(methods), {"sed"})
+        self.assertEqual(PARAMETERS["method"].default, "sed")
+        self.assertEqual(len(PARAMETERS), 45)
+        with self.assertRaisesRegex(ValueError, "method must be 'sed'"):
+            validate_common(SimpleNamespace(method="dsf"))
 
     def test_all_v2_parameter_names_report_migration_guidance(self):
         legacy_names = (
@@ -116,7 +119,7 @@ class ParserTests(unittest.TestCase):
             os.chdir(directory)
             try:
                 output = Path(directory) / "SrTiO3"
-                for suffix in (".SED", ".Qpts", ".THz"):
+                for suffix in (".SED", ".Qpts", ".THz", ".Q_distances_and_labels"):
                     output.with_suffix(suffix).touch()
                 output.with_name("SrTiO3-SED.png").touch()
 
@@ -150,7 +153,6 @@ class ParserTests(unittest.TestCase):
             lorentz_fit_all_qpoint=True,
             qpoint_slice_index=0,
             if_show_figures=True,
-            plot_lorentz=True,
         )
         output = io.StringIO()
 
@@ -161,7 +163,7 @@ class ParserTests(unittest.TestCase):
                 "pySED.pipeline.FileIO.load_data",
                 return_value=data,
             ),
-            patch("pySED.pipeline.Lorentz.lorentz") as fit,
+            patch("pySED.pipeline._fit_one_qpoint") as fit,
             patch(
                 "pySED.pipeline.FileIO.deal_total_fre_lifetime"
             ) as combine,
@@ -177,7 +179,7 @@ class ParserTests(unittest.TestCase):
         ):
             fit.side_effect = [
                 SimpleNamespace(
-                    fit_clusters=[
+                    peak_fits=[
                         {
                             "peak_number": 1,
                             "incomplete_peak_shapes": np.array([False]),
@@ -189,7 +191,7 @@ class ParserTests(unittest.TestCase):
                     ]
                 ),
                 SimpleNamespace(
-                    fit_clusters=[
+                    peak_fits=[
                         {
                             "peak_number": 3,
                             "incomplete_peak_shapes": np.array([True]),
@@ -208,6 +210,11 @@ class ParserTests(unittest.TestCase):
             step_fit_sed(params)
 
         self.assertEqual(fit.call_count, 2)
+        self.assertEqual(params.qpoint_slice_index, 0)
+        self.assertTrue(params.if_show_figures)
+        self.assertIsNot(fit.call_args_list[0].args[1], params)
+        self.assertEqual(fit.call_args_list[0].args[1].qpoint_slice_index, 0)
+        self.assertEqual(fit.call_args_list[1].args[1].qpoint_slice_index, 1)
         combine.assert_called_once_with(params, 2)
         message = output.getvalue()
         self.assertIn("      Total Q-points       : 2", message)
@@ -225,14 +232,10 @@ class ParserTests(unittest.TestCase):
             "Lifetime/Fitting-All-Qpoints.Fre_lifetime",
             message,
         )
-        self.assertEqual(
-            params.lifetime_figure_output,
-            "Fitting-Frequency-Lifetime.png",
+        self.assertIn(
+            "Lifetime figure written: Fitting-Frequency-Lifetime.png", message,
         )
-        self.assertEqual(
-            getattr(params, "lifetime_figure_action", "written"),
-            "written",
-        )
+        self.assertFalse(hasattr(params, "lifetime_figure_output"))
         self.assertIn(
             f"      {'Q-point figures':<20}: Fitting-Qpoint",
             message,
@@ -294,7 +297,7 @@ class ParserTests(unittest.TestCase):
                 "pySED.pipeline.FileIO.load_data",
                 return_value=data,
             ),
-            patch("pySED.pipeline.Lorentz.lorentz"),
+            patch("pySED.pipeline._fit_one_qpoint"),
             patch(
                 "pySED.pipeline.FileIO.deal_total_fre_lifetime",
                 return_value=(
@@ -322,7 +325,11 @@ class ParserTests(unittest.TestCase):
         )
         self.assertIn("Single-Q spectral fit done", output.getvalue())
         plot_lifetime.assert_called_once()
-        self.assertEqual(params.lifetime_figure_action, "redrawn")
+        self.assertIn(
+            "Lifetime figure redrawn: Fitting-Frequency-Lifetime.png",
+            output.getvalue(),
+        )
+        self.assertFalse(hasattr(params, "lifetime_figure_action"))
 
     def test_lifetime_outputs_are_grouped_and_combined(self):
         with TemporaryDirectory() as directory:
@@ -373,7 +380,7 @@ class ParserTests(unittest.TestCase):
             try:
                 with (
                     patch("matplotlib.figure.Figure.savefig") as savefig,
-                    patch("pySED.sed.Plot_SED.plt.close"),
+                    patch("pySED.Plot_SED.plt.close"),
                 ):
                     output_path = plot_lifetime_summary(
                         np.array([1.0, 2.0, 3.0]),
@@ -406,17 +413,11 @@ class ParserTests(unittest.TestCase):
         params = SimpleNamespace(method="sed", action="fit")
 
         def write_lifetime_figure(received_params):
-            received_params.lifetime_figure_output = (
-                "Fitting-Frequency-Lifetime.png"
-            )
+            print("Lifetime figure written: Fitting-Frequency-Lifetime.png")
 
         output = io.StringIO()
         with (
-            patch.dict(
-                "pySED.pipeline.STEP_MAP",
-                {"sed": {"fit": write_lifetime_figure}},
-                clear=True,
-            ),
+            patch("pySED.pipeline.step_fit_sed", side_effect=write_lifetime_figure),
             redirect_stdout(output),
         ):
             run(params)
@@ -446,18 +447,11 @@ class ParserTests(unittest.TestCase):
         params = SimpleNamespace(method="sed", action="fit")
 
         def redraw_lifetime_figure(received_params):
-            received_params.lifetime_figure_output = (
-                "Fitting-Frequency-Lifetime.png"
-            )
-            received_params.lifetime_figure_action = "redrawn"
+            print("Lifetime figure redrawn: Fitting-Frequency-Lifetime.png")
 
         output = io.StringIO()
         with (
-            patch.dict(
-                "pySED.pipeline.STEP_MAP",
-                {"sed": {"fit": redraw_lifetime_figure}},
-                clear=True,
-            ),
+            patch("pySED.pipeline.step_fit_sed", side_effect=redraw_lifetime_figure),
             redirect_stdout(output),
         ):
             run(params)
@@ -483,7 +477,6 @@ class ParserTests(unittest.TestCase):
             qpoint_slice_index=1,
             plot_partial_SED=False,
             plot_cutoff_freq=12.0,
-            plot_lorentz=False,
             lorentz_fit_freq_max=8.0,
         )
         output = io.StringIO()
@@ -587,7 +580,7 @@ class ParserTests(unittest.TestCase):
         )
 
         with (
-            patch("pySED.sed.Plot_SED.plt.savefig"),
+            patch("pySED.Plot_SED.plt.savefig"),
             redirect_stdout(io.StringIO()),
         ):
             plot_bands(data, params)
@@ -605,7 +598,6 @@ class ParserTests(unittest.TestCase):
 
         thz = np.array([0.0, 5.0, 10.0, 15.0])
         params = SimpleNamespace(
-            plot_lorentz=False,
             plot_cutoff_freq=12.0,
             lorentz_fit_freq_max=8.0,
         )
@@ -614,9 +606,8 @@ class ParserTests(unittest.TestCase):
             (12.0, "plot_cutoff_freq"),
         )
 
-        params.plot_lorentz = True
         self.assertEqual(
-            resolve_slice_frequency_limit(thz, params),
+            resolve_slice_frequency_limit(thz, params, fitting=True),
             (8.0, "lorentz_fit_freq_max"),
         )
 
@@ -624,17 +615,16 @@ class ParserTests(unittest.TestCase):
         thz = np.array([0.0, 5.0, 10.0, 15.0])
         params = SimpleNamespace(
             qpoint_slice_index=3,
-            plot_lorentz=True,
             plot_partial_SED=False,
             lorentz_fit_freq_min=2.0,
         )
 
         self.assertEqual(
-            resolve_slice_frequency_start(thz, params),
+            resolve_slice_frequency_start(thz, params, fitting=True),
             (2.0, "lorentz_fit_freq_min"),
         )
         self.assertEqual(
-            resolve_slice_output_path(params, lorentz=True),
+            str(slice_figure(params, fitting=True)),
             str(Path("Fitting-Qpoint") / "Fitting-3-qpoint.png"),
         )
 
@@ -690,8 +680,8 @@ class ParserTests(unittest.TestCase):
         )
 
         with (
-            patch("pySED.sed.Plot_SED.plt.savefig") as savefig,
-            patch("pySED.sed.Plot_SED.plt.close"),
+            patch("pySED.Plot_SED.plt.savefig") as savefig,
+            patch("pySED.Plot_SED.plt.close"),
         ):
             plot_slice(data, params)
             figure = plt.gcf()
@@ -785,7 +775,7 @@ class ParserTests(unittest.TestCase):
 
                 oxygen_y = partial_dir / "SrTiO3.SED_O_y"
                 self.assertTrue(oxygen_y.is_file())
-                self.assertFalse(legacy_oxygen_y.exists())
+                self.assertEqual(legacy_oxygen_y.read_text(encoding="utf-8"), "old")
 
                 loaded = FileIO.load_data(params)
                 np.testing.assert_allclose(

@@ -126,9 +126,9 @@ def read_partial_sed(values):
     return True, element, direction
 
 
-# ==================== Common parameters ====================
+# ==================== Input parameters ====================
 
-common_params = {
+PARAMETERS = {
     # Control
     "action": Parameter("thinking", read_lower_text),
     "method": Parameter("sed", read_lower_text),
@@ -153,12 +153,7 @@ common_params = {
 
     # Structure
     "prim_unitcell": Parameter(None, read_matrix3),
-}
 
-
-# ==================== SED parameters ====================
-
-sed_params = {
     # MD simulation
     "num_atoms": Parameter(0, read_int),
     "total_num_steps": Parameter(0, read_int),
@@ -459,22 +454,10 @@ def validate_sed(params):
                 f"in the input structure '{params.basis_lattice_file}'"
             )
 
-    # Filled later when phonopy eigenvectors are used.
-    params.with_eigs = None
-
-
-methods = {
-    "sed": {
-        "parameters": sed_params,
-        "validate": validate_sed,
-    },
-}
-
-
 __all__ = [
-    "common_params",
-    "methods",
+    "PARAMETERS",
     "parse_float_or_fraction",
     "validate_common",
+    "validate_sed",
     "validate_qpoint_slice_index",
 ]

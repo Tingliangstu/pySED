@@ -27,15 +27,22 @@ import numpy as np
 from scipy.optimize import curve_fit
 from scipy.signal import find_peaks, windows
 
-from pySED.sed import FileIO, Plot_SED
-
-
 _PEAK_DETECTION_SMOOTH_WINDOW = 7
 _PEAK_DETECTION_NOISE_WINDOW = 31
 _MAD_TO_SIGMA = 1.4826
 _FITTING_FUNCTIONS = ("lorentz", "dho")
 _AUTO_AICC_EQUIVALENCE = 2.0
 _DHO_MIN_DISTINGUISHABLE_DAMPING_RATIO = 0.05
+
+
+def hwhm_to_lifetime_ps(hwhm):
+    """Convert ordinary-frequency HWHM in THz to lifetime in ps."""
+
+    hwhm = np.asarray(hwhm, dtype=float)
+    lifetime = np.full(hwhm.shape, np.nan, dtype=float)
+    valid = np.isfinite(hwhm) & (hwhm > 0)
+    lifetime[valid] = 1.0 / (2.0 * np.pi * hwhm[valid])
+    return lifetime
 
 
 def _odd_window_length(size, requested):
@@ -393,7 +400,6 @@ def _fit_single_peak_candidate(
         "frequency": xarr,
         "observed": values,
         "predicted": predicted,
-        "component_curves": np.asarray([predicted]),
         "peak_parameters": optimal[np.newaxis, :],
         "peak_errors": errors[np.newaxis, :],
         "upper_bound_hits": np.asarray([hwhm >= 0.98 * maximum_hwhm]),
@@ -483,7 +489,7 @@ def _fit_single_peak(
 
 
 class lorentz:
-    """Detect and independently fit zero-background SED peaks."""
+    """Fit one Q point; return results without changing params or writing files."""
 
     def __init__(self, data, params):
         self.q_index = params.qpoint_slice_index
@@ -544,10 +550,8 @@ class lorentz:
             print("      Line shape           : automatic Lorentz or DHO")
         else:
             print(f"      Line shape           : {self.fitting_function}")
-        fit_figure = Plot_SED.resolve_slice_output_path(params, lorentz=True)
-        print(f"      Fit figure           : {fit_figure}")
 
-        self.fit_clusters = []
+        self.peak_fits = []
         for peak_number, peak in enumerate(peaks, start=1):
             left_base, right_base = _local_peak_bases(
                 valley_signal,
@@ -583,7 +587,7 @@ class lorentz:
                 peak_significance[peak_number - 1]
             )
             result["peak_number"] = peak_number
-            self.fit_clusters.append(result)
+            self.peak_fits.append(result)
 
         print("\n  >  Independent peak fits")
         range_width = 19
@@ -595,7 +599,7 @@ class lorentz:
             f"      {'---':>3}   {'-' * range_width}   "
             f"{'-' * 11}"
         )
-        for result in self.fit_clusters:
+        for result in self.peak_fits:
             fit_range = (
                 f"{result['fit_start']:8.4f} - "
                 f"{result['fit_end']:<8.4f}"
@@ -607,12 +611,12 @@ class lorentz:
             )
         upper_bound_peaks = [
             str(result["peak_number"])
-            for result in self.fit_clusters
+            for result in self.peak_fits
             if result["upper_bound_hits"][0]
         ]
         incomplete_peaks = [
             str(result["peak_number"])
-            for result in self.fit_clusters
+            for result in self.peak_fits
             if result["incomplete_peak_shapes"][0]
         ]
         if upper_bound_peaks:
@@ -641,34 +645,34 @@ class lorentz:
                     "peak_min_significance if needed."
                 )
 
-        if self.fit_clusters:
+        if self.peak_fits:
             self.popt = np.vstack(
-                [result["peak_parameters"] for result in self.fit_clusters]
+                [result["peak_parameters"] for result in self.peak_fits]
             )
             self.pcov = np.vstack(
-                [result["peak_errors"] for result in self.fit_clusters]
+                [result["peak_errors"] for result in self.peak_fits]
             )
             self.fit_models = np.asarray(
-                [result["fitting_function"] for result in self.fit_clusters],
+                [result["fitting_function"] for result in self.peak_fits],
                 dtype=object,
             )
             self.upper_bound_hits = np.asarray(
-                [result["upper_bound_hits"][0] for result in self.fit_clusters],
+                [result["upper_bound_hits"][0] for result in self.peak_fits],
                 dtype=bool,
             )
             self.unresolved_widths = np.asarray(
-                [result["unresolved_widths"][0] for result in self.fit_clusters],
+                [result["unresolved_widths"][0] for result in self.peak_fits],
                 dtype=bool,
             )
             self.incomplete_peak_shapes = np.asarray(
                 [
                     result["incomplete_peak_shapes"][0]
-                    for result in self.fit_clusters
+                    for result in self.peak_fits
                 ],
                 dtype=bool,
             )
             self.peak_significance = np.asarray(
-                [result["peak_significance"] for result in self.fit_clusters],
+                [result["peak_significance"] for result in self.peak_fits],
                 dtype=float,
             )
             order = np.argsort(self.popt[:, 0])
@@ -679,7 +683,7 @@ class lorentz:
             self.unresolved_widths = self.unresolved_widths[order]
             self.incomplete_peak_shapes = self.incomplete_peak_shapes[order]
             self.peak_significance = self.peak_significance[order]
-            self.fit_clusters = [self.fit_clusters[index] for index in order]
+            self.peak_fits = [self.peak_fits[index] for index in order]
         else:
             self.popt = np.empty((0, 3), dtype=float)
             self.pcov = np.empty((0, 3), dtype=float)
@@ -689,16 +693,7 @@ class lorentz:
             self.incomplete_peak_shapes = np.empty(0, dtype=bool)
             self.peak_significance = np.empty(0, dtype=float)
 
-        params.popt = self.popt
-        params.pcov = self.pcov
-        params.fit_models = self.fit_models
-        params.fit_peak_significance = self.peak_significance
-        params.lorentz_fit_clusters = self.fit_clusters
-        params.plot_lorentz = True
-
-        lifetime_file = FileIO.write_phonon_lifetime(self, params)
-
-        lifetimes = FileIO.hwhm_to_lifetime_ps(self.popt[:, 2])
+        lifetimes = hwhm_to_lifetime_ps(self.popt[:, 2])
         print("\n  >  Spectral fitting results")
         print("      Lifetime definition  : tau_SED = 1 / (2*pi*HWHM)")
         print(
@@ -729,5 +724,3 @@ class lorentz:
                 "  Note: overdamped DHO lifetimes are included for "
                 "qualitative comparison only."
             )
-        print(f"\n  [OK] Lifetime data written: {lifetime_file}")
-        Plot_SED.plot_slice(data, params)

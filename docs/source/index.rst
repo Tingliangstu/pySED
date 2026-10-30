@@ -39,6 +39,7 @@ detection, line-shape fitting, and linewidth-derived lifetimes.
    example
    theory
    migration_v3
+   code_architecture
    tips
    publications
    reference

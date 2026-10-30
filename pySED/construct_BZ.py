@@ -13,6 +13,8 @@
 #     along with pySED.  If not, see <http://www.gnu.org/licenses/>.
 # =============================================================================
 
+"""Crystal geometry, basis mapping, and commensurate Q-point paths."""
+
 # Python modules
 import math
 import os
@@ -45,17 +47,13 @@ class BZ_methods(object):
 
         ############## Construct Brillouin zone ################
         # calculate direct lattice vectors (for orthogonal or triclinic lattice vectors)
-        if params.with_eigs:  # use phonopy q-points
-            pass
-
-        else:  # create q-point list from input file (basis.in)
-            # construct the BZ paths
-            self._construct_BZ_path(params)
+        self._construct_BZ_path(params)
 
     def _get_basis_lattice(self, params):
         if not os.path.exists(params.basis_lattice_file):
-            print('\nERROR: file {} not found\n'.format(params.basis_lattice_file))
-            exit()
+            raise FileNotFoundError(
+                f"Basis file '{params.basis_lattice_file}' not found"
+            )
 
         # read the lattice info from a file
         self.atom_ids, self.unitcell_index, self.basis_index, self.masses = np.loadtxt(params.basis_lattice_file,

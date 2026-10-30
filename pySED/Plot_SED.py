@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
-from pySED.sed import OutputPaths
+from pySED import OutputPaths
 
 # Use one Seaborn theme for every pySED figure in this plotting module.
 sns.set_theme(
@@ -113,12 +113,12 @@ def _print_color_scale(params, vmin, vmax):
     )
 
 
-def resolve_slice_frequency_limit(thz, params):
+def resolve_slice_frequency_limit(thz, params, *, fitting=False):
     """Return the displayed upper frequency and its input control."""
 
     lorentz_freq_max = getattr(params, 'lorentz_fit_freq_max', None)
     if (
-        getattr(params, 'plot_lorentz', False)
+        fitting
         and lorentz_freq_max is not None
     ):
         return lorentz_freq_max, "lorentz_fit_freq_max"
@@ -128,35 +128,16 @@ def resolve_slice_frequency_limit(thz, params):
     return float(np.max(thz)), None
 
 
-def resolve_slice_frequency_start(thz, params):
+def resolve_slice_frequency_start(thz, params, *, fitting=False):
     """Return the displayed lower frequency and its input control."""
 
     lorentz_freq_min = getattr(params, 'lorentz_fit_freq_min', None)
     if (
-        getattr(params, 'plot_lorentz', False)
+        fitting
         and lorentz_freq_min is not None
     ):
         return lorentz_freq_min, "lorentz_fit_freq_min"
     return float(np.min(thz)), None
-
-
-def resolve_slice_output_path(params, lorentz=False):
-    """Return the output path for one single-q SED figure."""
-
-    q_index = params.qpoint_slice_index
-    if lorentz:
-        return str(OutputPaths.fitting_qpoint_figure(q_index))
-    if getattr(params, 'plot_partial_SED', False):
-        element = params.plot_partial_element
-        direction = params.plot_partial_dir or "xyz"
-        filename = (
-            f"SED_{element}_{direction}-{q_index}-qpoint.png"
-        )
-        return os.path.join(
-            params.out_files_name + '_partial_SED',
-            filename,
-        )
-    return f"SED-{q_index}-qpoint.png"
 
 
 def plot_bands(data, params):
@@ -187,10 +168,8 @@ def plot_bands(data, params):
 
     _print_color_scale(params, vmin, vmax)
 
-    """
-    Choose the plotting method based on the number of qpaths
-    Set yticks (This part of the code is redundant, maybe I will remove the params.num_qpaths == 1, for now just to better repeat the previous results.)
-    """
+    # Contour coordinates follow physical Q distances and frequencies;
+    # imshow uses pixel indices. Keep their coordinate handling distinct.
     if params.num_qpaths > 1 or params.use_contourf:
         levels = np.linspace(vmin, vmax, 350)
 
@@ -252,10 +231,7 @@ def plot_bands(data, params):
     ax.set_xticks(xticks)
     ax.set_xticklabels(xticklabels, fontsize=16)
 
-    """
-    Set yticks (This part of the code is redundant, maybe I will remove the params.num_qpaths == 1,
-     for now just to better repeat the previous results.)
-    """
+    # Map physical frequency labels to the selected renderer's coordinates.
     if params.num_qpaths > 1 or params.use_contourf:
         max_freq = params.plot_cutoff_freq if params.plot_cutoff_freq else thz.max()
         num_ticks = int(np.ceil(max_freq / df)) + 1
@@ -282,46 +258,15 @@ def plot_bands(data, params):
 
     ax.set_ylabel('Frequency (THz)', fontsize=16)
 
-    if getattr(params, 'plot_partial_SED', 0):
-        partial_dir = params.out_files_name + '_partial_SED'
-        os.makedirs(partial_dir, exist_ok=True)
-        element = params.plot_partial_element
-        dir_label = params.plot_partial_dir if params.plot_partial_dir else "xyz"
-        out_name = f"SED_{element}_{dir_label}.png"
-        plt.savefig(os.path.join(partial_dir, out_name), format='png', dpi=650, bbox_inches='tight')
-    else:
-        plt.savefig('{}-SED.png'.format(params.out_files_name), format='png', dpi=650, bbox_inches='tight')
+    output_path = OutputPaths.dispersion_figure(params)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(str(output_path), format='png', dpi=650, bbox_inches='tight')
 
     if params.if_show_figures:
         plt.show()
 
-def lorentzian(xarr, center, amplitude, hwhm):
-    return amplitude / (1 + ((xarr - center) / hwhm) ** 2)
-
-
-def velocity_dho(xarr, center, amplitude, hwhm):
-    """Evaluate the velocity-spectrum DHO used by the SED fitter."""
-
-    xarr = np.asarray(xarr, dtype=float)
-    damping_width = 2.0 * hwhm
-    numerator = amplitude * damping_width**2 * xarr**2
-    denominator = (
-        (xarr**2 - center**2) ** 2 + damping_width**2 * xarr**2
-    )
-    result = np.zeros_like(xarr)
-    np.divide(
-        numerator,
-        denominator,
-        out=result,
-        where=denominator > 0.0,
-    )
-    result[np.isclose(xarr, center) & np.isclose(denominator, 0.0)] = (
-        amplitude
-    )
-    return result
-
-
-def plot_slice(data, params):
+def plot_slice(data, params, fit_result=None):
+    """Plot a spectrum, optionally using the explicitly supplied peak fits."""
     # ******************** Get data ********************
     sed_avg = data.sed_avg
     qpoints = data.qpoints
@@ -333,7 +278,6 @@ def plot_slice(data, params):
     fig.set_size_inches(8, 4)
 
     # ******************** For saving different files ********************
-    save_flag = False
     # Plot
     alpha = 0.6
 
@@ -351,82 +295,47 @@ def plot_slice(data, params):
         zorder=5,
     )
 
-    # A standalone q-point slice does not have Lorentz-fit state.  The
-    # fitting workflow adds this runtime-only flag before requesting an
-    # overlay, so default to the original plain-SED behavior when absent.
-    if getattr(params, 'plot_lorentz', False):
-        save_flag = True
-        fit_clusters = getattr(params, 'lorentz_fit_clusters', None)
-        if fit_clusters is not None:
-            fit_styles = {
-                'lorentz': ('#45a65c', 'Lorentz peak fits'),
-                'dho': ('#7f7f7f', 'DHO peak fits'),
-            }
-            shown_models = set()
-            for fit in fit_clusters:
-                fit_model = fit.get('fitting_function', 'lorentz')
-                fit_color, fit_label = fit_styles[fit_model]
-                fit_frequency = np.asarray(fit['frequency'])
-                fitted_curve = np.asarray(fit['predicted'])
-                physical = fit_frequency >= 0.0
-                ax.semilogy(
-                    fit_frequency[physical],
-                    fitted_curve[physical],
-                    ls='-',
-                    lw=2.2,
-                    color=fit_color,
-                    alpha=0.8,
-                    label=(
-                        fit_label if fit_model not in shown_models else None
-                    ),
-                    zorder=7,
-                )
-                shown_models.add(fit_model)
-            if fit_clusters:
-                handles, labels = ax.get_legend_handles_labels()
-                by_label = dict(zip(labels, handles))
-                legend_labels = ['SED data']
-                for model in ('lorentz', 'dho'):
-                    label = fit_styles[model][1]
-                    if label in by_label:
-                        legend_labels.append(label)
-                ax.legend(
-                    [by_label[label] for label in legend_labels],
-                    legend_labels,
-                    fontsize=13,
-                    frameon=False,
-                    handlelength=2.8,
-                    labelspacing=0.6,
-                )
-        else:
-            # Backward-compatible overlay for callers that only provide popt.
-            total = np.zeros(len(sed_avg[:, q_index]))
-            for i in range(len(params.popt[:, 0])):
-                if params.popt[i, 2] == 0:
-                    continue
-                component = lorentzian(
-                    thz,
-                    params.popt[i, 0],
-                    params.popt[i, 1],
-                    params.popt[i, 2],
-                )
-                ax.semilogy(
-                    thz,
-                    component,
-                    ls='-',
-                    lw=1.5,
-                    color='C2',
-                    alpha=alpha,
-                )
-                total = total + component
-
+    if fit_result is not None:
+        peak_fits = fit_result.peak_fits
+        fit_styles = {
+            'lorentz': ('#45a65c', 'Lorentz peak fits'),
+            'dho': ('#7f7f7f', 'DHO peak fits'),
+        }
+        shown_models = set()
+        for fit in peak_fits:
+            fit_model = fit.get('fitting_function', 'lorentz')
+            fit_color, fit_label = fit_styles[fit_model]
+            fit_frequency = np.asarray(fit['frequency'])
+            fitted_curve = np.asarray(fit['predicted'])
+            physical = fit_frequency >= 0.0
             ax.semilogy(
-                thz,
-                total,
-                ls='--',
-                lw=1.5,
-                color='grey',
-                alpha=alpha + 0.2,
+                fit_frequency[physical],
+                fitted_curve[physical],
+                ls='-',
+                lw=2.2,
+                color=fit_color,
+                alpha=0.8,
+                label=(
+                    fit_label if fit_model not in shown_models else None
+                ),
+                zorder=7,
+            )
+            shown_models.add(fit_model)
+        if peak_fits:
+            handles, labels = ax.get_legend_handles_labels()
+            by_label = dict(zip(labels, handles))
+            legend_labels = ['SED data']
+            for model in ('lorentz', 'dho'):
+                label = fit_styles[model][1]
+                if label in by_label:
+                    legend_labels.append(label)
+            ax.legend(
+                [by_label[label] for label in legend_labels],
+                legend_labels,
+                fontsize=13,
+                frameon=False,
+                handlelength=2.8,
+                labelspacing=0.6,
             )
 
     # ******************** set the figure labels ********************
@@ -439,14 +348,11 @@ def plot_slice(data, params):
     fig.suptitle(r'$\mathbf{{q}}$ = ({0:.3f}, {1:.3f}, {2:.3f})'.format(qpoints[q_index, 0], qpoints[q_index, 1],
                                                                qpoints[q_index, 2]), y=0.95, fontsize=15)
 
-    min_frequency, _ = resolve_slice_frequency_start(thz, params)
-    max_frequency, _ = resolve_slice_frequency_limit(thz, params)
+    min_frequency, _ = resolve_slice_frequency_start(thz, params, fitting=fit_result is not None)
+    max_frequency, _ = resolve_slice_frequency_limit(thz, params, fitting=fit_result is not None)
     ax.set_xlim([min_frequency, max_frequency])
 
-    if getattr(params, 'plot_partial_SED', 0):
-        partial_dir = params.out_files_name + '_partial_SED'
-        os.makedirs(partial_dir, exist_ok=True)
-    output_path = resolve_slice_output_path(params, lorentz=save_flag)
+    output_path = str(OutputPaths.slice_figure(params, fitting=fit_result is not None))
     output_directory = os.path.dirname(output_path)
     if output_directory:
         os.makedirs(output_directory, exist_ok=True)

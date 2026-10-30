@@ -19,7 +19,7 @@ from pySED.io.trajectory import (
     NetCDFBlockSource,
     prefetch_one,
 )
-from pySED.sed.Phonon import spectral_energy_density
+from pySED.Phonon import spectral_energy_density
 from tests.io.test_text import GPUMD_TEXT, LAMMPS_TEXT
 
 NETCDF4_AVAILABLE = importlib.util.find_spec("netCDF4") is not None

@@ -9,12 +9,9 @@ from types import SimpleNamespace
 import numpy as np
 
 from pySED.parser import read_input
-from pySED.sed.FileIO import (
+from pySED.FileIO import write_phonon_lifetime
+from pySED.Lorentz import (
     hwhm_to_lifetime_ps,
-    write_phonon_lifetime,
-)
-from pySED.sed.Plot_SED import velocity_dho as plotted_velocity_dho
-from pySED.sed.Lorentz import (
     _find_sed_peaks,
     _fit_single_peak,
     _local_peak_bases,
@@ -203,15 +200,6 @@ class IndependentPeakFitTests(unittest.TestCase):
         np.testing.assert_allclose(
             _velocity_dho(half_max_frequencies, center, amplitude, hwhm),
             0.5 * amplitude,
-        )
-        np.testing.assert_allclose(
-            plotted_velocity_dho(
-                half_max_frequencies,
-                center,
-                amplitude,
-                hwhm,
-            ),
-            _velocity_dho(half_max_frequencies, center, amplitude, hwhm),
         )
         self.assertAlmostEqual(np.diff(half_max_frequencies)[0], 2.0 * hwhm)
 

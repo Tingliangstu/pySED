@@ -20,7 +20,7 @@ from copy import deepcopy
 from pathlib import Path
 from types import SimpleNamespace
 
-from pySED.parameters import common_params, methods, validate_common
+from pySED.parameters import PARAMETERS, validate_common, validate_sed
 
 
 LEGACY_PARAMETER_HINTS = {
@@ -88,52 +88,19 @@ def _read_entries(input_file):
     return entries
 
 
-def _select_method(entries):
-    """Read the method before choosing its parameter table.
-
-    Defaults to ``"sed"`` when no ``method = ...`` line is present,
-    matching the ``method`` parameter default in ``common_params``.
-    """
-
-    method = common_params["method"].default
-    for _, key, values in entries:
-        if key == "method":
-            method = values[0].strip("'\"").lower()
-
-    if method not in methods:
-        supported = ", ".join(methods)
-        raise ValueError(
-            f"unsupported method '{method}'; supported methods: {supported}"
-        )
-    return method
-
-
 def read_input(input_file="input.in"):
     """Parse an input file into a simple parameter namespace."""
 
     input_path = Path(input_file).expanduser().resolve()
     entries = _read_entries(input_path)
-    method = _select_method(entries)
-    method_config = methods[method]
-    repeated_names = set(common_params) & set(method_config["parameters"])
-    if repeated_names:
-        names = ", ".join(sorted(repeated_names))
-        raise RuntimeError(
-            "parameters are defined as both common and method-specific: "
-            f"{names}"
-        )
-    parameter_table = {
-        **common_params,
-        **method_config["parameters"],
-    }
     defaults = {
         key: deepcopy(parameter.default)
-        for key, parameter in parameter_table.items()
+        for key, parameter in PARAMETERS.items()
     }
     params = SimpleNamespace(input_file=str(input_path), **defaults)
 
     for line_number, key, values in entries:
-        parameter = parameter_table.get(key)
+        parameter = PARAMETERS.get(key)
         if parameter is None:
             if key in LEGACY_PARAMETER_HINTS:
                 raise ValueError(
@@ -142,7 +109,7 @@ def read_input(input_file="input.in"):
                 )
             raise ValueError(
                 f"{input_path}:{line_number}: parameter '{key}' is not "
-                f"valid for method '{method}'"
+                "valid for pySED"
             )
 
         try:
@@ -154,8 +121,6 @@ def read_input(input_file="input.in"):
         setattr(params, key, value)
 
     for key in ("trajectory_file", "basis_lattice_file"):
-        if not hasattr(params, key):
-            continue
         path = Path(getattr(params, key)).expanduser()
         if not path.is_absolute():
             path = input_path.parent / path
@@ -163,7 +128,7 @@ def read_input(input_file="input.in"):
 
     try:
         validate_common(params)
-        method_config["validate"](params)
+        validate_sed(params)
     except ValueError as error:
         raise ValueError(f"{input_path}: {error}") from error
 

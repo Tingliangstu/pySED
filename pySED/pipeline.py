@@ -17,12 +17,13 @@
 """
 pySED pipeline — thinking-mode workflow with auto-detect progress.
 
-Each step checks whether its output already exists before running.
-thinking mode chains all needed steps; individual actions force one step.
+Thinking mode selects the next needed stage from existing output files.
+Explicit actions run the requested stage without an automatic skip.
 """
 import os
 import sys
 import time
+from copy import copy
 from pathlib import Path
 
 import numpy as np
@@ -32,7 +33,7 @@ from pySED.io.prepare import prepare_trajectory
 from pySED.io.schema import CELLS
 from pySED.io.trajectory import prefetch_one, trajectory_block_source
 from pySED.parameters import validate_qpoint_slice_index
-from pySED.sed import (
+from pySED import (
     FileIO,
     Lorentz,
     OutputPaths,
@@ -45,31 +46,18 @@ _FIT_BLOCK_SEPARATOR = "  " + "-" * 58
 
 # ── step detectors ──────────────────────────────────────────────
 
-def _sed_ready(params):
-    return os.path.exists(params.out_files_name + ".SED")
-
-
-def _qpts_ready(params):
-    return os.path.exists(params.out_files_name + ".Qpts")
-
-
-def _thz_ready(params):
-    return os.path.exists(params.out_files_name + ".THz")
-
-
 def _plot_data_ready(params):
-    return _sed_ready(params) and _qpts_ready(params) and _thz_ready(params)
+    return all(
+        path.is_file()
+        for path in OutputPaths.sed_data_files(params.out_files_name)
+    )
 
 
 def _require_plot_data(params):
     """Raise a user-facing error when plot/fit prerequisites are missing."""
 
-    required = (
-        params.out_files_name + ".SED",
-        params.out_files_name + ".Qpts",
-        params.out_files_name + ".THz",
-    )
-    missing = [path for path in required if not os.path.isfile(path)]
+    required = OutputPaths.sed_data_files(params.out_files_name)
+    missing = [str(path) for path in required if not path.is_file()]
     if missing:
         raise FileNotFoundError(
             "SED output is incomplete; run action = compute first. Missing: "
@@ -77,42 +65,14 @@ def _require_plot_data(params):
         )
 
 
-def _dispersion_plot_path(params):
-    """Return the dispersion image produced by the current plot selection."""
-
-    if getattr(params, "plot_partial_SED", False):
-        direction = params.plot_partial_dir or "xyz"
-        return (
-            Path(params.out_files_name + "_partial_SED")
-            / f"SED_{params.plot_partial_element}_{direction}.png"
-        )
-    return Path(params.out_files_name + "-SED.png")
-
-
-def _slice_plot_path(params):
-    """Return the plain single-q image produced by the plot action."""
-
-    q_index = params.qpoint_slice_index
-    if getattr(params, "plot_partial_SED", False):
-        direction = params.plot_partial_dir or "xyz"
-        return (
-            Path(params.out_files_name + "_partial_SED")
-            / (
-                f"SED_{params.plot_partial_element}_{direction}-"
-                f"{q_index}-qpoint.png"
-            )
-        )
-    return Path(f"SED-{q_index}-qpoint.png")
-
-
 def _plot_ready(params):
     """Return whether the images requested by the current input exist."""
 
-    if not _dispersion_plot_path(params).is_file():
+    if not OutputPaths.dispersion_figure(params).is_file():
         return False
     return (
         not getattr(params, "plot_slice", False)
-        or _slice_plot_path(params).is_file()
+        or OutputPaths.slice_figure(params).is_file()
     )
 
 
@@ -217,7 +177,7 @@ def step_compute_sed(params):
         )
         calculation_done = time.perf_counter()
 
-    # Some parallel workers may leave dangling imports; silence them
+    # Flush calculation progress before reporting output files.
     sys.stdout.flush()
 
     FileIO.write_output(sed, params, BZ_info)
@@ -282,12 +242,23 @@ def step_plot_sed(params):
     print("\n  OK SED plotting complete")
 
 
+def _fit_one_qpoint(data, params):
+    """Keep fitting, file output, and plotting as three explicit operations."""
+    fit_result = Lorentz.lorentz(data, params)
+    lifetime_file = FileIO.write_phonon_lifetime(fit_result, params)
+    Plot_SED.plot_slice(data, params, fit_result=fit_result)
+    print(f"      Fit figure           : {OutputPaths.slice_figure(params, fitting=True)}")
+    print(f"\n  [OK] Lifetime data written: {lifetime_file}")
+    return fit_result
+
+
 def step_fit_sed(params):
     """Fit SED peaks and write linewidth-derived lifetimes."""
     _require_plot_data(params)
+    lifetime_figure = None
+    lifetime_figure_action = "written"
 
     if params.lorentz_fit_all_qpoint:
-        # plot first (needed for fitting context)
         print("  >> Fitting spectral peaks at all Q-points ...")
         data = FileIO.load_data(params)
         total_qpoints = len(data.q_distances)
@@ -299,14 +270,13 @@ def step_fit_sed(params):
                 f"  >> Fitting Q-point #{j} "
                 f"({j + 1}/{total_qpoints}) ..."
             )
-            params.qpoint_slice_index = j
-            params.if_show_figures = False
-            params.plot_lorentz = False
-            data_reload = FileIO.load_data(params)
-            fit_result = Lorentz.lorentz(data_reload, params)
+            q_params = copy(params)
+            q_params.qpoint_slice_index = j
+            q_params.if_show_figures = False
+            fit_result = _fit_one_qpoint(data, q_params)
             incomplete_peaks = [
                 int(result["peak_number"])
-                for result in fit_result.fit_clusters
+                for result in fit_result.peak_fits
                 if result["incomplete_peak_shapes"][0]
             ]
             if incomplete_peaks:
@@ -316,7 +286,6 @@ def step_fit_sed(params):
             params,
             total_qpoints,
         )
-        lifetime_figure = None
         if total_modes:
             frequency, lifetime = FileIO.read_lifetime_data(total_file)
             lifetime_figure = Plot_SED.plot_lifetime_summary(
@@ -324,7 +293,6 @@ def step_fit_sed(params):
                 lifetime,
                 params,
             )
-            params.lifetime_figure_output = lifetime_figure
         print("\n  >> All-Q fitting summary")
         print(f"      {'Q-points processed':<20}: {total_qpoints}")
         print(f"      {'Fitted modes':<20}: {total_modes}")
@@ -375,13 +343,12 @@ def step_fit_sed(params):
         print(f"  >> Fitting Q-point #{params.qpoint_slice_index} ...")
         data = FileIO.load_data(params)
         validate_qpoint_slice_index(params, data.qpoints)
-        Lorentz.lorentz(data, params)
+        _fit_one_qpoint(data, params)
         if getattr(params, "re_output_total_freq_lifetime", False):
             total_file, total_modes = FileIO.deal_total_fre_lifetime(
                 params,
                 len(data.q_distances),
             )
-            lifetime_figure = None
             if total_modes:
                 frequency, lifetime = FileIO.read_lifetime_data(total_file)
                 lifetime_figure = Plot_SED.plot_lifetime_summary(
@@ -389,42 +356,35 @@ def step_fit_sed(params):
                     lifetime,
                     params,
                 )
-                params.lifetime_figure_output = lifetime_figure
-                params.lifetime_figure_action = "redrawn"
+                lifetime_figure_action = "redrawn"
             print(
                 "  OK Combined lifetime data rebuilt -> "
                 f"{total_file} ({total_modes} modes)"
             )
         print("\n  OK Single-Q spectral fit done")
 
+    if lifetime_figure is not None:
+        print(
+            f"\n  Lifetime figure {lifetime_figure_action}: {lifetime_figure}"
+        )
 
-# ── step registry ───────────────────────────────────────────────
-
-STEP_MAP = {
-    "sed": {
-        "compute":  step_compute_sed,
-        "plot":     step_plot_sed,
-        "fit":      step_fit_sed,
-    },
-}
-
-
-# ── pipeline ────────────────────────────────────────────────────
 
 def run(params):
-    """Execute the requested action for the given method."""
+    """Run one action in the SED-only workflow."""
 
-    params.lifetime_figure_output = None
-    params.lifetime_figure_action = "written"
     method = getattr(params, "method", "sed")
     action = getattr(params, "action", "thinking")
 
-    if method not in STEP_MAP:
+    if method != "sed":
         raise ValueError(
             f"unknown method '{method}'; the supported method is 'sed'"
         )
 
-    steps = STEP_MAP[method]
+    steps = {
+        "compute": step_compute_sed,
+        "plot": step_plot_sed,
+        "fit": step_fit_sed,
+    }
     if action not in steps and action != "thinking":
         supported = ", ".join(("thinking", *steps))
         raise ValueError(
@@ -438,16 +398,6 @@ def run(params):
         # ── explicit action ──
         steps[action](params)
 
-    lifetime_figure = getattr(params, "lifetime_figure_output", None)
-    if lifetime_figure is not None:
-        figure_action = getattr(
-            params,
-            "lifetime_figure_action",
-            "written",
-        )
-        print(
-            f"\n  Lifetime figure {figure_action}: {lifetime_figure}"
-        )
     print("\n  OK pySED task finished successfully.\n")
 
 
@@ -471,7 +421,7 @@ def _run_thinking(params, steps):
         return
 
     print("  OK All steps already complete!")
-    print("      Trajectory, .SED, plot, and fit data all exist.")
+    print("      SED data, requested plots, and lifetime data all exist.")
     print("      To replot, use action = plot.")
     print("      To compute, use action = compute.")
     print("      To fit, use action = fit.")

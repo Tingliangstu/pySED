@@ -4,26 +4,35 @@ import importlib.util
 import unittest
 from concurrent.futures import ProcessPoolExecutor
 from contextlib import redirect_stdout
+from functools import partial
 from io import StringIO
 from types import SimpleNamespace
 
 import numpy as np
 from scipy.fftpack import fft
 
-from pySED.sed.Phonon import (
+from pySED.Phonon import _element_symbol_from_mass, spectral_energy_density
+from pySED.sed_kernel import (
     JOULE_PER_EV,
     JOULE_SECOND_TO_EV_PER_THZ,
-    _calculate_q_batch,
+    calculate_q_batch,
+    SEDKernelConfig,
+)
+from pySED.backends.cpu import (
     _compute_shared_q_batch,
-    _element_symbol_from_mass,
-    _estimate_kernel_working_bytes,
-    _GPUEventProfiler,
     _initialize_cpu_worker,
-    _load_cupy,
-    _qpoint_batches,
-    _SEDKernelConfig,
     _share_numpy_array,
-    spectral_energy_density,
+)
+from pySED.backends.gpu import (
+    GPUBackend,
+    _GPUEventProfiler,
+    _load_cupy,
+)
+from pySED.backends.common import (
+    estimate_kernel_working_bytes,
+    qpoint_batches,
+    print_cpu_memory_estimate,
+    print_qpoints,
 )
 
 
@@ -79,7 +88,7 @@ class SEDKernelTests(unittest.TestCase):
     def _config(self, output_partial):
         """Build the small immutable config used by all execution paths."""
 
-        return _SEDKernelConfig(
+        return SEDKernelConfig(
             basis_ids=self.basis_ids,
             masses=np.array([28.085, 15.999]),
             basis_to_type=(1, 0),
@@ -93,7 +102,7 @@ class SEDKernelTests(unittest.TestCase):
         """The batched total SED must match the old Q-by-Q loop."""
 
         config = self._config(output_partial=False)
-        actual = _calculate_q_batch(
+        actual = calculate_q_batch(
             self.vels,
             self.cell_vecs,
             config.qpoints,
@@ -111,7 +120,7 @@ class SEDKernelTests(unittest.TestCase):
         """Partial output must retain independent atom-type and xyz axes."""
 
         config = self._config(output_partial=True)
-        actual = _calculate_q_batch(
+        actual = calculate_q_batch(
             self.vels,
             self.cell_vecs,
             config.qpoints,
@@ -131,7 +140,7 @@ class SEDKernelTests(unittest.TestCase):
 
         for num_qpoints in (20, 40):
             for num_workers in (4, 36):
-                batches = _qpoint_batches(num_qpoints, num_workers)
+                batches = qpoint_batches(num_qpoints, num_workers)
                 flattened = [
                     q_index
                     for start, stop in batches
@@ -148,13 +157,12 @@ class SEDKernelTests(unittest.TestCase):
     def test_qpoint_progress_keeps_original_output_style(self):
         """Internal batching must not change the visible per-Q progress text."""
 
-        calculator = object.__new__(spectral_energy_density)
-        calculator.reduced_qpoints = np.array(
+        reduced_qpoints = np.array(
             [[0.0, 0.25, 0.5], [0.5, 0.25, 0.0]]
         )
         output = StringIO()
         with redirect_stdout(output):
-            calculator._print_qpoints(0, 2, 2)
+            print_qpoints(reduced_qpoints, 0, 2)
 
         self.assertEqual(
             output.getvalue(),
@@ -167,8 +175,7 @@ class SEDKernelTests(unittest.TestCase):
     def test_gpu_timing_places_other_work_below_the_six_row_sum(self):
         """The complete timing reconciliation should read as one table."""
 
-        calculator = object.__new__(spectral_energy_density)
-        calculator._gpu_timings = {"trajectory": 2.0}
+        calculator = object.__new__(GPUBackend)
         calculator._gpu_event_profiler = SimpleNamespace(
             elapsed_seconds=lambda: {
                 "compute": 3.0,
@@ -182,7 +189,7 @@ class SEDKernelTests(unittest.TestCase):
 
         output = StringIO()
         with redirect_stdout(output):
-            calculator._print_gpu_timing_profile(total_elapsed=6.5)
+            calculator.report(total_elapsed=6.5, trajectory_wait=2.0)
 
         lines = output.getvalue().splitlines()
         sum_index = next(
@@ -205,6 +212,9 @@ class SEDKernelTests(unittest.TestCase):
             def __init__(self):
                 self.fft = SimpleNamespace(fft=fft)
                 self.transfer_count = 0
+                self.cuda = SimpleNamespace(
+                    runtime=SimpleNamespace(memGetInfo=lambda: (10**12, 10**12)),
+                )
 
             def __getattr__(self, name):
                 return getattr(np, name)
@@ -214,7 +224,7 @@ class SEDKernelTests(unittest.TestCase):
                 return np.asarray(values)
 
         config = self._config(output_partial=True)
-        expected = _calculate_q_batch(
+        expected = calculate_q_batch(
             self.vels,
             self.cell_vecs,
             config.qpoints,
@@ -224,23 +234,23 @@ class SEDKernelTests(unittest.TestCase):
 
         for batch_size in (3, len(config.qpoints)):
             adapter = NumPyGPUAdapter()
-            calculator = object.__new__(spectral_energy_density)
+            calculator = GPUBackend(config, config.qpoints)
             calculator._cupy = adapter
             calculator._gpu_basis_ids = config.basis_ids
             calculator._gpu_qpoints = config.qpoints
             calculator._gpu_q_batch_size = batch_size
-            calculator.qdot = np.zeros_like(expected)
-            calculator._print_qpoints = lambda *args: None
-
-            calculator._compute_qpoints_gpu(
-                self.vels,
-                self.cell_vecs,
-                config,
+            calculator._gpu_event_profiler = SimpleNamespace(
+                start=lambda: None,
+                stop=lambda *args: None,
+                measure=lambda stage, operation, *args, **kwargs: operation(*args, **kwargs),
             )
+            result = np.zeros_like(expected)
+            with redirect_stdout(StringIO()):
+                calculator.compute(self.vels, self.cell_vecs, result)
 
             self.assertEqual(adapter.transfer_count, 1)
             np.testing.assert_allclose(
-                calculator.qdot,
+                result,
                 expected,
                 rtol=1e-13,
             )
@@ -252,17 +262,17 @@ class SEDKernelTests(unittest.TestCase):
         runtime = SimpleNamespace(
             memGetInfo=lambda: (10**12, 10**12),
         )
-        calculator = object.__new__(spectral_energy_density)
+        calculator = GPUBackend(config, config.qpoints)
         calculator._cupy = SimpleNamespace(
             cuda=SimpleNamespace(runtime=runtime),
         )
-        calculator.qdot = np.zeros((8, 7, 2, 3))
+        result = np.zeros((8, 7, 2, 3))
 
         with redirect_stdout(StringIO()):
             calculator._check_gpu_memory(
                 self.vels,
                 self.cell_vecs,
-                config,
+                result,
             )
 
         self.assertEqual(calculator._gpu_q_batch_size, 7)
@@ -277,24 +287,22 @@ class SEDKernelTests(unittest.TestCase):
         """The CPU estimate should use block arrays and keep cute output."""
 
         config = self._config(output_partial=False)
-        working_bytes = _estimate_kernel_working_bytes(
+        working_bytes = estimate_kernel_working_bytes(
             self.vels,
             config,
             max_q_batch=4,
         )
         self.assertGreater(working_bytes, 0)
 
-        calculator = object.__new__(spectral_energy_density)
-        calculator.backend = "numpy"
-        calculator._sed_sum = np.zeros((8, 7))
-        calculator.qdot = np.zeros((8, 7))
         output = StringIO()
         with redirect_stdout(output):
-            calculator._print_cpu_memory_estimate(
+            print_cpu_memory_estimate(
                 self.vels,
                 self.cell_vecs,
                 config,
-                executor=None,
+                np.zeros((8, 7)),
+                np.zeros((8, 7)),
+                backend="numpy",
                 num_workers=1,
             )
         self.assertIn(
@@ -370,27 +378,19 @@ class SEDKernelTests(unittest.TestCase):
     def test_block_scaling_includes_discrete_time_step_squared(self):
         """The FFT sum must include dt twice after taking its magnitude squared."""
 
-        config = self._config(output_partial=False)
         calculator = object.__new__(spectral_energy_density)
         calculator.dt = 2.0
         calculator.t_o = 8.0
         calculator.num_unit_cells = 3
         calculator.num_blocks = 1
         calculator._sed_sum = np.zeros((8, 7))
-        calculator._allocate_qdot = lambda num_qpoints: setattr(
-            calculator,
-            "qdot",
-            np.ones((8, num_qpoints)),
+        calculator.trajectory_prefetch = False
+        backend = SimpleNamespace(
+            prepare=lambda *args, **kwargs: None,
+            compute=lambda vels, cells, result: result.fill(1.0),
         )
-        calculator._print_cpu_memory_estimate = lambda *args: None
-        calculator._loop_over_qpoints = lambda *args: None
-
-        lattice = SimpleNamespace(num_qpoints=7)
         calculator._loop_over_blocks(
-            lattice_info=lattice,
-            kernel_config=config,
-            executor=None,
-            num_workers=1,
+            backend=backend,
             trajectory_blocks=[(self.vels, self.cell_vecs)],
         )
 
@@ -414,7 +414,7 @@ class SEDKernelTests(unittest.TestCase):
         try:
             for scale in (1.0, 2.0):
                 block_vels = self.vels * scale
-                expected = _calculate_q_batch(
+                expected = calculate_q_batch(
                     block_vels,
                     self.cell_vecs,
                     config.qpoints,
@@ -435,7 +435,7 @@ class SEDKernelTests(unittest.TestCase):
                             start,
                             stop,
                         )
-                        for start, stop in _qpoint_batches(7, 2)
+                        for start, stop in qpoint_batches(7, 2)
                     ]
                     for future in futures:
                         start, stop, values = future.result()
@@ -458,7 +458,7 @@ class SEDKernelTests(unittest.TestCase):
             self.skipTest(str(error))
 
         config = self._config(output_partial=True)
-        expected = _calculate_q_batch(
+        expected = calculate_q_batch(
             self.vels,
             self.cell_vecs,
             config.qpoints,
@@ -466,15 +466,15 @@ class SEDKernelTests(unittest.TestCase):
             config,
         )
         profiler = _GPUEventProfiler(cp)
-        actual = _calculate_q_batch(
+        actual = calculate_q_batch(
             cp.asarray(self.vels),
             cp.asarray(self.cell_vecs),
             cp.asarray(config.qpoints),
             tuple(cp.asarray(ids) for ids in config.basis_ids),
             config,
             xp=cp,
-            fft_function=cp.fft.fft,
-            gpu_profiler=profiler,
+            fft_function=partial(profiler.measure, "fft", cp.fft.fft),
+            project_function=partial(profiler.measure, "projection", cp.tensordot),
         )
         event_times = profiler.elapsed_seconds()
         np.testing.assert_allclose(

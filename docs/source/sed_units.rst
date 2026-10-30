@@ -14,9 +14,11 @@ in eV/THz. The corresponding ``<prefix>.THz`` values are ordinary frequency
 in THz, so integrating a spectrum over THz gives energy in eV.
 
 The discrete Fourier transform includes the squared sample spacing
-``dt**2``. Negative-frequency energy is folded into the positive-frequency
-spectrum, with DC and the Nyquist bin counted once. This makes the one-sided
-normalization energy preserving.
+``dt**2``. Each retained positive-frequency bin includes its negative-frequency
+partner, while DC is counted once. The current frequency grid retains FFT
+indices from zero through ``N // 2 - 1`` for a block of ``N`` frames; for
+even-length blocks, the Nyquist bin is excluded. This convention is unchanged
+by the architectural refactor.
 
 Display conventions
 -------------------

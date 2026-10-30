@@ -48,6 +48,27 @@ and `experiment` must therefore not become pySED 3.0 public interfaces.
 
 ## Future synchronization procedure
 
+### Implementation layout
+
+pySED keeps SED analysis modules directly under `pySED/`, without an
+additional `sed/` package. MDtrace's `sed/Phonon.py` now maps to:
+
+- `pySED/Phonon.py`: basis metadata and time-block orchestration;
+- `pySED/sed_kernel.py`: projection, FFT power, and normalization;
+- `pySED/backends/cpu.py` and `gpu.py`: execution and resource ownership.
+
+The other analysis modules (`construct_BZ.py`, `FileIO.py`, `Lorentz.py`,
+`Plot_SED.py`, and `OutputPaths.py`) also live at the pySED package root.
+`Lorentz.py` returns fitting results without writing or plotting; the
+pipeline passes these results to the writer and plotter explicitly.
+`OutputPaths.py` owns output naming, and `parameters.py` has one SED-only
+parameter table. Preserve these boundaries when porting upstream changes.
+Port changes to the responsible module instead of replacing the split files
+with an upstream monolith. This reorganization does not update the recorded
+MDtrace source snapshot or change the 3.0 numerical conventions.
+
+### Synchronization checks
+
 1. Record the new MDtrace branch and full commit hash before inspecting local
    modifications. Keep the MDtrace worktree read-only.
 2. Compare SED behavior and tests against the previous snapshot. Ignore the

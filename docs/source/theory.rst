@@ -172,7 +172,7 @@ Allowed Wave Vectors
 In periodic systems, only wave vectors commensurate with the MD supercell are
 allowed. pySED follows the same commensurate-supercell q-point idea used in
 dynasor 2 [Dynasor2025]_, and the implementation in
-``pySED/sed/construct_BZ.py``
+``pySED/construct_BZ.py``
 credits dynasor's lattice helper as the reference for this path construction.
 For a one-dimensional direction, the Born-von Karman boundary condition gives
 
