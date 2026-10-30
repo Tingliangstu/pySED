@@ -14,11 +14,11 @@ setup(
     name="pySED",
     version=VERSION["__version__"],
     description=(
-        "Spectral energy density analysis for molecular-dynamics trajectories"
+        "To implement the SED method in 2010, phonon lifetime can be calculated"
     ),
     long_description=(ROOT / "README.md").read_text(encoding="utf-8"),
     long_description_content_type="text/markdown",
-    author="Ting Liang",
+    author="Liang Ting",
     author_email="liangting.zj@gmail.com",
     url="https://github.com/Tingliangstu/pySED",
     project_urls={
