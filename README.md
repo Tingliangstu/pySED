@@ -1,127 +1,134 @@
 [![Documentation Status](https://readthedocs.org/projects/pysed/badge/?version=latest)](https://pysed.readthedocs.io/en/latest/)
-[![CI](https://github.com/Tingliangstu/pySED/actions/workflows/ci.yml/badge.svg)](https://github.com/Tingliangstu/pySED/actions/workflows/ci.yml)
+![pySED Logo](https://github.com/Tingliangstu/pySED/blob/main/docs/source/_static/logo.png)
 
 # pySED
 
-pySED calculates kinetic-energy-weighted phonon spectral energy density (SED),
-phonon dispersion, linewidths, and lifetimes from molecular-dynamics
-trajectories.
+**To implement the [phonon SED (spectral energy desity) method in 2010](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.81.081411), phonon lifetime can be easily calculated.** 
 
-Version 3.0 is a breaking upgrade. It provides one validated SED workflow for
-GPUMD extended XYZ, LAMMPS custom dumps, and NetCDF trajectories, with direct
-streaming or a reusable `.pysed.nc` cache.
+## Main features
 
-## Highlights
+- Output a very nice SED image 
+- Using Lorentz to fitting the SED peak 
+- Fit all peaks at once and output phonon lifetimes, or can fit them individually
+- Phonon lifetime can only be obtained qualitatively
+- Can be used in parallel and get SED results quickly
+- Can interface with [GPUMD](https://github.com/brucefan1983/GPUMD?tab=readme-ov-file) and [LAMMPS](https://www.lammps.org/#gsc.tab=0), capable of capturing quantum dynamics.
 
-- NumPy execution on one or more CPU processes, with shared-memory block
-  processing and optional trajectory prefetch.
-- Optional CuPy execution on a single NVIDIA GPU.
-- Total and element/direction-resolved SED in eV/THz.
-- Exact fractional q paths, including values such as `7/15` and `-17/31`.
-- Dispersion and single-q plots with linear or logarithmic controls.
-- Significance-based peak detection and Lorentz, velocity-DHO, or automatic
-  AICc-selected fitting.
-- Per-q-point and combined frequency/lifetime outputs.
-- Local-group q grids through `dump_group_supercell`.
+## Installation instructions
 
-## Installation
-
-pySED 3.0 requires Python 3.10 or newer.
-
+1)  Download by git or from [source code](https://github.com/Tingliangstu/pySED). **Installing from source is highly recommended, as it is frequently maintained**.
 ```bash
 git clone https://github.com/Tingliangstu/pySED.git
+```
+2) Install
+```bash
 cd pySED
-python -m pip install .
+pip install .
+```
+  or one can use:
+```bash
+python setup.py install --user --prefix=
+```
+
+For convenience, you may want to copy (or link) the files inside scripts folder to a location included in $PATH environment variable.
+
+3) If one prefers a one-line installation without cloning manually:
+```bash
+pip install git+https://github.com/Tingliangstu/pySED.git
+```
+
+4) Verify installation
+```bash
 pySED -h
 ```
-
-For development:
-
+  or
 ```bash
-python -m pip install -e ".[test]"
-python -m pytest -q
+pysed -h
 ```
+This means that `pySED` or `pysed` can be run directly from the command line.
+You can always use the `-h` flag to explore available options and understand how to prepare input files for `pySED`.
 
-CuPy is optional and is deliberately not installed automatically. Install the
-CuPy wheel that matches the CUDA runtime on the target machine, then set
-`backend = cupy`.
+## Citations
 
-## Quick start
+| Reference             | Cite for what?                    |
+| --------------------- | --------------------------------- |
+| [1]                   | for any work that used `pySED`    |
+| [2]                   | fundamental theory on phonon SED |
 
-Create `input.in` in the analysis directory. A minimal computation contains
-the trajectory sampling information, structure, and q path:
+## References
 
-```text
-method = sed
-action = thinking
-backend = numpy
+[1] Ting Liang, Wenwu Jiang, Ke Xu, Hekai Bu, Zheyong Fan, Wengen Ouyang, Jianbin Xu, [PYSED: A tool for extracting kinetic-energy-weighted phonon dispersion and lifetime from molecular dynamics simulations](https://doi.org/10.1063/5.0278798). J. Appl. Phys. **138**, 075101 (2025).
 
-trajectory_file = trajectory.dump
-trajectory_read_mode = cache
-trajectory_prefetch = 1
-lammps_unit = metal
+[2] J. A. Thomas, J. E. Turney, R. M. Iutzi, C. H. Amon, A. J. H. McGaughey, [Predicting phonon dispersion relations and lifetimes from the spectral energy density](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.81.081411), Phys. Rev. B **81**, 081411 (2010).
+	
+## Publications using pySED
 
-num_atoms = 512
-total_num_steps = 100000
-time_step = 1.0
-output_data_stride = 20
-num_blocks = 5
+Representative publications that use `pySED` are listed below:
 
-basis_lattice_file = basis.in
-prim_unitcell = 5.43 0 0  0 5.43 0  0 0 5.43
-supercell_dim = 8 8 8
-num_qpaths = 1
-q_path_name = GX
-q_path = 0 0 0  1/2 0 0
+- Fuwei Yang, Wenjiang Zhou, Yelingyi Wang, Yuxi Wang, Deli Peng, Quanshui Zheng, Bai Song, [Moving Heterointerface with Robustly High Thermal Conductance](https://doi.org/10.1103/yzn5-723b), Physical Review X, **16**, 041005 (2026).
+- Ziyang Wang, Bingqi Linghui, Donghao Li, Jie Zhu, Dawei Tang, [Systematic investigation of interfacial heat transport at Metal/GaN interfaces: Experimental and simulation validation](https://doi.org/10.1016/j.ijheatmasstransfer.2026.128564), International Journal of Heat and Mass Transfer, **261**, 128564 (2026).
+- Jincheng Yue, Rongkun Chen, Xinkai Sun, Yinong Liu, Xiaolong Li, Shiqian Hu, [Phonon overdamping defines the ultimate limit of lattice thermal conductivity](https://doi.org/10.1103/jhfd-vzjy), Physical Review B, **113**, L161401 (2026).
+- Xinyuan Ma, Peng-Hu Du, Chenxin Zhang, Qing Zhang, Qian Wang, [Ultralow and Twist-Tolerant Thermal Conductivity in Two-Dimensional Pentagonal Covalent Organic Frameworks](https://doi.org/10.1021/acsnano.5c12577), ACS Nano, **20**, 349 (2026).
+- Ke Li, Hao Ma, [Decoding the thermal conductivity of ionic covalent organic frameworks: Optical phonons as key determinants revealed by neuroevolution potential](https://doi.org/10.1016/j.mtphys.2025.101724), Materials Today Physics, **54**, 101724 (2025).
+- Wenwu Jiang, Ting Liang, Hekai Bu, Jianbin Xu, Wengen Ouyang, [Moiré-Driven Interfacial Thermal Transport in Twisted Transition Metal Dichalcogenides](https://doi.org/10.1021/acsnano.4c12148), ACS Nano, **19**, 16287 (2025).
 
-out_files_name = Silicon
-```
+For the complete list, please visit the [publications page](https://github.com/Tingliangstu/pySED/tree/main/publications).
 
-Then run:
 
-```bash
-pySED input.in
-```
+## Usage
 
-`action = thinking` advances through compute, plot, and fit according to the
-outputs that already exist. The stages can also be selected explicitly with
-`action = compute`, `action = plot`, or `action = fit`.
+The [example files](https://github.com/Tingliangstu/pySED/tree/main/example) have so many case provided to show how to use **pySED**. 
+If you can successfully reproduce these cases, you are ready to apply `pySED` to your own research systems.  
 
-The [online manual](https://pysed.readthedocs.io/en/latest/) contains the full
-45-parameter reference, trajectory formats, units, output files, fitting
-workflow, troubleshooting guide, and v2.4-to-v3 migration table. Runnable
-inputs are under [`example/`](https://github.com/Tingliangstu/pySED/tree/main/example).
-Outputs from pySED 2.4 are retained only as labelled historical artifacts
-under `example/legacy/pySED-2.4/`.
+Users can always use the `pysed -h` flag to explore available options and understand how to prepare input files for pySED.
 
-For maintaining the code, see the
-[architecture and reading guide](docs/source/code_architecture.rst):
-`Phonon.py` describes the block workflow, `sed_kernel.py` holds the formulas,
-and `backends/` owns CPU/GPU execution resources.
+We also strongly encourage readers to browse through the [pySED paper](https://doi.org/10.1063/5.0278798), 
+as it contains a wealth of details that can greatly aid in understanding both the theoretical foundations 
+and the practical aspects of the SED methods it presents.
 
-## Citation
 
-If pySED contributes to published work, please cite:
+**Online manual** [https://pysed.readthedocs.io](https://pysed.readthedocs.io/en/latest/) includes the `input_SED.in` parameter guide, quick-start workflow, examples, theory notes, and practical tips for preparing SED calculations.
 
-Ting Liang, Wenwu Jiang, Ke Xu, Hekai Bu, Zheyong Fan, Wengen Ouyang, and
-Jianbin Xu, “PYSED: A tool for extracting kinetic-energy-weighted phonon
-dispersion and lifetime from molecular dynamics simulations,” *Journal of
-Applied Physics* **138**, 075101 (2025),
-[doi:10.1063/5.0278798](https://doi.org/10.1063/5.0278798).
 
-For the underlying SED method, see J. A. Thomas et al., *Physical Review B*
-**81**, 081411 (2010),
-[doi:10.1103/PhysRevB.81.081411](https://doi.org/10.1103/PhysRevB.81.081411).
+### 1D Systems
+- **Example**: Carbon Nanotube (CNT)  
+- Purpose: Learn how to set up and analyze SED for **one-dimensional materials**.  
 
-Additional publications using pySED are listed in
-[`publications/`](https://github.com/Tingliangstu/pySED/tree/main/publications).
+[CNT Example Folder](https://github.com/Tingliangstu/pySED/tree/main/example/CNT)  
+<p align="center">
+  <img src="https://github.com/Tingliangstu/pySED/blob/main/example/CNT/SED/CNT-SED.svg" alt="CNT SED" width="500">
+</p>
 
-## License and contact
+### 2D Systems
+- **Examples**:  
+  - In-plane Graphene
+  - [Out-of-plane MoS<sub>2</sub>](https://github.com/Tingliangstu/pySED/tree/main/example/MoS2_gpumd)
+- Purpose: Learn how to analyze SED for **two-dimensional materials**.  
 
-pySED 3.0 and later are licensed under
-`GPL-3.0-or-later`; see [`LICENSE`](LICENSE). Cross-project synchronization
-provenance is recorded in [`SYNCING.md`](SYNCING.md).
+[Graphene Example Folder](https://github.com/Tingliangstu/pySED/tree/main/example/In_plane_graphene_gpumd)  
+<p align="center">
+  <img src="https://github.com/Tingliangstu/pySED/blob/main/example/In_plane_graphene_gpumd/SED/compare_LD/Graphene.png" alt="Graphene SED" width="500">
+</p>
 
-Questions and bug reports are welcome through
-[GitHub Issues](https://github.com/Tingliangstu/pySED/issues) or by email at
-liangting.zj@gmail.com.
+
+### 3D Systems
+- **Example**: Bulk Silicon  
+- Purpose: Learn how to perform SED analysis for **three-dimensional crystalline materials**.  
+
+[Silicon Example Folder](https://github.com/Tingliangstu/pySED/tree/main/example/Silicon_primitive_gpumd)  
+<p align="center">
+  <img src="https://github.com/Tingliangstu/pySED/blob/main/example/Silicon_primitive_gpumd/SED/compare_LD/Silicon.png" alt="Silicon SED" width="500">
+</p>
+
+
+## Contact info
+
+Ting Liang
+liangting.zj@gmail.com;
+Wenwu Jiang
+wwjiang96@163.com
+
+Or one can raise questions and suggestion at QQ group:
+<p align="center">
+  <img src="https://github.com/Tingliangstu/pySED/blob/main/docs/source/_static/qq.jpg" alt="Silicon SED" width="400">
+</p>
