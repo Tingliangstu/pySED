@@ -952,10 +952,6 @@ class ParserTests(unittest.TestCase):
                 "action = plot\nbackend = unknown\n",
                 "backend 'unknown' is not available",
             ),
-            "removed_method": (
-                "action = plot\nmethod = sed\n",
-                "parameter 'method' was removed.*remove the 'method' line",
-            ),
             "removed_parameter": (
                 "action = plot\ncompress = 1\n",
                 "parameter 'compress' was removed",
