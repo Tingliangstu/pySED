@@ -1,7 +1,7 @@
 # pySED input file - SrTiO3 example
 # Edit the paths, structure, and MD settings to match your own simulation.
 # Start with compute; use plot or fit after SED data have been generated.
-# Parameter help: pysed <parameter> -h
+# Online manual: https://pysed.readthedocs.io/
 
 # ==================== Control ====================
 action = compute  # compute | plot | fit | thinking (automatic workflow)

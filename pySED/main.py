@@ -24,10 +24,11 @@ from importlib.resources import files
 from pathlib import Path
 
 from pySED import __version__
-from pySED.cli_help import format_parameter_help
 from pySED.parser import read_input
 from pySED.pipeline import run as run_pipeline
 
+
+_MANUAL_URL = "https://pysed.readthedocs.io/"
 
 _LOGO_LINES = (
     r" _ __   _   _    _____  ______  _____",
@@ -39,16 +40,22 @@ _LOGO_LINES = (
 )
 _BANNER_WIDTH = max(len(line) for line in _LOGO_LINES)
 _BANNER_INDENT = "    "
-_LOGO_INDENT = " " * ((96 - _BANNER_WIDTH) // 2)
+_BANNER_FRAME_WIDTH = 72
+_LOGO_INDENT = " " * ((_BANNER_FRAME_WIDTH - 2 - _BANNER_WIDTH) // 2)
 
 
 LOGO = "\n".join(f"{_LOGO_INDENT}{line}" for line in _LOGO_LINES)
 
 
 def _print_banner() -> None:
-    """Print the original logo with its version below the right-hand side."""
+    """Center the original logo and its version inside a compact star frame."""
     version = f"v-{__version__}"
-    print(f"\n{LOGO}\n{_LOGO_INDENT}{version:>{_BANNER_WIDTH - 5}}\n")
+    border = _BANNER_INDENT + "*" * _BANNER_FRAME_WIDTH
+    rows = ["", *LOGO.splitlines(), f"{_LOGO_INDENT}{version:>{_BANNER_WIDTH - 5}}", ""]
+    framed_logo = "\n".join(
+        f"{_BANNER_INDENT}*{row:<{_BANNER_FRAME_WIDTH - 2}}*" for row in rows
+    )
+    print(f"\n{border}\n{framed_logo}\n{border}\n")
 
 
 def _configure_console_encoding() -> None:
@@ -83,61 +90,57 @@ def _print_run_summary(input_file, params) -> None:
 
 def _show_help() -> None:
     """Print command-line usage and exit successfully."""
+    section_rule = "-" * _BANNER_FRAME_WIDTH
     _print_banner()
     print(
-        """    USAGE:
+        f"""    {section_rule}
+    🚀 USAGE:
+
         pySED [input_file]      or    pysed [input_file]
         pySED -h                or    pysed --help
 
-    DESCRIPTION:
+    {section_rule}
+    ℹ DESCRIPTION:
+
         pySED is a tool for calculating Phonon Spectral Energy Density (SED)
         and phonon lifetimes from Molecular Dynamics (MD) simulation trajectories.
+
         It supports GPUMD/LAMMPS trajectories output formats.
 
         If no input_file is given, defaults to `input_SED.in` in the current directory.
 
-    REFERENCE:
-    [1] Liang et al., J. Appl. Phys. 138, 075101 (2025). (For pySED paper)
-        https://doi.org/10.1063/5.0278798
+    {section_rule}
+    ⚙ INPUT PARAMETERS (input_SED.in):
 
-    [2] Thomas et al., Phys. Rev. B 81, 081411 (2010). (For the SED method)
-        https://doi.org/10.1103/PhysRevB.81.081411
-
-    Please cite these papers when using pySED in your research.
-
-    INPUT PARAMETERS (input_SED.in):
         Write one parameter = value per line. Use # for comments.
         Boolean values accept True/False or 1/0.
 
-        To create a basic input file, run:
+        🚀 To create a basic input file, run:
             pysed init
 
-        Online manual:
-            https://pysed.readthedocs.io/
+        For detailed parameter descriptions and usage, see the manual:
+            {_MANUAL_URL}
 
-        For detailed parameter help, run:
-            pysed <parameter> -h
-            Available offline; shows help without running a calculation.
+    {section_rule}
+    ▣ REFERENCE:
 
-        Examples:
-            pysed action -h
-            pysed total_num_steps -h
-            pysed device -h
+        [1] Liang et al., J. Appl. Phys. 138, 075101 (2025). (For pySED paper)
+            https://doi.org/10.1063/5.0278798
+
+        [2] Thomas et al., Phys. Rev. B 81, 081411 (2010). (For the SED method)
+            https://doi.org/10.1103/PhysRevB.81.081411
+
+        ** Please cite these papers when using pySED in your research. **
+    {section_rule}
 """
     )
-    raise SystemExit(0)
-
-
-def _show_parameter_help(name: str) -> None:
-    """Print help for one input parameter without reading an input file."""
-    print(format_parameter_help(name))
     raise SystemExit(0)
 
 
 def _show_init_help() -> None:
     """Explain input-file generation without writing a file."""
     print(
-        """    USAGE:
+        f"""    USAGE:
         pysed init
 
     DESCRIPTION:
@@ -145,7 +148,8 @@ def _show_init_help() -> None:
         Edit the example values to match your system, then run pysed.
         An existing input_SED.in is never overwritten.
 
-        For detailed parameter help, run: pysed <parameter> -h
+        Online manual:
+            {_MANUAL_URL}
 """
     )
     raise SystemExit(0)
@@ -165,10 +169,15 @@ def _generate_input_file() -> None:
             "input_SED.in already exists; no changes made. "
             "Edit that file or run 'pysed init' in a new directory."
         ) from None
+    rule = _BANNER_INDENT + "-" * _BANNER_FRAME_WIDTH
     print(
-        "Created input_SED.in.\n"
-        "Edit the example values to match your system, then run pysed.\n"
-        "For parameter help: pysed <parameter> -h"
+        f"\n{rule}\n"
+        f"{_BANNER_INDENT}✓ Created input_SED.in for pySED.\n\n"
+        "        Edit the example values to match your system, then run:\n"
+        "            pysed\n\n"
+        "        Online manual:\n"
+        f"            {_MANUAL_URL}\n"
+        f"{rule}\n"
     )
     raise SystemExit(0)
 
@@ -186,14 +195,16 @@ def _detect_input_file() -> str:
             _generate_input_file()
         return argument
 
-    if len(sys.argv) == 3 and sys.argv[2].lower() in {"-h", "--help"}:
-        if sys.argv[1] == "init":
-            _show_init_help()
-        _show_parameter_help(sys.argv[1])
+    if (
+        len(sys.argv) == 3
+        and sys.argv[1] == "init"
+        and sys.argv[2].lower() in {"-h", "--help"}
+    ):
+        _show_init_help()
 
     raise ValueError(
         "Use 'pysed [input_file]' to run, 'pysed init' to create an input file, "
-        "or 'pysed <parameter> -h' for parameter help."
+        "or 'pysed -h' for help."
     )
 
 

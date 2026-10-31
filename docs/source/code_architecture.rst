@@ -14,8 +14,8 @@ Module responsibilities
    pySED/
      __init__.py         Package version export
      version.py          Version number
-     main.py             CLI entry and error reporting
-     cli_help.py         Bundled offline help for individual input parameters
+     main.py             CLI entry, overview help, and error reporting
+     templates/          Commented input template for pysed init
      parser.py           Read the input file
      parameters.py       One parameter table and its validation
      pipeline.py         Select compute, plot, fit, or thinking
