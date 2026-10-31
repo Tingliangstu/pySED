@@ -51,6 +51,6 @@ Further help
 ------------
 
 Report reproducible issues at
-`GitHub <https://github.com/Tingliangstu/pySED/issues>`_ and include the
+`GitHub <https://github.com/AI4MD-lab/pySED/issues>`_ and include the
 input file, pySED version, Python version, traceback, and a minimal trajectory
 when sharing is permitted.

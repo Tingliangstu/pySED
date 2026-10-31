@@ -13,12 +13,12 @@ You can download the source code from GitHub:
 
 .. code-block:: bash
 
-    git clone https://github.com/Tingliangstu/pySED.git
+    git clone https://github.com/AI4MD-lab/pySED.git
     cd pySED
     git switch codex/pysed-3.0-architecture
 
 Alternatively, you may download the package directly from the
-`pySED 3.0 development branch <https://github.com/Tingliangstu/pySED/tree/codex/pysed-3.0-architecture>`_.
+`pySED 3.0 development branch <https://github.com/AI4MD-lab/pySED/tree/codex/pysed-3.0-architecture>`_.
 The ``main`` branch currently contains the 2.4.x release.
 
 Install pySED

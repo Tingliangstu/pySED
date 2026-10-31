@@ -94,7 +94,7 @@ def _sync_publications_page():
                 '',
                 'Publications using pySED are grouped by year. This page is '
                 'synced from '
-                '`publications/readme.md <https://github.com/Tingliangstu/pySED/tree/main/publications>`_. '
+                '`publications/readme.md <https://github.com/AI4MD-lab/pySED/tree/main/publications>`_. '
                 'To update it, edit ``publications/readme.md`` and push the '
                 'change to GitHub; ReadTheDocs will refresh the page during '
                 'the next build.',
@@ -148,7 +148,7 @@ html_theme_options = {
 # GitHub context for the edit link
 html_context = {
     'display_github': True,  # Enable the display of the GitHub link
-    'github_user': 'Tingliangstu',  # Replace with your GitHub username
+    'github_user': 'AI4MD-lab',  # Replace with your GitHub username
     'github_repo': 'pySED',  # Replace with your repository name
     'github_version': 'codex/pysed-3.0-architecture',  # Match this documentation branch.
     'conf_py_path': '/docs/source/',  # Path to your conf.py file

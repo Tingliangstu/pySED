@@ -113,10 +113,10 @@ Recommended First Examples
 
 Start with an existing example before applying pySED to a new system:
 
-- 1D: `CNT <https://github.com/Tingliangstu/pySED/tree/codex/pysed-3.0-architecture/example/CNT>`_
-- 2D: `Graphene <https://github.com/Tingliangstu/pySED/tree/codex/pysed-3.0-architecture/example/In_plane_graphene_gpumd>`_
-  or `MoS₂ <https://github.com/Tingliangstu/pySED/tree/codex/pysed-3.0-architecture/example/MoS2_gpumd>`_
-- 3D: `Silicon <https://github.com/Tingliangstu/pySED/tree/codex/pysed-3.0-architecture/example/Silicon_primitive_gpumd>`_
+- 1D: `CNT <https://github.com/AI4MD-lab/pySED/tree/codex/pysed-3.0-architecture/example/CNT>`_
+- 2D: `Graphene <https://github.com/AI4MD-lab/pySED/tree/codex/pysed-3.0-architecture/example/In_plane_graphene_gpumd>`_
+  or `MoS₂ <https://github.com/AI4MD-lab/pySED/tree/codex/pysed-3.0-architecture/example/MoS2_gpumd>`_
+- 3D: `Silicon <https://github.com/AI4MD-lab/pySED/tree/codex/pysed-3.0-architecture/example/Silicon_primitive_gpumd>`_
 
 The illustrated 2.4 results show the expected dispersion features. Recompute
 the data with 3.0 before comparing intensities or fitting lifetimes; the

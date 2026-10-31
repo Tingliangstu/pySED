@@ -45,6 +45,14 @@ CuPy is loaded only when the GPU backend is entered. Both new package
 initializers are lightweight: importing the numerical kernel does not load
 the other calculation modules, plotting, or a GPU backend.
 
+Q-path construction is contained in ``sed.construct_BZ.BZPathHelper``.
+``build_commensurate_path`` normalizes the endpoints, obtains exact path
+parameters through the GCD/Bézout solver ``_commensurate_parameters``, and
+checks the generated coordinates against the supercell. Input-file fractions
+remain exact. Python float inputs such as ``7 / 15`` can recover their rational
+value when it reproduces the same float exactly. See :doc:`theory` for the
+integer-lattice derivation.
+
 Start with the serial calculation
 ---------------------------------
 
@@ -193,8 +201,7 @@ Rules for future additions
 
 The old-parameter error messages and the fallback input filename remain
 useful migration guidance; they do not execute a second legacy workflow.
-Archived examples and synchronization manifests record history. Computing
-new results does not automatically delete old-format result files.
+Computing new results does not automatically delete old-format result files.
 
 The ``thinking`` action checks whether expected files exist, including all
 four SED data files. It does not compare calculation settings or file contents.
@@ -230,5 +237,5 @@ Run the regression suite from the repository root:
 
 Tests cover reference-kernel agreement, partial spectra, normalization,
 serial/multiprocess agreement, GPU batching through an adapter, cleanup after
-errors, and import boundaries. A real CuPy numerical test is conditional on
-CuPy and a usable CUDA device.
+errors, and commensurate q-path construction. A real CuPy numerical test is
+conditional on CuPy and a usable CUDA device.

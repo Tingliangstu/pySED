@@ -68,14 +68,81 @@ class QPathFractionTests(unittest.TestCase):
         np.testing.assert_allclose(distances, np.arange(8) / 7)
 
     def test_programmatic_float_path_remains_supported(self):
-        helper = BZPathHelper(np.eye(3), np.diag([15.0, 15.0, 10.0]))
+        cases = [
+            ([15, 15, 10], [7 / 15, -7 / 15, -0.7],
+             [[k / 15, -k / 15, -k / 10] for k in range(8)]),
+            ([300, 3, 3], [0.33333, 0, 0],
+             [[k / 300, 0, 0] for k in range(101)]),
+        ]
+        for repeats, end, expected in cases:
+            with self.subTest(repeats=repeats):
+                helper = BZPathHelper(np.eye(3), np.diag(repeats))
+                qpoints, _ = helper.build_commensurate_path(np.zeros(3), end)
+                np.testing.assert_allclose(
+                    helper.cartesian_to_reduced(qpoints), expected, atol=1e-14,
+                )
+                self._assert_periodic(helper, qpoints)
 
-        qpoints, _ = helper.build_commensurate_path(
-            np.zeros(3),
-            np.array([7 / 15, -7 / 15, -0.7]),
-        )
+    def test_non_diagonal_paths_include_only_lattice_intersections(self):
+        primitive = np.array([[2, 0, 0], [0.5, 3, 0], [0.2, 0.3, 4]])
+        repeats = np.array([[4, 2, 0], [0, 6, 0], [0, 0, 2]])
+        helper = BZPathHelper(primitive, repeats @ primitive)
+        cases = [
+            ([Fraction(1, 12), 0, 0], [Fraction(1, 12), 1, 0], [1 / 3, 5 / 6]),
+            ([Fraction(1, 12), 1, 0], [Fraction(1, 12), 0, 0], [1 / 6, 2 / 3]),
+            ([Fraction(1, 10), 0, 0], [Fraction(1, 10), 1, 0], []),
+        ]
+        for start, end, expected in cases:
+            with self.subTest(start=start, end=end):
+                qpoints, fractions = helper.build_commensurate_path(start, end)
+                np.testing.assert_allclose(fractions, expected)
+                start, end = np.asarray(start, float), np.asarray(end, float)
+                reduced = start + np.asarray(expected)[:, None] * (end - start)
+                np.testing.assert_allclose(
+                    helper.cartesian_to_reduced(qpoints), reduced, atol=1e-14,
+                )
+                self._assert_periodic(helper, qpoints)
 
-        self.assertEqual(len(qpoints), 8)
+    def test_constant_and_short_paths_respect_periodicity(self):
+        cases = [
+            (4, 0.25, 0.25, [0.0]),
+            (4, 0.1, 0.1, []),
+            (1_000_000, 0.123456, 0.123457, [0.0, 1.0]),
+        ]
+        for repeats, start, end, expected in cases:
+            with self.subTest(repeats=repeats, start=start, end=end):
+                helper = BZPathHelper(np.eye(3), np.diag([repeats, 1, 1]))
+                qpoints, fractions = helper.build_commensurate_path(
+                    [start, 0, 0], [end, 0, 0],
+                )
+                np.testing.assert_allclose(fractions, expected)
+                self.assertEqual(qpoints.shape, (len(expected), 3))
+                self._assert_periodic(helper, qpoints)
+
+    def test_invalid_cells_and_path_endpoints_are_rejected(self):
+        for cell in [np.eye(2), np.zeros((3, 3)), np.full((3, 3), np.nan)]:
+            for primitive, supercell in [(cell, np.eye(3)), (np.eye(3), cell)]:
+                with self.subTest(primitive=primitive, supercell=supercell):
+                    with self.assertRaises(ValueError):
+                        BZPathHelper(primitive, supercell)
+        for repeats in [[10000.05, 4, 4], [1e-5, 1, 1]]:
+            with self.subTest(repeats=repeats):
+                with self.assertRaises(ValueError):
+                    BZPathHelper(np.eye(3), np.diag(repeats))
+
+        helper = BZPathHelper(np.eye(3), np.eye(3))
+        for endpoint in [[0, 0], [np.nan, 0, 0], [np.inf, 0, 0]]:
+            with self.subTest(endpoint=endpoint):
+                with self.assertRaises(ValueError):
+                    helper.build_commensurate_path([0, 0, 0], endpoint)
+
+        helper = BZPathHelper(np.eye(3), np.diag([4.00005, 4, 4]))
+        with self.assertRaisesRegex(ValueError, "periodicity"):
+            helper.build_commensurate_path([0, 0, 0], [3, 0, 0])
+
+    def _assert_periodic(self, helper, qpoints):
+        turns = qpoints @ helper.supercell.T / (2 * np.pi)
+        np.testing.assert_allclose(turns, np.rint(turns), rtol=0, atol=1e-8)
 
     @staticmethod
     def _parse_input(contents):

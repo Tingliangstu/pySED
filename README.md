@@ -1,5 +1,5 @@
 [![Documentation Status](https://readthedocs.org/projects/pysed/badge/?version=latest)](https://pysed.readthedocs.io/en/latest/)
-![pySED Logo](https://github.com/Tingliangstu/pySED/blob/main/docs/source/_static/logo.png)
+![pySED Logo](https://github.com/AI4MD-lab/pySED/blob/main/docs/source/_static/logo.png)
 
 # pySED
 
@@ -16,9 +16,9 @@
 
 ## Installation instructions
 
-1)  Download by git or from [source code](https://github.com/Tingliangstu/pySED). **Installing from source is highly recommended, as it is frequently maintained**.
+1)  Download by git or from [source code](https://github.com/AI4MD-lab/pySED). **Installing from source is highly recommended, as it is frequently maintained**.
 ```bash
-git clone https://github.com/Tingliangstu/pySED.git
+git clone --branch codex/pysed-3.0-architecture https://github.com/AI4MD-lab/pySED.git
 ```
 2) Install
 ```bash
@@ -34,7 +34,7 @@ For convenience, you may want to copy (or link) the files inside scripts folder 
 
 3) If one prefers a one-line installation without cloning manually:
 ```bash
-pip install git+https://github.com/Tingliangstu/pySED.git
+pip install git+https://github.com/AI4MD-lab/pySED.git@codex/pysed-3.0-architecture
 ```
 
 4) Verify installation
@@ -72,12 +72,12 @@ Representative publications that use `pySED` are listed below:
 - Ke Li, Hao Ma, [Decoding the thermal conductivity of ionic covalent organic frameworks: Optical phonons as key determinants revealed by neuroevolution potential](https://doi.org/10.1016/j.mtphys.2025.101724), Materials Today Physics, **54**, 101724 (2025).
 - Wenwu Jiang, Ting Liang, Hekai Bu, Jianbin Xu, Wengen Ouyang, [Moiré-Driven Interfacial Thermal Transport in Twisted Transition Metal Dichalcogenides](https://doi.org/10.1021/acsnano.4c12148), ACS Nano, **19**, 16287 (2025).
 
-For the complete list, please visit the [publications page](https://github.com/Tingliangstu/pySED/tree/main/publications).
+For the complete list, please visit the [publications page](https://github.com/AI4MD-lab/pySED/tree/main/publications).
 
 
 ## Usage
 
-The [example files](https://github.com/Tingliangstu/pySED/tree/main/example) have so many case provided to show how to use **pySED**. 
+The [example files](https://github.com/AI4MD-lab/pySED/tree/main/example) have so many case provided to show how to use **pySED**.
 If you can successfully reproduce these cases, you are ready to apply `pySED` to your own research systems.  
 
 Users can always use the `pysed -h` flag to explore available options and understand how to prepare input files for pySED.
@@ -87,14 +87,14 @@ as it contains a wealth of details that can greatly aid in understanding both th
 and the practical aspects of the SED methods it presents.
 
 
-**Online manual** [https://pysed.readthedocs.io](https://pysed.readthedocs.io/en/latest/) includes the `input_SED.in` parameter guide, quick-start workflow, examples, theory notes, and practical tips for preparing SED calculations.
+**Online manual** [https://pysed.readthedocs.io](https://pysed.readthedocs.io/en/latest/) includes the `input.in` parameter guide, quick-start workflow, examples, theory notes, and practical tips for preparing SED calculations.
 
 
 ### 1D Systems
 - **Example**: Carbon Nanotube (CNT)  
 - Purpose: Learn how to set up and analyze SED for **one-dimensional materials**.  
 
-[CNT Example Folder](https://github.com/Tingliangstu/pySED/tree/main/example/CNT)  
+[CNT Example Folder](https://github.com/AI4MD-lab/pySED/tree/main/example/CNT)\
 <p align="center">
   <img src="example/CNT/SED/CNT-SED.svg" alt="CNT SED" width="500">
 </p>
@@ -102,10 +102,10 @@ and the practical aspects of the SED methods it presents.
 ### 2D Systems
 - **Examples**:  
   - In-plane Graphene
-  - [Out-of-plane MoS<sub>2</sub>](https://github.com/Tingliangstu/pySED/tree/main/example/MoS2_gpumd)
+  - [Out-of-plane MoS<sub>2</sub>](https://github.com/AI4MD-lab/pySED/tree/main/example/MoS2_gpumd)
 - Purpose: Learn how to analyze SED for **two-dimensional materials**.  
 
-[Graphene Example Folder](https://github.com/Tingliangstu/pySED/tree/main/example/In_plane_graphene_gpumd)  
+[Graphene Example Folder](https://github.com/AI4MD-lab/pySED/tree/main/example/In_plane_graphene_gpumd)\
 <p align="center">
   <img src="example/In_plane_graphene_gpumd/SED/compare_LD/Graphene.png" alt="Graphene SED" width="500">
 </p>
@@ -115,7 +115,7 @@ and the practical aspects of the SED methods it presents.
 - **Example**: Bulk Silicon  
 - Purpose: Learn how to perform SED analysis for **three-dimensional crystalline materials**.  
 
-[Silicon Example Folder](https://github.com/Tingliangstu/pySED/tree/main/example/Silicon_primitive_gpumd)  
+[Silicon Example Folder](https://github.com/AI4MD-lab/pySED/tree/main/example/Silicon_primitive_gpumd)\
 <p align="center">
   <img src="example/Silicon_primitive_gpumd/SED/compare_LD/Silicon.png" alt="Silicon SED" width="500">
 </p>
@@ -130,5 +130,5 @@ wwjiang96@163.com
 
 Or one can raise questions and suggestion at QQ group:
 <p align="center">
-  <img src="https://github.com/Tingliangstu/pySED/blob/main/docs/source/_static/qq.jpg" alt="Silicon SED" width="400">
+  <img src="https://github.com/AI4MD-lab/pySED/blob/main/docs/source/_static/qq.jpg" alt="Silicon SED" width="400">
 </p>

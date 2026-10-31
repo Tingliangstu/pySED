@@ -37,8 +37,18 @@ eV/THz by default. The temporary :doc:`legacy_unit <input_parameters/legacy_unit
 option restores only the historical intensity scale for comparisons;
 it does not restore old input names or fitting behavior. Set it to ``True``
 when reading 2.x ``.SED`` files without scale metadata. This option will be
-removed in a future major release. Repository examples preserve their historical
-v2.4 outputs under ``example/legacy/pySED-2.4/outputs``.
+removed in a future major release.
+
+Q-path construction
+-------------------
+
+The current GCD/Bézout solver keeps only supercell-compatible points and uses
+consistent rational endpoints for selection and output. It also checks
+zero-length paths and rejects non-integer cell transformations using an
+absolute tolerance. The input syntax is unchanged; explicit fractions such
+as ``1/3`` and ``7/15`` retain their exact values. See
+:doc:`input_parameters/q_path` for decimal normalization and :doc:`theory`
+for the periodicity condition.
 
 LAMMPS migration
 ----------------

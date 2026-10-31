@@ -170,10 +170,10 @@ Allowed Wave Vectors
 --------------------
 
 In periodic systems, only wave vectors commensurate with the MD supercell are
-allowed. pySED follows the same commensurate-supercell q-point idea used in
-dynasor 2 [Dynasor2025]_, and the implementation in
-``pySED/sed/construct_BZ.py``
-credits dynasor's lattice helper as the reference for this path construction.
+allowed. pySED constructs these points with a GCD/Bézout integer-lattice
+solver in ``pySED/sed/construct_BZ.py``. Earlier versions referenced the
+dynasor lattice helper [Dynasor2025]_; the current path solver uses the
+joint integer construction described below.
 For a one-dimensional direction, the Born-von Karman boundary condition gives
 
 .. math::
@@ -219,6 +219,33 @@ and keeps only values of :math:`f` satisfying
 
    \mathbf{q}(f)\mathbf{P}^{T} \in \mathbb{Z}^{3}.
 
+Set :math:`\mathbf{a}=\mathbf{q}_{\mathrm{start}}\mathbf{P}^{T}` and
+:math:`\mathbf{b}=(\mathbf{q}_{\mathrm{end}}-\mathbf{q}_{\mathrm{start}})
+\mathbf{P}^{T}`. Clear their rational denominators with a common multiple
+:math:`D`, giving integer vectors :math:`\mathbf{A}=D\mathbf{a}` and
+:math:`\mathbf{B}=D\mathbf{b}`. For a nonzero direction, let
+:math:`g=\gcd(|B_1|,|B_2|,|B_3|)` and :math:`\mathbf{v}=\mathbf{B}/g`.
+The extended Euclidean algorithm gives Bézout coefficients
+:math:`\mathbf{w}` satisfying :math:`\mathbf{w}\cdot\mathbf{B}=g`.
+With :math:`m=\mathbf{w}\cdot\mathbf{A}`, all allowed parameters have the form
+
+.. math::
+
+   f_k = \frac{Dk-m}{g}, \qquad
+   \left\lceil\frac{m}{D}\right\rceil \le k \le
+   \left\lfloor\frac{m+g}{D}\right\rfloor,
+
+provided every component of :math:`\mathbf{A}-m\mathbf{v}` is divisible by
+:math:`D`. If this divisibility condition fails, or the integer interval is
+empty, the segment has no allowed points. These calculations use exact
+integer arithmetic and apply to non-diagonal repetition matrices as well.
+A zero-length segment contributes one point only when that point itself
+satisfies the supercell condition.
+
+The same normalized rational endpoints are used to solve the path and to
+generate its coordinates. See :doc:`input_parameters/q_path` for decimal
+normalization and exact fraction input.
+
 The resulting reduced q-points are mapped to Cartesian reciprocal space by
 
 .. math::
@@ -226,6 +253,13 @@ The resulting reduced q-points are mapped to Cartesian reciprocal space by
    \mathbf{q}_{\mathrm{cart}}(f)
    =
    \mathbf{q}(f)\left[2\pi(\mathbf{p}^{-1})^{T}\right].
+
+Both cell matrices must be finite and nonsingular. The inferred repetition
+matrix must be nonsingular and integer within an absolute tolerance of
+``1e-4`` per entry, with no relative tolerance. After conversion to Cartesian
+coordinates, pySED also checks that
+:math:`\mathbf{q}_{\mathrm{cart}}\mathbf{S}^{T}/(2\pi)` is integer within
+the same absolute tolerance.
 
 Larger supercells provide denser commensurate q-point sampling, but also
 increase trajectory size, memory use, and SED compute time.

@@ -12,7 +12,7 @@ especially useful on clusters, where the same folder may be submitted several
 times while tuning plotting and Lorentzian fitting parameters.
 
 The older silicon example contains a simple script:
-`run_SED.sh <https://github.com/Tingliangstu/pySED/blob/codex/pysed-3.0-architecture/example/For_old_version_example/Silicon/SED/run_SED.sh>`_.
+`run_SED.sh <https://github.com/AI4MD-lab/pySED/blob/codex/pysed-3.0-architecture/example/For_old_version_example/Silicon/SED/run_SED.sh>`_.
 The idea is:
 
 1. set ``action = compute`` and run pySED once to compute ``.SED``, ``.Qpts``, and

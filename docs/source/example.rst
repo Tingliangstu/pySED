@@ -33,7 +33,7 @@ Carbon Nanotube
    Learn how to set up and analyze SED for a one-dimensional material.
 
 **Folder**
-   `example/CNT <https://github.com/Tingliangstu/pySED/tree/codex/pysed-3.0-architecture/example/CNT>`_
+   `example/CNT <https://github.com/AI4MD-lab/pySED/tree/codex/pysed-3.0-architecture/example/CNT>`_
 
 **Workflow**
 
@@ -76,7 +76,7 @@ In-Plane Graphene
    compare the result with lattice dynamics.
 
 **Folder**
-   `example/In_plane_graphene_gpumd <https://github.com/Tingliangstu/pySED/tree/codex/pysed-3.0-architecture/example/In_plane_graphene_gpumd>`_
+   `example/In_plane_graphene_gpumd <https://github.com/AI4MD-lab/pySED/tree/codex/pysed-3.0-architecture/example/In_plane_graphene_gpumd>`_
 
 **Workflow**
 
@@ -122,7 +122,7 @@ MoS\ :sub:`2` Out-of-Plane Modes
    two-dimensional material.
 
 **Folder**
-   `example/MoS2_gpumd <https://github.com/Tingliangstu/pySED/tree/codex/pysed-3.0-architecture/example/MoS2_gpumd>`_
+   `example/MoS2_gpumd <https://github.com/AI4MD-lab/pySED/tree/codex/pysed-3.0-architecture/example/MoS2_gpumd>`_
 
 **Workflow**
 
@@ -174,7 +174,7 @@ Bulk Silicon
    material and compare the result with lattice dynamics.
 
 **Folder**
-   `example/Silicon_primitive_gpumd <https://github.com/Tingliangstu/pySED/tree/codex/pysed-3.0-architecture/example/Silicon_primitive_gpumd>`_
+   `example/Silicon_primitive_gpumd <https://github.com/AI4MD-lab/pySED/tree/codex/pysed-3.0-architecture/example/Silicon_primitive_gpumd>`_
 
 **Workflow**
 
@@ -241,7 +241,7 @@ In plot mode:
 ``plot_partial_SED = Sr`` plots the summed ``x+y+z`` contribution for strontium. ``plot_partial_SED = Sr x`` plots only the x-direction contribution for strontium.
 
 The following SrTiO\ :sub:`3` cubic examples from
-`issue #39 <https://github.com/Tingliangstu/pySED/issues/39>`_ show atom-type
+`issue #39 <https://github.com/AI4MD-lab/pySED/issues/39>`_ show atom-type
 and direction-resolved partial SED output for Sr atoms:
 
 Sr atoms, x direction:
@@ -291,7 +291,7 @@ lattice dynamics can also come from anharmonicity or from the level of theory
 used for the potential, Born charges, and dielectric constants.
 
 The following BaTiO\ :sub:`3` examples from
-`issue #31 <https://github.com/Tingliangstu/pySED/issues/31>`_ illustrate the
+`issue #31 <https://github.com/AI4MD-lab/pySED/issues/31>`_ illustrate the
 trajectory-dependence of the LO-TO splitting:
 
 NEP trajectory compared with NEP-driven lattice dynamics without applying a
@@ -319,7 +319,7 @@ More Examples
 -------------
 
 Additional examples and older LAMMPS workflows are available in the
-`pySED example library <https://github.com/Tingliangstu/pySED/tree/codex/pysed-3.0-architecture/example>`_.
+`pySED example library <https://github.com/AI4MD-lab/pySED/tree/codex/pysed-3.0-architecture/example>`_.
 
 pySED 3.0 additions
 -------------------
