@@ -15,7 +15,7 @@ from unittest.mock import Mock, patch
 import matplotlib.pyplot as plt
 import numpy as np
 
-from pySED import Lorentz, OutputPaths, Plot_SED, pipeline
+from pySED import Lorentz, output_files, Plot_SED, pipeline
 from pySED.parser import LEGACY_PARAMETER_HINTS, read_input
 from pySED.parameters import PARAMETERS
 
@@ -73,7 +73,7 @@ class ArchitectureTests(unittest.TestCase):
                     figures.append(plt.gcf())
                     self.assertEqual(
                         savefig.call_args.args[0],
-                        str(OutputPaths.fitting_qpoint_figure(0)),
+                        str(output_files.fitting_qpoint_figure(0)),
                     )
                     self.assertEqual(len(figures[0].axes[0].lines), 2)
                     Plot_SED.plot_slice(data, params)
@@ -107,7 +107,7 @@ class ArchitectureTests(unittest.TestCase):
         with TemporaryDirectory() as directory:
             prefix = str(Path(directory) / "sample")
             params = SimpleNamespace(out_files_name=prefix)
-            paths = OutputPaths.sed_data_files(prefix)
+            paths = output_files.sed_data_files(prefix)
             for path in paths[:3]:
                 path.touch()
             self.assertFalse(pipeline._plot_data_ready(params))

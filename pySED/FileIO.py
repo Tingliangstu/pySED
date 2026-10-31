@@ -22,7 +22,7 @@ correctly. Intensity conversion belongs to the calculation, not this module.
 import os
 import numpy as np
 
-from pySED import OutputPaths
+from pySED import output_files
 from pySED.Lorentz import hwhm_to_lifetime_ps
 from pySED.sed_kernel import SED_UNIT, LEGACY_SED_UNIT, LEGACY_UNIT_NOTICE
 
@@ -42,7 +42,7 @@ def write_output(phonons, params, BZ_lattice_info):
     .Qpts, .THz, and .Q_distances_and_labels use the same q/frequency order.
     """
     sed_path, qpoints_path, frequency_path, labels_path = (
-        OutputPaths.sed_data_files(params.out_files_name)
+        output_files.sed_data_files(params.out_files_name)
     )
     legacy_unit = getattr(phonons, 'legacy_unit', getattr(params, 'legacy_unit', False))
     header = SED_HEADER
@@ -66,7 +66,7 @@ def write_output(phonons, params, BZ_lattice_info):
         dir_labels = ['x', 'y', 'z']
         for t_idx, element in enumerate(phonons.type_symbols):
             for d_idx, d_lab in enumerate(dir_labels):
-                out_path = OutputPaths.partial_sed_data(
+                out_path = output_files.partial_sed_data(
                     params.out_files_name,
                     element,
                     d_lab,
@@ -138,7 +138,7 @@ class load_data(object):
         frequency or intensity conversion is performed during loading.
         """
         sed_path, qpoints_path, frequency_path, labels_path = (
-            OutputPaths.sed_data_files(params.out_files_name)
+            output_files.sed_data_files(params.out_files_name)
         )
 
         if getattr(params, 'plot_partial_SED', 0):
@@ -147,9 +147,9 @@ class load_data(object):
 
             if params.plot_partial_dir is None:
                 # Sum x/y/z for the requested element.
-                file_x = OutputPaths.partial_sed_data(params.out_files_name, element, 'x')
-                file_y = OutputPaths.partial_sed_data(params.out_files_name, element, 'y')
-                file_z = OutputPaths.partial_sed_data(params.out_files_name, element, 'z')
+                file_x = output_files.partial_sed_data(params.out_files_name, element, 'x')
+                file_y = output_files.partial_sed_data(params.out_files_name, element, 'y')
+                file_z = output_files.partial_sed_data(params.out_files_name, element, 'z')
                 if not all(
                     os.path.exists(path)
                     for path in (file_x, file_y, file_z)
@@ -159,7 +159,7 @@ class load_data(object):
                 sed_files = (file_x, file_y, file_z)
             else:
                 d = params.plot_partial_dir
-                file_d = OutputPaths.partial_sed_data(params.out_files_name, element, d)
+                file_d = output_files.partial_sed_data(params.out_files_name, element, d)
                 if not os.path.exists(file_d):
                     raise FileNotFoundError(
                         f"partial SED file for element '{element}' "
@@ -203,10 +203,10 @@ def write_phonon_lifetime(lorentz, params):
 
     lorentz.popt rows contain (center, amplitude, HWHM). Convert positive finite
     HWHM using tau = 1/(2*pi*HWHM), skip non-finite lifetimes, and write the
-    q-indexed output path returned by OutputPaths. Return that path as a string.
+    q-indexed output path returned by output_files. Return that path as a string.
     """
 
-    output_file = OutputPaths.qpoint_lifetime_data(
+    output_file = output_files.qpoint_lifetime_data(
         params.qpoint_slice_index
     )
     output_file.parent.mkdir(parents=True, exist_ok=True)
@@ -272,7 +272,7 @@ def deal_total_fre_lifetime(params, total_qpoints):
     total_num_fre_lifetime = 0
 
     for i in range(total_qpoints):
-        load_file_name = OutputPaths.qpoint_lifetime_data(i)
+        load_file_name = output_files.qpoint_lifetime_data(i)
         try:
             frequency, lifetime = read_lifetime_data(load_file_name)
         except OSError as error:
@@ -293,7 +293,7 @@ def deal_total_fre_lifetime(params, total_qpoints):
         )
         total_num_fre_lifetime += frequency.size
 
-    output_file = OutputPaths.combined_lifetime_data()
+    output_file = output_files.combined_lifetime_data()
     output_file.parent.mkdir(parents=True, exist_ok=True)
     output_file.write_text(
         "\n".join(output_lines) + "\n",

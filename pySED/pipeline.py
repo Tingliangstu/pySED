@@ -36,7 +36,7 @@ from pySED.parameters import validate_qpoint_slice_index
 from pySED import (
     FileIO,
     Lorentz,
-    OutputPaths,
+    output_files,
     Phonon,
     Plot_SED,
     construct_BZ,
@@ -50,14 +50,14 @@ def _plot_data_ready(params):
     """Return whether all four saved SED data files exist."""
     return all(
         path.is_file()
-        for path in OutputPaths.sed_data_files(params.out_files_name)
+        for path in output_files.sed_data_files(params.out_files_name)
     )
 
 
 def _require_plot_data(params):
     """Raise a user-facing error when plot/fit prerequisites are missing."""
 
-    required = OutputPaths.sed_data_files(params.out_files_name)
+    required = output_files.sed_data_files(params.out_files_name)
     missing = [str(path) for path in required if not path.is_file()]
     if missing:
         raise FileNotFoundError(
@@ -69,11 +69,11 @@ def _require_plot_data(params):
 def _plot_ready(params):
     """Return whether the images requested by the current input exist."""
 
-    if not OutputPaths.dispersion_figure(params).is_file():
+    if not output_files.dispersion_figure(params).is_file():
         return False
     return (
         not getattr(params, "plot_slice", False)
-        or OutputPaths.slice_figure(params).is_file()
+        or output_files.slice_figure(params).is_file()
     )
 
 
@@ -81,9 +81,9 @@ def _fit_ready(params):
     """Return whether the currently requested fit output exists."""
 
     if params.lorentz_fit_all_qpoint:
-        output = OutputPaths.combined_lifetime_data()
+        output = output_files.combined_lifetime_data()
     else:
-        output = OutputPaths.qpoint_lifetime_data(
+        output = output_files.qpoint_lifetime_data(
             params.qpoint_slice_index
         )
     return output.is_file()
@@ -264,7 +264,7 @@ def _fit_one_qpoint(data, params):
     fit_result = Lorentz.lorentz(data, params)
     lifetime_file = FileIO.write_phonon_lifetime(fit_result, params)
     Plot_SED.plot_slice(data, params, fit_result=fit_result)
-    print(f"      Fit figure           : {OutputPaths.slice_figure(params, fitting=True)}")
+    print(f"      Fit figure           : {output_files.slice_figure(params, fitting=True)}")
     print(f"\n  [OK] Lifetime data written: {lifetime_file}")
     return fit_result
 
@@ -322,7 +322,7 @@ def step_fit_sed(params):
         print(f"      {'Lifetime data':<20}: {total_file}")
         print(
             f"      {'Q-point figures':<20}: "
-            f"{OutputPaths.FITTING_QPOINT_DIRECTORY}"
+            f"{output_files.FITTING_QPOINT_DIRECTORY}"
         )
         print("\n  OK All-Q spectral fitting complete")
         if incomplete_qpoints:

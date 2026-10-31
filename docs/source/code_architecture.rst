@@ -21,7 +21,7 @@ Module responsibilities
      FileIO.py           Read/write analysis results
      Plot_SED.py         Plot spectra and fitted peaks
      Lorentz.py          Detect and fit spectral peaks; no file/plot output
-     OutputPaths.py      Names of all analysis output files
+     output_files.py      Names of all analysis output files
      backends/
        __init__.py       Select CPU or GPU execution
        cpu.py            Serial batches, worker pool, and shared memory
@@ -157,7 +157,7 @@ Where to make a change
    * - Peak detection or line-shape fitting
      - ``Lorentz.py``
    * - Output filenames or directories
-     - ``OutputPaths.py``
+     - ``output_files.py``
    * - Parameters or CLI workflow
      - ``parameters.py``, ``parser.py``, or ``pipeline.py``
 
@@ -171,7 +171,7 @@ Rules for future additions
 * Let each backend own its execution resources. A numerical feature should
   have one shared implementation unless the hardware genuinely requires
   different algorithms.
-* Put output naming in ``OutputPaths.py``. Writers, readers, and workflow
+* Put output naming in ``output_files.py``. Writers, readers, and workflow
   readiness checks must use the same names.
 * Create a module only for a distinct responsibility. Do not split every
   small helper into its own file or add a base class for two simple backends.

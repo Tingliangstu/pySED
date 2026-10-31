@@ -26,7 +26,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
-from pySED import OutputPaths
+from pySED import output_files
 
 # Use one Seaborn theme for every pySED figure in this plotting module.
 sns.set_theme(
@@ -154,7 +154,7 @@ def plot_bands(data, params):
     path. Multiple segments or use_contourf select physical-coordinate contours;
     otherwise imshow displays the matrix by pixel index. Color limits apply to
     the natural logarithm of the stored intensities. The colorbar names the
-    scale recorded in data, and OutputPaths selects the output filename.
+    scale recorded in data, and output_files selects the output filename.
     """
     sed_avg = data.sed_avg
     qpoints = data.qpoints
@@ -269,7 +269,7 @@ def plot_bands(data, params):
 
     ax.set_ylabel('Frequency (THz)', fontsize=16)
 
-    output_path = OutputPaths.dispersion_figure(params)
+    output_path = output_files.dispersion_figure(params)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(str(output_path), format='png', dpi=650, bbox_inches='tight')
 
@@ -365,7 +365,7 @@ def plot_slice(data, params, fit_result=None):
     max_frequency, _ = resolve_slice_frequency_limit(thz, params, fitting=fit_result is not None)
     ax.set_xlim([min_frequency, max_frequency])
 
-    output_path = str(OutputPaths.slice_figure(params, fitting=fit_result is not None))
+    output_path = str(output_files.slice_figure(params, fitting=fit_result is not None))
     output_directory = os.path.dirname(output_path)
     if output_directory:
         os.makedirs(output_directory, exist_ok=True)
@@ -419,7 +419,7 @@ def plot_lifetime_summary(frequency, lifetime, params=None):
     ax.tick_params(axis="both", labelsize=14)
     ax.grid(False, which="both", axis="both")
 
-    output_path = OutputPaths.lifetime_summary_figure(params)
+    output_path = output_files.lifetime_summary_figure(params)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(
         output_path,

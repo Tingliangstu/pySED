@@ -15,7 +15,7 @@ import numpy as np
 
 from pySED.parser import read_input
 from pySED.parameters import PARAMETERS, validate_common, validate_qpoint_slice_index
-from pySED.OutputPaths import slice_figure
+from pySED.output_files import slice_figure
 from pySED.pipeline import (
     _run_thinking,
     run,
