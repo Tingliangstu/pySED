@@ -3,3 +3,4 @@ sphinx-rtd-theme
 sphinx-markdown-tables
 recommonmark
 nbsphinx
+ipython-pygments-lexers
