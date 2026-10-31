@@ -172,7 +172,7 @@ Allowed Wave Vectors
 In periodic systems, only wave vectors commensurate with the MD supercell are
 allowed. pySED follows the same commensurate-supercell q-point idea used in
 dynasor 2 [Dynasor2025]_, and the implementation in
-``pySED/construct_BZ.py``
+``pySED/sed/construct_BZ.py``
 credits dynasor's lattice helper as the reference for this path construction.
 For a one-dimensional direction, the Born-von Karman boundary condition gives
 
@@ -261,7 +261,7 @@ the lifetime as
 
 In the current code output, frequencies are handled in THz for plotting and
 fitting, and the lifetime is written in ps using the relation implemented in
-``pySED/FileIO.py``:
+``pySED/postprocess/FileIO.py``:
 
 .. math::
 

@@ -32,7 +32,7 @@ from scipy.fftpack import fftfreq
 
 from pySED.backends import create_backend
 from pySED.io.schema import POSITIONS, VELOCITIES
-from pySED.sed_kernel import (
+from pySED.sed.sed_kernel import (
     SEDKernelConfig, block_normalization, finalize_spectrum,
     SED_UNIT, LEGACY_SED_UNIT, LEGACY_UNIT_NOTICE,
 )

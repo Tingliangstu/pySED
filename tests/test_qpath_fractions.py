@@ -8,7 +8,7 @@ import unittest
 import numpy as np
 
 from pySED.parser import read_input
-from pySED.construct_BZ import BZPathHelper
+from pySED.sed.construct_BZ import BZPathHelper
 
 
 class QPathFractionTests(unittest.TestCase):

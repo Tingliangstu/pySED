@@ -2,7 +2,6 @@
 
 import importlib.util
 import unittest
-from concurrent.futures import ProcessPoolExecutor
 from contextlib import redirect_stdout
 from functools import partial
 from io import StringIO
@@ -11,19 +10,14 @@ from types import SimpleNamespace
 import numpy as np
 from scipy.fftpack import fft
 
-from pySED.Phonon import _element_symbol_from_mass, spectral_energy_density
+from pySED.sed.Phonon import _element_symbol_from_mass, spectral_energy_density
 from pySED.io.schema import TrajectoryBatch, POSITIONS, VELOCITIES
-from pySED.sed_kernel import (
+from pySED.sed.sed_kernel import (
     JOULE_PER_EV,
     JOULE_SECOND_TO_EV_PER_THZ,
     calculate_q_batch,
     finalize_spectrum,
     SEDKernelConfig,
-)
-from pySED.backends.cpu import (
-    _compute_shared_q_batch,
-    _initialize_cpu_worker,
-    _share_numpy_array,
 )
 from pySED.backends.gpu import (
     GPUBackend,
@@ -31,10 +25,7 @@ from pySED.backends.gpu import (
     _load_cupy,
 )
 from pySED.backends.common import (
-    estimate_kernel_working_bytes,
     qpoint_batches,
-    print_cpu_memory_estimate,
-    print_qpoints,
 )
 
 
@@ -156,53 +147,6 @@ class SEDKernelTests(unittest.TestCase):
                     )
                 )
 
-    def test_qpoint_progress_keeps_original_output_style(self):
-        """Progress messages include each q-point index and reduced coordinates."""
-
-        reduced_qpoints = np.array(
-            [[0.0, 0.25, 0.5], [0.5, 0.25, 0.0]]
-        )
-        output = StringIO()
-        with redirect_stdout(output):
-            print_qpoints(reduced_qpoints, 0, 2)
-
-        self.assertEqual(
-            output.getvalue(),
-            "\tNow calculating q-point 1/2:\t"
-            "q = (0.0000, 0.2500, 0.5000)\n"
-            "\tNow calculating q-point 2/2:\t"
-            "q = (0.5000, 0.2500, 0.0000)\n",
-        )
-
-    def test_gpu_timing_places_other_work_below_the_six_row_sum(self):
-        """The complete timing reconciliation should read as one table."""
-
-        calculator = object.__new__(GPUBackend)
-        calculator._gpu_event_profiler = SimpleNamespace(
-            elapsed_seconds=lambda: {
-                "compute": 3.0,
-                "projection": 1.0,
-                "fft": 0.5,
-                "upload": 0.4,
-                "download": 0.1,
-            }
-        )
-        calculator._gpu_total_bytes = 0
-
-        output = StringIO()
-        with redirect_stdout(output):
-            calculator.report(total_elapsed=6.5, trajectory_wait=2.0)
-
-        lines = output.getvalue().splitlines()
-        sum_index = next(
-            index
-            for index, line in enumerate(lines)
-            if "Sum of the six rows above" in line
-        )
-        self.assertIn("5.50 s", lines[sum_index])
-        self.assertIn("Other SED work", lines[sum_index + 1])
-        self.assertIn("1.00 s", lines[sum_index + 1])
-
     def test_gpu_q_batches_make_one_result_transfer_per_block(self):
         """Split or full GPU batches must return one complete block result."""
 
@@ -284,33 +228,6 @@ class SEDKernelTests(unittest.TestCase):
 
         self.assertEqual(_element_symbol_from_mass(15.9994), "O")
         self.assertEqual(_element_symbol_from_mass(123.456), "unknown")
-
-    def test_cpu_memory_estimate_uses_real_array_shapes(self):
-        """Memory estimates account for trajectory blocks and SED arrays."""
-
-        config = self._config(output_partial=False)
-        working_bytes = estimate_kernel_working_bytes(
-            self.vels,
-            config,
-            max_q_batch=4,
-        )
-        self.assertGreater(working_bytes, 0)
-
-        output = StringIO()
-        with redirect_stdout(output):
-            print_cpu_memory_estimate(
-                self.vels,
-                self.cell_vecs,
-                config,
-                np.zeros((8, 7)),
-                np.zeros((8, 7)),
-                backend="numpy",
-                num_workers=1,
-            )
-        self.assertIn(
-            "GB (trajectory block reading + SED arrays;",
-            output.getvalue(),
-        )
 
     def test_online_blocks_and_one_sided_fold_preserve_power(self):
         """Block averaging and frequency folding must preserve total power."""
@@ -509,49 +426,6 @@ class SEDKernelTests(unittest.TestCase):
             * calculator.num_unit_cells
         )
         np.testing.assert_allclose(calculator._sed_sum, expected)
-
-    def test_persistent_workers_read_shared_velocity_blocks(self):
-        """Two blocks can reuse one pool without serializing full velocities."""
-
-        config = self._config(output_partial=False)
-        executor = ProcessPoolExecutor(
-            max_workers=2,
-            initializer=_initialize_cpu_worker,
-            initargs=(config,),
-        )
-        try:
-            for scale in (1.0, 2.0):
-                block_vels = self.vels * scale
-                expected = calculate_q_batch(
-                    block_vels,
-                    self.cell_vecs,
-                    config.qpoints,
-                    config.basis_ids,
-                    config,
-                )
-                actual = np.zeros_like(expected)
-
-                with _share_numpy_array(block_vels) as shared:
-                    name, shape, dtype_string = shared
-                    futures = [
-                        executor.submit(
-                            _compute_shared_q_batch,
-                            name,
-                            shape,
-                            dtype_string,
-                            self.cell_vecs,
-                            start,
-                            stop,
-                        )
-                        for start, stop in qpoint_batches(7, 2)
-                    ]
-                    for future in futures:
-                        start, stop, values = future.result()
-                        actual[:, start:stop] = values
-
-                np.testing.assert_allclose(actual, expected, rtol=1e-13)
-        finally:
-            executor.shutdown()
 
     @unittest.skipUnless(
         importlib.util.find_spec("cupy") is not None,

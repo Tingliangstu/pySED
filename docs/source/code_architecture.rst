@@ -1,9 +1,10 @@
 Code Architecture and Reading Guide
 ===================================
 
-pySED is an SED-only package. Its analysis modules live directly under
-``pySED/``; there is no extra ``sed/`` package. Familiar names from version 2.4
-are retained, while numerical formulas and execution resources are separated.
+pySED is an SED-only package. The ``sed/`` package contains the calculation,
+and ``postprocess/`` contains result reading, writing, fitting, and plotting.
+The package root holds the command entry point, input configuration, and
+workflow. Existing module names are retained inside their new directories.
 
 Module responsibilities
 -----------------------
@@ -11,17 +12,21 @@ Module responsibilities
 .. code-block:: text
 
    pySED/
+     __init__.py         Package version export
+     version.py          Version number
      main.py             CLI entry and error reporting
      parser.py           Read the input file
      parameters.py       One parameter table and its validation
      pipeline.py         Select compute, plot, fit, or thinking
-     construct_BZ.py     Crystal geometry, basis mapping, and Q paths
-     Phonon.py           Prepare topology; calculate and average time blocks
-     sed_kernel.py       Spatial projection, FFT, power, and normalization
-     FileIO.py           Read/write analysis results
-     Plot_SED.py         Plot spectra and fitted peaks
-     Lorentz.py          Detect and fit spectral peaks; no file/plot output
-     output_files.py      Names of all analysis output files
+     sed/
+       construct_BZ.py   Crystal geometry, basis mapping, and Q paths
+       Phonon.py         Prepare topology; calculate and average time blocks
+       sed_kernel.py     Spatial projection, FFT, power, and normalization
+     postprocess/
+       FileIO.py         Read/write analysis results
+       Lorentz.py        Detect and fit spectral peaks; no file/plot output
+       Plot_SED.py       Plot spectra and fitted peaks
+       output_files.py   Names of all analysis output files
      backends/
        __init__.py       Select CPU or GPU execution
        cpu.py            Serial batches, worker pool, and shared memory
@@ -30,10 +35,15 @@ Module responsibilities
      io/                 Trajectory formats, cache, and block iteration
      structure/          Input structures, supercells, and basis.in generation
 
-The dependency direction is intentional: ``pipeline`` calls ``Phonon``;
-``Phonon`` selects a backend; both backends call ``sed_kernel``.
+The calculation direction is ``pipeline`` -> ``sed.Phonon`` -> ``backends``
+-> ``sed.sed_kernel``. The pipeline also prepares the trajectory through
+``io`` and the geometry through ``sed.construct_BZ``. After computation, it
+writes the spectrum through ``postprocess.FileIO``; plot and fit actions
+operate on saved spectra through ``postprocess``.
 The kernel does not import the pipeline, trajectory readers, or backends.
-CuPy is loaded only when the GPU backend is entered.
+CuPy is loaded only when the GPU backend is entered. Both new package
+initializers are lightweight: importing the numerical kernel does not load
+the other calculation modules, plotting, or a GPU backend.
 
 Start with the serial calculation
 ---------------------------------
@@ -50,17 +60,17 @@ Use these settings to follow one path without multiprocessing or prefetch:
 Read these functions in order:
 
 1. ``pipeline.step_compute_sed`` prepares the trajectory and Q-point geometry.
-2. ``Phonon.spectral_energy_density.compute_sed`` prepares the basis metadata
+2. ``sed.Phonon.spectral_energy_density.compute_sed`` prepares the basis metadata
    and opens the selected backend for the lifetime of the calculation.
-3. ``Phonon._get_simulation_data`` takes velocities and averages reference
+3. ``sed.Phonon._get_simulation_data`` takes velocities and averages reference
    positions within the current block.
-4. ``Phonon._loop_over_blocks`` requests one spectrum from the backend,
+4. ``sed.Phonon._loop_over_blocks`` requests one spectrum from the backend,
    applies block normalization, and adds it to the running sum.
-5. ``sed_kernel.calculate_q_batch`` contains the spatial projection and FFT.
-6. ``sed_kernel.finalize_spectrum`` averages blocks, folds frequencies, and
+5. ``sed.sed_kernel.calculate_q_batch`` contains the spatial projection and FFT.
+6. ``sed.sed_kernel.finalize_spectrum`` averages blocks, folds frequencies, and
    converts the output to eV/THz unless ``legacy_unit`` is enabled.
 
-Names prefixed with ``Phonon.`` in steps 3 and 4 refer to methods of
+Names prefixed with ``sed.Phonon.`` in steps 3 and 4 refer to methods of
 ``spectral_energy_density``. There is no need to read the GPU implementation
 to understand the SED formula.
 
@@ -119,6 +129,8 @@ The pipeline makes these three operations explicit:
 
 .. code-block:: python
 
+   from pySED.postprocess import FileIO, Lorentz, Plot_SED
+
    fit_result = Lorentz.lorentz(data, params)
    FileIO.write_phonon_lifetime(fit_result, params)
    Plot_SED.plot_slice(data, params, fit_result=fit_result)
@@ -143,9 +155,9 @@ Where to make a change
    * - Intended change
      - Starting point
    * - SED formula or normalization
-     - ``sed_kernel.py`` and numerical regression tests
+     - ``sed/sed_kernel.py`` and numerical regression tests
    * - Time-block averaging or basis metadata
-     - ``Phonon.py``
+     - ``sed/Phonon.py``
    * - CPU performance or shared-memory handling
      - ``backends/cpu.py``
    * - GPU performance, timing, or memory
@@ -153,11 +165,13 @@ Where to make a change
    * - Trajectory format or unit conversion on input
      - ``io/text.py`` or ``io/netcdf.py``
    * - Q-point geometry
-     - ``construct_BZ.py``
+     - ``sed/construct_BZ.py``
    * - Peak detection or line-shape fitting
-     - ``Lorentz.py``
+     - ``postprocess/Lorentz.py``
    * - Output filenames or directories
-     - ``output_files.py``
+     - ``postprocess/output_files.py``
+   * - Spectrum files or plotting
+     - ``postprocess/FileIO.py`` or ``postprocess/Plot_SED.py``
    * - Parameters or CLI workflow
      - ``parameters.py``, ``parser.py``, or ``pipeline.py``
 
@@ -171,7 +185,7 @@ Rules for future additions
 * Let each backend own its execution resources. A numerical feature should
   have one shared implementation unless the hardware genuinely requires
   different algorithms.
-* Put output naming in ``output_files.py``. Writers, readers, and workflow
+* Put output naming in ``postprocess/output_files.py``. Writers, readers, and workflow
   readiness checks must use the same names.
 * Create a module only for a distinct responsibility. Do not split every
   small helper into its own file or add a base class for two simple backends.
@@ -190,17 +204,19 @@ explicitly.
 Python imports and maintenance
 ------------------------------
 
-Programmatic imports use the top-level analysis modules, for example:
+Programmatic imports follow the calculation and postprocessing packages:
 
 .. code-block:: python
 
-   from pySED.Phonon import spectral_energy_density
-   from pySED.construct_BZ import BZ_methods
-   from pySED import FileIO, Plot_SED
+   from pySED.sed.Phonon import spectral_energy_density
+   from pySED.sed.construct_BZ import BZ_methods
+   from pySED.postprocess import FileIO, Plot_SED
 
-Imports through the earlier development layout ``pySED.sed`` must be updated.
-This layout change does not change input parameters, CLI commands, SED units,
-fitting models, or output filenames.
+Scripts using the previous top-level analysis imports must use the paths
+above. Trajectory readers remain under ``pySED.io``, CPU/GPU execution under
+``pySED.backends``, and structure generation under ``pySED.structure``.
+The directory reorganization leaves input parameters, CLI commands, SED units,
+fitting models, and output filenames unchanged.
 
 For synchronization from MDtrace, port a mathematical change into the kernel
 and a resource-management change into the corresponding backend. Do not copy

@@ -22,7 +22,7 @@ from multiprocessing import shared_memory
 
 import numpy as np
 
-from pySED.sed_kernel import calculate_q_batch
+from pySED.sed.sed_kernel import calculate_q_batch
 from pySED.backends.common import (
     print_cpu_memory_estimate, print_qpoints, qpoint_batches,
 )

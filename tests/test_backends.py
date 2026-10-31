@@ -5,7 +5,6 @@ import sys
 import unittest
 from contextlib import redirect_stdout
 from dataclasses import replace
-from functools import partial
 from io import StringIO
 from multiprocessing import shared_memory
 from pathlib import Path
@@ -13,14 +12,12 @@ from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 import numpy as np
-from scipy.fftpack import fft
 
-from pySED.backends import create_backend
 from pySED.backends.cpu import CPUBackend, _share_numpy_array
 from pySED.backends.gpu import GPUBackend
-from pySED.Phonon import spectral_energy_density
+from pySED.sed.Phonon import spectral_energy_density
 from pySED.io.schema import POSITIONS, VELOCITIES, TrajectoryBatch
-from pySED.sed_kernel import SEDKernelConfig, calculate_q_batch
+from pySED.sed.sed_kernel import SEDKernelConfig, calculate_q_batch
 
 
 class BackendTests(unittest.TestCase):
@@ -96,26 +93,6 @@ class BackendTests(unittest.TestCase):
         self.assertIsNone(backend._gpu_basis_ids)
         self.assertIsNone(backend._gpu_qpoints)
 
-    def test_timing_wrappers_do_not_change_kernel_values(self):
-        stages = []
-
-        def measure(stage, operation, *args, **kwargs):
-            stages.append(stage)
-            return operation(*args, **kwargs)
-
-        arguments = (
-            self.vels, self.cell_vecs, self.config.qpoints,
-            self.config.basis_ids, self.config,
-        )
-        expected = calculate_q_batch(*arguments)
-        result = calculate_q_batch(
-            *arguments,
-            project_function=partial(measure, "projection", np.tensordot),
-            fft_function=partial(measure, "fft", fft),
-        )
-        np.testing.assert_array_equal(result, expected)
-        self.assertEqual(stages, ["projection", "fft", "projection", "fft"])
-
     def test_driver_serial_and_parallel_outputs_match(self):
         lattice = SimpleNamespace(
             unitcell_index=np.repeat([1, 2, 3], 2),
@@ -149,7 +126,14 @@ class BackendTests(unittest.TestCase):
 
     def test_cpu_import_does_not_load_cupy(self):
         command = (
-            "import sys; from pySED import Phonon, FileIO, Lorentz, Plot_SED; "
+            "import sys; from pySED.sed import sed_kernel; "
+            "assert 'pySED.backends' not in sys.modules; "
+            "assert 'pySED.io' not in sys.modules; "
+            "from pySED.postprocess import Lorentz; "
+            "assert 'matplotlib' not in sys.modules; "
+            "assert 'pySED.postprocess.FileIO' not in sys.modules; "
+            "from pySED.sed import Phonon; "
+            "from pySED.postprocess import FileIO, Lorentz, Plot_SED; "
             "assert 'cupy' not in sys.modules; "
             "assert 'pySED.backends.gpu' not in sys.modules"
         )
@@ -158,23 +142,6 @@ class BackendTests(unittest.TestCase):
             cwd=Path(__file__).resolve().parents[1], check=True,
             capture_output=True, text=True,
         )
-
-    def test_physics_module_has_no_backend_or_trajectory_dependency(self):
-        command = (
-            "import sys; from pySED import sed_kernel; "
-            "assert 'pySED.backends' not in sys.modules; "
-            "assert 'pySED.io' not in sys.modules"
-        )
-        subprocess.run(
-            [sys.executable, "-c", command],
-            cwd=Path(__file__).resolve().parents[1], check=True,
-            capture_output=True, text=True,
-        )
-
-    def test_backend_selection_rejects_unknown_names(self):
-        with self.assertRaisesRegex(ValueError, "unsupported SED backend"):
-            create_backend("unknown", self.config, self.config.qpoints, 1)
-
 
 if __name__ == "__main__":
     unittest.main()

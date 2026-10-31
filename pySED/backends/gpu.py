@@ -18,7 +18,7 @@
 
 from functools import partial
 
-from pySED.sed_kernel import calculate_q_batch
+from pySED.sed.sed_kernel import calculate_q_batch
 from pySED.backends.common import (
     estimate_kernel_working_bytes, print_cpu_memory_estimate, print_qpoints,
 )

@@ -22,9 +22,9 @@ correctly. Intensity conversion belongs to the calculation, not this module.
 import os
 import numpy as np
 
-from pySED import output_files
-from pySED.Lorentz import hwhm_to_lifetime_ps
-from pySED.sed_kernel import SED_UNIT, LEGACY_SED_UNIT, LEGACY_UNIT_NOTICE
+from pySED.postprocess import output_files
+from pySED.postprocess.Lorentz import hwhm_to_lifetime_ps
+from pySED.sed.sed_kernel import SED_UNIT, LEGACY_SED_UNIT, LEGACY_UNIT_NOTICE
 
 
 SED_HEADER = (

@@ -26,7 +26,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
-from pySED import output_files
+from pySED.postprocess import output_files
 
 # Use one Seaborn theme for every pySED figure in this plotting module.
 sns.set_theme(

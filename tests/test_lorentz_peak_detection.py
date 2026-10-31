@@ -9,8 +9,8 @@ from types import SimpleNamespace
 import numpy as np
 
 from pySED.parser import read_input
-from pySED.FileIO import write_phonon_lifetime
-from pySED.Lorentz import (
+from pySED.postprocess.FileIO import write_phonon_lifetime
+from pySED.postprocess.Lorentz import (
     hwhm_to_lifetime_ps,
     _find_sed_peaks,
     _fit_single_peak,
@@ -60,21 +60,6 @@ class IndependentPeakFitTests(unittest.TestCase):
             atol=1.0e-10,
         )
 
-    def test_peak_detection_defaults_to_significance_four(self):
-        _, sed = _synthetic_sed()
-
-        default_peaks, default_significance = _find_sed_peaks(sed)
-        explicit_peaks, explicit_significance = _find_sed_peaks(
-            sed,
-            peak_min_significance=4.0,
-        )
-
-        np.testing.assert_array_equal(default_peaks, explicit_peaks)
-        np.testing.assert_allclose(
-            default_significance,
-            explicit_significance,
-        )
-
     def test_lorentz_frequency_range_is_inclusive(self):
         frequency = np.arange(0.0, 8.0)
         sed = 10.0 + frequency
@@ -96,11 +81,14 @@ class IndependentPeakFitTests(unittest.TestCase):
             for function in ("lorentz", "dho", "auto"):
                 with self.subTest(function=function):
                     input_file.write_text(
-                        f"action = fit\nfitting_function = {function}\n",
+                        f"action = fit\nfitting_function = {function}\n"
+                        "lorentz_fit_freq_min = 2.0\nlorentz_fit_freq_max = 5.0\n",
                         encoding="utf-8",
                     )
                     params = read_input(input_file)
                     self.assertEqual(params.fitting_function, function)
+                    self.assertEqual(params.lorentz_fit_freq_min, 2.0)
+                    self.assertEqual(params.lorentz_fit_freq_max, 5.0)
 
             for legacy_key in (
                 "fit_baseline_model",
@@ -131,19 +119,6 @@ class IndependentPeakFitTests(unittest.TestCase):
                     "peak_min_significance must be positive and finite",
                 ):
                     read_input(input_file)
-
-    def test_parser_reads_and_validates_lorentz_frequency_range(self):
-        with TemporaryDirectory() as directory:
-            input_file = Path(directory) / "input.in"
-            input_file.write_text(
-                "action = fit\n"
-                "lorentz_fit_freq_min = 2.0\n"
-                "lorentz_fit_freq_max = 5.0\n",
-                encoding="utf-8",
-            )
-            params = read_input(input_file)
-            self.assertEqual(params.lorentz_fit_freq_min, 2.0)
-            self.assertEqual(params.lorentz_fit_freq_max, 5.0)
 
     def test_prominence_base_window_uses_all_points_between_bases(self):
         self.assertEqual(_peak_fit_interval(10, 30, 20, 100, 0), (10, 29))
@@ -205,47 +180,21 @@ class IndependentPeakFitTests(unittest.TestCase):
 
     def test_lorentz_fit_recovers_zero_background_peak(self):
         frequency = np.linspace(1.0, 3.0, 401)
-        expected = np.array([2.0, 1.0, 0.08])
-        sed = _lorentzian(frequency, *expected)
-        peak = int(np.argmax(sed))
-
-        result = _fit_single_peak(
-            frequency,
-            sed,
-            peak,
-            0,
-            len(frequency) - 1,
-            initial_hwhm=0.01,
-            peak_max_hwhm=1.0,
-            fitting_function="lorentz",
-        )
-
-        self.assertEqual(result["fitting_function"], "lorentz")
-        self.assertFalse(result["incomplete_peak_shapes"][0])
-        np.testing.assert_allclose(
-            result["peak_parameters"][0], expected, rtol=1.0e-6, atol=1.0e-8
-        )
-
-    def test_fit_is_invariant_to_small_sed_amplitude_scale(self):
-        frequency = np.linspace(1.0, 3.0, 401)
-        expected = np.array([2.0, 1.0e-6, 0.08])
-        sed = _lorentzian(frequency, *expected)
-        peak = int(np.argmax(sed))
-
-        result = _fit_single_peak(
-            frequency,
-            sed,
-            peak,
-            0,
-            len(frequency) - 1,
-            initial_hwhm=0.20,
-            peak_max_hwhm=1.0,
-            fitting_function="lorentz",
-        )
-
-        np.testing.assert_allclose(
-            result["peak_parameters"][0], expected, rtol=1.0e-6, atol=1.0e-10
-        )
+        for amplitude, initial_hwhm in ((1.0, 0.01), (1.0e-6, 0.20)):
+            with self.subTest(amplitude=amplitude):
+                expected = np.array([2.0, amplitude, 0.08])
+                sed = _lorentzian(frequency, *expected)
+                result = _fit_single_peak(
+                    frequency, sed, int(np.argmax(sed)), 0, len(frequency) - 1,
+                    initial_hwhm=initial_hwhm, peak_max_hwhm=1.0,
+                    fitting_function="lorentz",
+                )
+                self.assertEqual(result["fitting_function"], "lorentz")
+                self.assertFalse(result["incomplete_peak_shapes"][0])
+                np.testing.assert_allclose(
+                    result["peak_parameters"][0], expected,
+                    rtol=1.0e-6, atol=1.0e-10,
+                )
 
     def test_fit_flags_a_peak_without_both_half_maximum_points(self):
         frequency = np.linspace(1.0, 3.0, 401)

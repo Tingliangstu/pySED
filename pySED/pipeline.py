@@ -33,14 +33,8 @@ from pySED.io.prepare import prepare_trajectory
 from pySED.io.schema import CELLS
 from pySED.io.trajectory import prefetch_one, trajectory_block_source
 from pySED.parameters import validate_qpoint_slice_index
-from pySED import (
-    FileIO,
-    Lorentz,
-    output_files,
-    Phonon,
-    Plot_SED,
-    construct_BZ,
-)
+from pySED.postprocess import FileIO, Lorentz, output_files, Plot_SED
+from pySED.sed import Phonon, construct_BZ
 
 _FIT_BLOCK_SEPARATOR = "  " + "-" * 58
 

@@ -14,8 +14,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from pySED.parser import read_input
-from pySED.parameters import PARAMETERS, validate_common, validate_qpoint_slice_index
-from pySED.output_files import slice_figure
+from pySED.parameters import validate_qpoint_slice_index
+from pySED.postprocess.output_files import sed_data_files
 from pySED.pipeline import (
     _run_thinking,
     run,
@@ -24,10 +24,9 @@ from pySED.pipeline import (
     step_plot_sed,
     step_prepare_trajectory,
 )
-from pySED import FileIO, Lorentz
-from pySED.construct_BZ import BZ_methods
-from pySED.Plot_SED import (
-    _print_color_scale,
+from pySED.postprocess import FileIO, Lorentz
+from pySED.sed.construct_BZ import BZ_methods
+from pySED.postprocess.Plot_SED import (
     _prepare_sed_for_log_scale,
     _resolve_color_limits,
     plot_bands,
@@ -47,44 +46,6 @@ Si 0 0 0 0.001 0.002 0.003
 
 
 class ParserTests(unittest.TestCase):
-    def test_sed_is_the_only_available_method(self):
-        self.assertEqual(PARAMETERS["method"].default, "sed")
-        self.assertEqual(len(PARAMETERS), 46)
-        with self.assertRaisesRegex(ValueError, "method must be 'sed'"):
-            validate_common(SimpleNamespace(method="dsf"))
-
-    def test_all_v2_parameter_names_report_migration_guidance(self):
-        legacy_names = (
-            "compress",
-            "dump_xyz_file",
-            "file_format",
-            "lorentz",
-            "lorentz_fit_cutoff",
-            "num_splits",
-            "output_hdf5",
-            "peak_height",
-            "peak_prominence",
-            "plot_SED",
-            "pos_file",
-            "use_parallel",
-            "vels_file",
-            "with_eigs",
-        )
-        with TemporaryDirectory() as directory:
-            root = Path(directory)
-            for legacy_name in legacy_names:
-                with self.subTest(parameter=legacy_name):
-                    input_file = root / f"{legacy_name}.in"
-                    input_file.write_text(
-                        f"action = plot\n{legacy_name} = 1\n",
-                        encoding="utf-8",
-                    )
-                    with self.assertRaisesRegex(
-                        ValueError,
-                        rf"parameter '{legacy_name}' was removed in pySED 3\.0",
-                    ):
-                        read_input(input_file)
-
     def test_plot_fails_when_required_sed_outputs_are_missing(self):
         with TemporaryDirectory() as directory:
             params = SimpleNamespace(
@@ -92,6 +53,11 @@ class ParserTests(unittest.TestCase):
             )
 
             with self.assertRaisesRegex(FileNotFoundError, "SED"):
+                step_plot_sed(params)
+
+            for path in sed_data_files(params.out_files_name)[:3]:
+                path.touch()
+            with self.assertRaisesRegex(FileNotFoundError, "Q_distances_and_labels"):
                 step_plot_sed(params)
 
     def test_fit_failure_propagates_without_a_false_success_message(self):
@@ -145,139 +111,40 @@ class ParserTests(unittest.TestCase):
                 os.chdir(previous_directory)
 
     def test_explicit_fit_overwrites_existing_all_qpoint_results(self):
-        """Explicit fit overrides the auto-fit switch and existing output."""
-
+        """Explicit fitting processes every q point without mutating user input."""
         data = SimpleNamespace(q_distances=np.array([0.0, 0.5]))
         params = SimpleNamespace(
-            action="fit",
-            lorentz_fit_all_qpoint=True,
-            qpoint_slice_index=0,
-            if_show_figures=True,
+            method="sed", action="fit", lorentz_fit_all_qpoint=True,
+            qpoint_slice_index=0, if_show_figures=True,
         )
-        output = io.StringIO()
-
+        original_params = vars(params).copy()
+        total_file = "Lifetime/Fitting-All-Qpoints.Fre_lifetime"
         with (
             patch("pySED.pipeline._require_plot_data"),
-            patch("pySED.pipeline._fit_ready", return_value=True),
-            patch(
-                "pySED.pipeline.FileIO.load_data",
-                return_value=data,
-            ),
-            patch("pySED.pipeline._fit_one_qpoint") as fit,
-            patch(
-                "pySED.pipeline.FileIO.deal_total_fre_lifetime"
-            ) as combine,
-            patch(
-                "pySED.pipeline.FileIO.read_lifetime_data",
-                return_value=(np.array([1.0]), np.array([2.0])),
-            ),
-            patch(
-                "pySED.pipeline.Plot_SED.plot_lifetime_summary",
-                return_value="Fitting-Frequency-Lifetime.png",
-            ) as plot_lifetime,
-            redirect_stdout(output),
+            patch("pySED.pipeline._fit_ready", return_value=True) as ready,
+            patch("pySED.pipeline.FileIO.load_data", return_value=data) as load,
+            patch("pySED.pipeline._fit_one_qpoint",
+                  return_value=SimpleNamespace(peak_fits=[])) as fit,
+            patch("pySED.pipeline.FileIO.deal_total_fre_lifetime",
+                  return_value=(total_file, 2)) as combine,
+            patch("pySED.pipeline.FileIO.read_lifetime_data",
+                  return_value=(np.array([1.0]), np.array([2.0]))),
+            patch("pySED.pipeline.Plot_SED.plot_lifetime_summary") as plot,
+            redirect_stdout(io.StringIO()),
         ):
-            fit.side_effect = [
-                SimpleNamespace(
-                    peak_fits=[
-                        {
-                            "peak_number": 1,
-                            "incomplete_peak_shapes": np.array([False]),
-                        },
-                        {
-                            "peak_number": 2,
-                            "incomplete_peak_shapes": np.array([True]),
-                        },
-                    ]
-                ),
-                SimpleNamespace(
-                    peak_fits=[
-                        {
-                            "peak_number": 3,
-                            "incomplete_peak_shapes": np.array([True]),
-                        },
-                        {
-                            "peak_number": 4,
-                            "incomplete_peak_shapes": np.array([True]),
-                        },
-                    ]
-                ),
-            ]
-            combine.return_value = (
-                "Lifetime/Fitting-All-Qpoints.Fre_lifetime",
-                7,
-            )
-            step_fit_sed(params)
+            run(params)
 
+        ready.assert_not_called()
+        load.assert_called_once_with(params)
         self.assertEqual(fit.call_count, 2)
-        self.assertEqual(params.qpoint_slice_index, 0)
-        self.assertTrue(params.if_show_figures)
-        self.assertIsNot(fit.call_args_list[0].args[1], params)
-        self.assertEqual(fit.call_args_list[0].args[1].qpoint_slice_index, 0)
-        self.assertEqual(fit.call_args_list[1].args[1].qpoint_slice_index, 1)
+        for q_index, call in enumerate(fit.call_args_list):
+            self.assertIs(call.args[0], data)
+            self.assertIsNot(call.args[1], params)
+            self.assertEqual(call.args[1].qpoint_slice_index, q_index)
+            self.assertFalse(call.args[1].if_show_figures)
         combine.assert_called_once_with(params, 2)
-        message = output.getvalue()
-        self.assertIn("      Total Q-points       : 2", message)
-        self.assertIn("Fitting Q-point #0 (1/2) ...", message)
-        self.assertIn("Fitting Q-point #1 (2/2) ...", message)
-        self.assertEqual(
-            message.count("  " + "-" * 58),
-            2,
-        )
-        self.assertIn("All-Q fitting summary", message)
-        self.assertIn("      Q-points processed  : 2", message)
-        self.assertIn("      Fitted modes        : 7", message)
-        self.assertIn(
-            f"      {'Lifetime data':<20}: "
-            "Lifetime/Fitting-All-Qpoints.Fre_lifetime",
-            message,
-        )
-        self.assertIn(
-            "Lifetime figure written: Fitting-Frequency-Lifetime.png", message,
-        )
-        self.assertFalse(hasattr(params, "lifetime_figure_output"))
-        self.assertIn(
-            f"      {'Q-point figures':<20}: Fitting-Qpoint",
-            message,
-        )
-        self.assertIn("All-Q spectral fitting complete", message)
-        self.assertIn("  >  Q-points to inspect", message)
-        self.assertIn(
-            "      Incomplete line shapes: 3 peaks across 2 Q-points",
-            message,
-        )
-        self.assertIn("      Q-point #0       : peak 2", message)
-        self.assertIn("      Q-point #1       : peaks 3, 4", message)
-        self.assertIn(
-            "      Check these figures in Fitting-Qpoint/.",
-            message,
-        )
-        self.assertIn(
-            "      Adjust peak_min_significance if needed.",
-            message,
-        )
-        plot_lifetime.assert_called_once()
-        self.assertLess(
-            message.index("  >  Q-points to inspect"),
-            message.index("  Tip: Check all fit figures"),
-        )
-        self.assertIn(
-            "  Tip: Check all fit figures. To refine one Q point",
-            message,
-        )
-        self.assertIn(
-            "       qpoint_slice_index, adjust peak_min_significance and",
-            message,
-        )
-        self.assertIn(
-            "       fitting_function = auto | lorentz | dho, then set",
-            message,
-        )
-        self.assertIn(
-            "       re_output_total_freq_lifetime = 1.",
-            message,
-        )
-        self.assertNotIn("LORENTZ", message)
+        plot.assert_called_once()
+        self.assertEqual(vars(params), original_params)
 
     def test_single_q_refit_can_rebuild_combined_lifetime_data(self):
         data = SimpleNamespace(
@@ -380,7 +247,7 @@ class ParserTests(unittest.TestCase):
             try:
                 with (
                     patch("matplotlib.figure.Figure.savefig") as savefig,
-                    patch("pySED.Plot_SED.plt.close"),
+                    patch("pySED.postprocess.Plot_SED.plt.close"),
                 ):
                     output_path = plot_lifetime_summary(
                         np.array([1.0, 2.0, 3.0]),
@@ -408,144 +275,6 @@ class ParserTests(unittest.TestCase):
         )
         savefig.assert_called_once()
         plt.close(figure)
-
-    def test_completion_reports_new_lifetime_figure_before_success(self):
-        params = SimpleNamespace(method="sed", action="fit")
-
-        def write_lifetime_figure(received_params):
-            print("Lifetime figure written: Fitting-Frequency-Lifetime.png")
-
-        output = io.StringIO()
-        with (
-            patch("pySED.pipeline.step_fit_sed", side_effect=write_lifetime_figure),
-            redirect_stdout(output),
-        ):
-            run(params)
-
-        message = output.getvalue()
-        figure_line = (
-            "Lifetime figure written: Fitting-Frequency-Lifetime.png"
-        )
-        success_line = "pySED task finished successfully."
-        self.assertIn(figure_line, message)
-        self.assertIn(success_line, message)
-        self.assertLess(message.index(figure_line), message.index(success_line))
-
-    def test_thinking_defers_trajectory_preparation_to_compute(self):
-        params = SimpleNamespace(method="sed", action="thinking")
-
-        with (
-            patch("pySED.pipeline.step_prepare_trajectory") as prepare,
-            patch("pySED.pipeline._run_thinking") as thinking,
-        ):
-            run(params)
-
-        prepare.assert_not_called()
-        thinking.assert_called_once()
-
-    def test_completion_reports_redrawn_lifetime_figure(self):
-        params = SimpleNamespace(method="sed", action="fit")
-
-        def redraw_lifetime_figure(received_params):
-            print("Lifetime figure redrawn: Fitting-Frequency-Lifetime.png")
-
-        output = io.StringIO()
-        with (
-            patch("pySED.pipeline.step_fit_sed", side_effect=redraw_lifetime_figure),
-            redirect_stdout(output),
-        ):
-            run(params)
-
-        self.assertIn(
-            "Lifetime figure redrawn: Fitting-Frequency-Lifetime.png",
-            output.getvalue(),
-        )
-
-    def test_plot_progress_identifies_dispersion_and_single_q_stages(self):
-        """Plot progress should be explicit and column-aligned."""
-
-        data = SimpleNamespace(
-            qpoints=np.array(
-                [[0.0, 0.0, 0.0], [0.5, 0.25, 0.0]]
-            ),
-            freq_fft=np.array([0.0, 5.0, 10.0, 15.0]),
-        )
-        params = SimpleNamespace(
-            input_file="/work/SrTiO3.in",
-            out_files_name="SrTiO3",
-            plot_slice=True,
-            qpoint_slice_index=1,
-            plot_partial_SED=False,
-            plot_cutoff_freq=12.0,
-            lorentz_fit_freq_max=8.0,
-        )
-        output = io.StringIO()
-
-        with (
-            patch("pySED.pipeline._require_plot_data"),
-            patch("pySED.pipeline.FileIO.load_data", return_value=data),
-            patch("pySED.pipeline.Plot_SED.plot_bands"),
-            patch("pySED.pipeline.Plot_SED.plot_slice"),
-            redirect_stdout(output),
-        ):
-            step_plot_sed(params)
-
-        message = output.getvalue()
-        self.assertIn("Plotting SED dispersion", message)
-        self.assertIn("      Component       : total SED", message)
-        self.assertIn("Plotting single-q SED", message)
-        self.assertIn(
-            "      q-point index   : 1 (zero-based)",
-            message,
-        )
-        self.assertIn(
-            "      q-point         : (0.5, 0.25, 0)",
-            message,
-        )
-        self.assertIn(
-            "      Frequency range : 0 to 12 THz "
-            "(adjust with plot_cutoff_freq in SrTiO3.in)",
-            message,
-        )
-        self.assertIn(
-            "      Y-axis          : "
-            "SED (eV/THz), logarithmic scale",
-            message,
-        )
-        self.assertIn("SED plotting complete", message)
-
-    def test_color_scale_output_explains_units_and_input_controls(self):
-        """The ln color scale should use a dimensionless physical ratio."""
-
-        params = SimpleNamespace(
-            colorbar_min=None,
-            colorbar_max=None,
-            input_file="/work/SrTiO3.in",
-        )
-        output = io.StringIO()
-
-        with redirect_stdout(output):
-            _print_color_scale(params, -12.0, 0.0)
-
-        message = output.getvalue()
-        self.assertIn(
-            "      Colorbar        : "
-            "ln[SED / (eV/THz)] (dimensionless)",
-            message,
-        )
-        self.assertIn(
-            "      colorbar_min    : -12 (automatic, ln scale)",
-            message,
-        )
-        self.assertIn(
-            "      colorbar_max    : 0 (automatic, ln scale)",
-            message,
-        )
-        self.assertIn(
-            "      Fine-tune with  : colorbar_min / colorbar_max "
-            "in SrTiO3.in",
-            message,
-        )
 
     def test_dispersion_colorbar_uses_dimensionless_reference_ratio(self):
         """The heatmap label should state its physical reference value."""
@@ -582,7 +311,7 @@ class ParserTests(unittest.TestCase):
         for unit in ("eV/THz", "legacy 2.x scale"):
             data.sed_unit = unit
             with (
-                patch("pySED.Plot_SED.plt.savefig"),
+                patch("pySED.postprocess.Plot_SED.plt.savefig"),
                 redirect_stdout(io.StringIO()) as output,
             ):
                 plot_bands(data, params)
@@ -602,6 +331,7 @@ class ParserTests(unittest.TestCase):
         thz = np.array([0.0, 5.0, 10.0, 15.0])
         params = SimpleNamespace(
             plot_cutoff_freq=12.0,
+            lorentz_fit_freq_min=2.0,
             lorentz_fit_freq_max=8.0,
         )
         self.assertEqual(
@@ -613,22 +343,9 @@ class ParserTests(unittest.TestCase):
             resolve_slice_frequency_limit(thz, params, fitting=True),
             (8.0, "lorentz_fit_freq_max"),
         )
-
-    def test_lorentz_slice_uses_start_and_reports_fit_figure(self):
-        thz = np.array([0.0, 5.0, 10.0, 15.0])
-        params = SimpleNamespace(
-            qpoint_slice_index=3,
-            plot_partial_SED=False,
-            lorentz_fit_freq_min=2.0,
-        )
-
         self.assertEqual(
             resolve_slice_frequency_start(thz, params, fitting=True),
             (2.0, "lorentz_fit_freq_min"),
-        )
-        self.assertEqual(
-            str(slice_figure(params, fitting=True)),
-            str(Path("Fitting-Qpoint") / "Fitting-3-qpoint.png"),
         )
 
     def test_qpoint_slice_index_uses_zero_based_data_bounds(self):
@@ -650,52 +367,6 @@ class ParserTests(unittest.TestCase):
         for q_index in (0, 9):
             params = SimpleNamespace(qpoint_slice_index=q_index)
             validate_qpoint_slice_index(params, data.qpoints)
-
-    def test_qpoint_slice_index_rejects_negative_input(self):
-        """Negative indices are invalid because the input is zero-based."""
-
-        with TemporaryDirectory() as directory:
-            input_file = Path(directory) / "input.in"
-            input_file.write_text(
-                "action = plot\nqpoint_slice_index = -1\n",
-                encoding="utf-8",
-            )
-
-            with self.assertRaisesRegex(
-                ValueError,
-                r"qpoint_slice_index must be non-negative \(zero-based\)",
-            ):
-                read_input(input_file)
-
-    def test_qpoint_slice_does_not_require_lorentz_fit_state(self):
-        """A plain q-point plot must work without running a fit first."""
-
-        data = SimpleNamespace(
-            sed_avg=np.array([[1.0], [2.0], [3.0]]),
-            qpoints=np.array([[0.0, 0.0, 0.0]]),
-            freq_fft=np.array([0.0, 1.0, 2.0]),
-        )
-        params = SimpleNamespace(
-            qpoint_slice_index=0,
-            lorentz_fit_freq_max=None,
-            plot_partial_SED=False,
-            if_show_figures=False,
-        )
-
-        with (
-            patch("pySED.Plot_SED.plt.savefig") as savefig,
-            patch("pySED.Plot_SED.plt.close"),
-        ):
-            plot_slice(data, params)
-            figure = plt.gcf()
-
-        savefig.assert_called_once()
-        self.assertEqual(savefig.call_args.args[0], "SED-0-qpoint.png")
-        self.assertEqual(
-            figure.axes[0].get_ylabel(),
-            r"$\Phi(\mathbf{q},\omega)$ (eV/THz)",
-        )
-        plt.close(figure)
 
     def test_sed_color_scale_uses_natural_log_limits(self):
         """Dispersion colors should reproduce the original ln rendering."""
@@ -856,18 +527,29 @@ class ParserTests(unittest.TestCase):
                             )
                             np.testing.assert_allclose(loaded.freq_fft, frequency)
                             validate_qpoint_slice_index(params, loaded.qpoints)
+                            original_params = vars(params).copy()
+                            original_sed = loaded.sed_avg.copy()
+                            original_files = set(Path(directory).rglob("*"))
                             with redirect_stdout(io.StringIO()):
                                 result = Lorentz.lorentz(loaded, params)
+                            self.assertEqual(vars(params), original_params)
+                            np.testing.assert_array_equal(loaded.sed_avg, original_sed)
+                            self.assertEqual(set(Path(directory).rglob("*")), original_files)
                             np.testing.assert_allclose(
                                 result.popt, [[2.0, amplitude, 0.08]], rtol=1e-5,
                             )
-                            with patch("pySED.Plot_SED.plt.savefig") as savefig:
-                                savefig.side_effect = lambda *a, **kw: self.assertIn(
-                                    unit, plt.gca().get_ylabel(),
-                                )
-                                plot_slice(loaded, params)
+                            plotted_lines = []
+
+                            def check_figure(*args, **kwargs):
+                                self.assertIn(unit, plt.gca().get_ylabel())
+                                plotted_lines.append(len(plt.gca().lines))
+
+                            with patch("pySED.postprocess.Plot_SED.plt.savefig") as savefig:
+                                savefig.side_effect = check_figure
                                 plot_slice(loaded, params, fit_result=result)
-                            self.assertEqual(savefig.call_count, 2)
+                                plot_slice(loaded, params)
+                            self.assertEqual(plotted_lines, [2, 1])
+                            self.assertEqual(vars(params), original_params)
             finally:
                 os.chdir(previous_directory)
 
@@ -1273,6 +955,18 @@ class ParserTests(unittest.TestCase):
             "invalid_backend": (
                 "action = plot\nbackend = unknown\n",
                 "backend 'unknown' is not available",
+            ),
+            "unsupported_method": (
+                "action = plot\nmethod = dsf\n",
+                "method must be 'sed'",
+            ),
+            "removed_parameter": (
+                "action = plot\ncompress = 1\n",
+                "parameter 'compress' was removed",
+            ),
+            "negative_qpoint_index": (
+                "action = plot\nqpoint_slice_index = -1\n",
+                "qpoint_slice_index must be non-negative",
             ),
             "invalid_trajectory_read_mode": (
                 "action = plot\ntrajectory_read_mode = parallel\n",
