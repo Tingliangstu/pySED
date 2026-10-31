@@ -58,7 +58,7 @@ Read these functions in order:
    applies block normalization, and adds it to the running sum.
 5. ``sed_kernel.calculate_q_batch`` contains the spatial projection and FFT.
 6. ``sed_kernel.finalize_spectrum`` averages blocks, folds frequencies, and
-   converts the output to eV/THz.
+   converts the output to eV/THz unless ``legacy_unit`` is enabled.
 
 Names prefixed with ``Phonon.`` in steps 3 and 4 refer to methods of
 ``spectral_energy_density``. There is no need to read the GPU implementation
@@ -84,8 +84,10 @@ and ``Q`` Q points in a batch. For total SED the calculation is:
 
 Partial SED retains the type and Cartesian-direction axes instead of summing
 them. The backend result is unnormalized. Block scaling uses
-``dt**2 / (4*pi*block_duration*num_unit_cells)``; finalization retains the
-existing 3.0 frequency selection and eV/THz conversion.
+``dt**2 / (4*pi*block_duration*num_unit_cells)`` by default; finalization retains
+DC and positive frequencies, excludes an even-length Nyquist bin, and converts
+to eV/THz. The optional :doc:`legacy_unit <input_parameters/legacy_unit>` mode
+uses the same computation path with 2.x normalization and pair averaging.
 
 Version 2.4 performed the time FFT before summing over cells. The batched
 implementation sums cells first, then performs the FFT. The operations

@@ -47,6 +47,7 @@ _FIT_BLOCK_SEPARATOR = "  " + "-" * 58
 # ── step detectors ──────────────────────────────────────────────
 
 def _plot_data_ready(params):
+    """Return whether all four saved SED data files exist."""
     return all(
         path.is_file()
         for path in OutputPaths.sed_data_files(params.out_files_name)
@@ -106,7 +107,12 @@ def _sed_component_description(params):
 # ── step runners ────────────────────────────────────────────────
 
 def step_prepare_trajectory(params):
-    """Resolve a text trajectory to direct reading or a NetCDF cache."""
+    """Select the trajectory source and attach its path and format to params.
+
+    Reuse/convert a text cache or select direct reading according to the input.
+    Set params.trajectory_path and params.source_format for trajectory_block_source;
+    no SED calculation is performed in this step.
+    """
     source = Path(params.trajectory_file)
     input_directory = Path(params.input_file).parent
     converted_path = input_directory / f"{source.name}.pysed.nc"
@@ -133,7 +139,13 @@ def step_prepare_trajectory(params):
 
 
 def step_compute_sed(params):
-    """Compute phonon SED."""
+    """Read trajectory blocks, calculate SED, and write the numerical outputs.
+
+    The first block supplies the cell used to build the basis and q-point
+    geometry; dump_group_supercell overrides it for local-group input.
+    The same first block is then included in the calculation. Optional prefetch
+    overlaps subsequent reads. FileIO writes the finished spectrum and its scale.
+    """
     step_prepare_trajectory(params)
     print("  >> Computing phonon SED ...")
     t0 = time.perf_counter()
@@ -196,7 +208,12 @@ def step_compute_sed(params):
 
 
 def step_plot_sed(params):
-    """Plot SED dispersion and optional q-slice."""
+    """Load a saved total/partial spectrum and write the requested figures.
+
+    Draw the dispersion heatmap and, if plot_slice is enabled, a zero-based
+    q-point slice. Data-file metadata supplies intensity labels; the current
+    legacy_unit input is only a fallback for unmarked historical files.
+    """
     _require_plot_data(params)
 
     data = FileIO.load_data(params)
@@ -235,7 +252,7 @@ def step_plot_sed(params):
         _print_detail("Component", _sed_component_description(params))
         _print_detail(
             "Y-axis",
-            "SED (eV/THz), logarithmic scale",
+            f"SED ({getattr(data, 'sed_unit', 'eV/THz')}), logarithmic scale",
         )
         Plot_SED.plot_slice(data, params)
 
@@ -243,7 +260,7 @@ def step_plot_sed(params):
 
 
 def _fit_one_qpoint(data, params):
-    """Keep fitting, file output, and plotting as three explicit operations."""
+    """Fit one spectrum, write its lifetimes, and plot the fitted peaks."""
     fit_result = Lorentz.lorentz(data, params)
     lifetime_file = FileIO.write_phonon_lifetime(fit_result, params)
     Plot_SED.plot_slice(data, params, fit_result=fit_result)
@@ -253,7 +270,13 @@ def _fit_one_qpoint(data, params):
 
 
 def step_fit_sed(params):
-    """Fit SED peaks and write linewidth-derived lifetimes."""
+    """Fit saved SED at one or all q points and write spectra/lifetime figures.
+
+    For each q point, call the fitter, write frequencies and lifetimes, then
+    plot the fitted curves. All-q mode also combines lifetime files; single-q
+    mode can rebuild that summary when re_output_total_freq_lifetime is set.
+    Loading and fitting do not convert the stored SED intensity scale.
+    """
     _require_plot_data(params)
     lifetime_figure = None
     lifetime_figure_action = "written"
@@ -370,7 +393,12 @@ def step_fit_sed(params):
 
 
 def run(params):
-    """Run one action in the SED-only workflow."""
+    """Dispatch compute, plot, fit, or the automatic thinking workflow.
+
+    An explicit action runs even if its output files already exist. Thinking
+    mode selects stages from file existence. Errors propagate to main(), which
+    reports failure instead of printing a successful completion.
+    """
 
     method = getattr(params, "method", "sed")
     action = getattr(params, "action", "thinking")
@@ -402,7 +430,13 @@ def run(params):
 
 
 def _run_thinking(params, steps):
-    """Auto-detect progress and run the next needed step(s)."""
+    """Choose the next stage from the presence of saved data, plots, and fits.
+
+    Missing SED data triggers compute followed by plot; otherwise missing
+    plots trigger plot, and missing fit output triggers fit. These checks do
+    not compare input values with those used to create existing files. Use
+    an explicit action to recompute or redraw after changing settings.
+    """
 
     if not _plot_data_ready(params):
         print("  thinking: incomplete SED data -> compute + plot")

@@ -24,6 +24,7 @@ _BANNER_INDENT = "  "
 
 
 def _center_banner_line(text: str) -> str:
+    """Center one line within the command-line banner width."""
     return f"{_BANNER_INDENT}{text:^{_BANNER_WIDTH}}".rstrip()
 
 
@@ -39,6 +40,7 @@ TAGLINE = "\n".join(
 
 
 def _print_banner() -> None:
+    """Print the program logo, version, and author contact."""
     print(f"\n{LOGO}\n\n{TAGLINE}\n")
 
 
@@ -52,6 +54,7 @@ def _configure_console_encoding() -> None:
 
 
 def _print_run_summary(input_file, params) -> None:
+    """Print the selected input, action, backend, and output prefix."""
     if params.backend == "cupy":
         backend = "CuPy (single GPU)"
     elif params.max_cores == 1:
@@ -73,6 +76,7 @@ def _print_run_summary(input_file, params) -> None:
 
 
 def _show_help() -> None:
+    """Print command-line usage and exit successfully."""
     _print_banner()
     print(
         """USAGE:
@@ -93,6 +97,10 @@ CONTROL:
     action = fit           # fit existing SED output
     backend = numpy        # CPU, optionally using max_cores
     backend = cupy         # optional single-GPU backend
+    legacy_unit = False    # True restores the temporary 2.x output scale
+
+legacy_unit is for historical comparisons and will be removed in a future
+major release. Saved SED scale metadata controls plot and fit labels.
 
 TRAJECTORY:
     trajectory_file = trajectory.dump
@@ -111,6 +119,7 @@ REFERENCE:
 
 
 def _detect_input_file() -> str:
+    """Resolve the optional input-file argument or handle a help request."""
     if len(sys.argv) == 1:
         if os.path.exists("input.in"):
             return "input.in"

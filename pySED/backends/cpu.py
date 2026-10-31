@@ -46,7 +46,13 @@ def _compute_shared_q_batch(
     q_start,
     q_stop,
 ):
-    """Attach to one shared velocity block and calculate one Q range."""
+    """Read shared velocities and return the spectrum for [q_start, q_stop).
+
+    The worker attaches a read-only (frames, atoms, 3) view using the shared
+    segment name, shape, and dtype. It returns (start, stop, power) to the
+    parent process. The worker closes its handle; the parent owns deletion
+    of the shared segment after all submitted work has finished.
+    """
 
     if _CPU_WORKER_CONFIG is None:
         raise RuntimeError("SED worker was not initialized")
@@ -74,7 +80,12 @@ def _compute_shared_q_batch(
 
 @contextmanager
 def _share_numpy_array(values):
-    """Copy one contiguous array into shared memory and always clean it up."""
+    """Yield the name, shape, and dtype of a shared copy of a NumPy array.
+
+    The context owns the shared-memory allocation. Callers must finish all
+    readers before leaving the context, which closes and unlinks the segment
+    even if an exception occurs.
+    """
 
     contiguous = np.ascontiguousarray(values)
     segment = shared_memory.SharedMemory(create=True, size=contiguous.nbytes)
@@ -93,9 +104,16 @@ def _share_numpy_array(values):
 
 
 class CPUBackend:
-    """Own CPU workers and shared velocity buffers, never SED normalization."""
+    """Compute SED blocks serially or with a reusable pool of CPU workers.
+
+    Use as a context manager. A parallel calculation shares each velocity
+    block once and sends q-point ranges to workers, rather than copying the
+    whole block for every task. Workers return unnormalized power arrays;
+    compute() places them in the caller's result array in q-point order.
+    """
 
     def __init__(self, config, reduced_qpoints, max_cores):
+        """Store the topology and choose the CPU worker count."""
         self.config = config
         self.reduced_qpoints = reduced_qpoints
         self.max_cores = max_cores
@@ -105,6 +123,7 @@ class CPUBackend:
         self._executor = None
 
     def __enter__(self):
+        """Start the worker pool when parallel execution is enabled."""
         if self.max_cores > 1:
             self._executor = ProcessPoolExecutor(
                 max_workers=self.num_workers,
@@ -118,15 +137,17 @@ class CPUBackend:
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """Shut down workers when leaving the computation context."""
         self.close()
 
     def close(self):
-        """One shutdown after all blocks, including a failed calculation."""
+        """Wait for outstanding worker tasks and shut down the process pool."""
         if self._executor is not None:
             self._executor.shutdown()
             self._executor = None
 
     def prepare(self, vels, cell_vecs, result, accumulator, *, prefetch):
+        """Report the estimated memory needed for a trajectory block."""
         print_cpu_memory_estimate(
             vels, cell_vecs, self.config, accumulator, result,
             backend="numpy", num_workers=self.num_workers,
@@ -134,7 +155,13 @@ class CPUBackend:
         )
 
     def compute(self, vels, cell_vecs, result):
-        """Fill one unnormalized block, serially or with persistent workers."""
+        """Fill the caller's result array with one block of FFT power.
+
+        vels has shape (frames, atoms, 3), and cell_vecs is (cells, 3).
+        result has shape (frames, q_points), with extra (types, 3) axes for partial
+        SED. Parallel workers may finish out of order; their results are assigned
+        to the correct q slices before this method returns.
+        """
         batches = qpoint_batches(len(self.config.qpoints), self.num_workers)
         if self._executor is None:
             for start, stop in batches:

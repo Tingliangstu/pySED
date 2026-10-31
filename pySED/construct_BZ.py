@@ -26,6 +26,14 @@ from pySED.structure import generate_data
 
 
 class BZ_methods(object):
+    """Build atom-to-cell metadata and the reciprocal-space path used by SED.
+
+    Read basis.in and match the supplied primitive cell to the trajectory cell.
+    After construction, qpoints contains Cartesian reciprocal vectors including
+    2*pi, reduced_qpoints contains primitive reciprocal coordinates, and
+    q_distances/q_labels describe the ordered path. cell_ref_ids selects one
+    reference atom per unit cell for the SED spatial phase.
+    """
     def __init__(
         self,
         params,
@@ -34,6 +42,7 @@ class BZ_methods(object):
         qpoints_info=True,
     ):
 
+        """Read the basis mapping and match the primitive and trajectory cells."""
         self.box_info = box_info
         self.qpoints_info = qpoints_info
 
@@ -50,6 +59,12 @@ class BZ_methods(object):
         self._construct_BZ_path(params)
 
     def _get_basis_lattice(self, params):
+        """Read the four mapping columns of basis.in after its two header lines.
+
+        Atom IDs, unit-cell indices, and basis indices are one-based in the file;
+        masses are in amu. These rows must follow the trajectory atom order.
+        The largest atom ID is checked against params.num_atoms before calculation.
+        """
         if not os.path.exists(params.basis_lattice_file):
             raise FileNotFoundError(
                 f"Basis file '{params.basis_lattice_file}' not found"
@@ -97,9 +112,16 @@ class BZ_methods(object):
     def _compare_cell(self, params, box_in_traj):
 
         ########## Output simulation cell informations ############
+        """Choose the simulation cell and reconcile the primitive-cell geometry.
+
+        Use dump_group_supercell when supplied, otherwise use the trajectory cell.
+        If requested, reconstruct params.prim_unitcell from the supercell repeats,
+        then apply prim_axis. These adjustments update params.prim_unitcell in place;
+        subsequent reciprocal-space construction uses the resulting row vectors.
+        """
         box_in_traj = np.asarray(box_in_traj, dtype=float)
 
-        # Here is important, means that the supercells used for MD simulation can be different from primitive cells.
+        # The MD supercell can differ from the primitive cell.
         self.supercell = box_in_traj
 
         if getattr(params, "dump_group_supercell", None) is not None:
@@ -180,7 +202,6 @@ class BZ_methods(object):
             params.prim_unitcell = params.prim_unitcell @ params.prim_axis
             if self.box_info:
                 print("\nTransformation from the input unit cell to the primitive cell is performed according \'prim_axis\'.")
-                #print("If \'prim_axis\' is set, one must use NVT for MD simulation.")
                 print("Now primitive unit cell is transformed to (Angstrom):")
                 for row in params.prim_unitcell:
                     print("  {: .8e}    {: .8e}    {: .8e}".format(row[0], row[1], row[2]))
@@ -188,6 +209,13 @@ class BZ_methods(object):
     def _construct_BZ_path(self, params):
 
         # Get q_path and number of q-paths
+        """Build and join the requested commensurate q-path segments.
+
+        Input endpoints are reduced primitive reciprocal coordinates. Store
+        Cartesian qpoints, reduced_qpoints, cumulative Cartesian path distances,
+        and symmetry labels in matching order. Segments without allowed points
+        are skipped and their labels merged into the preceding endpoint.
+        """
         q_path = np.array(params.q_path, dtype=object).reshape(-1, 3)
         num_qpaths = params.num_qpaths
 
@@ -211,6 +239,7 @@ class BZ_methods(object):
         label_map = {"G": r"$\Gamma$"}
 
         def fmt_vec(x):
+            """Format a vector with four decimal places per component."""
             return "(" + ", ".join(f"{v:.4f}" for v in x) + ")"
 
         def shortest_distance(q1_cart, q2_cart):
@@ -246,27 +275,8 @@ class BZ_methods(object):
 
                 if q_labels and prev_end_label is not None and prev_end_distance is not None:
 
-                    #next_start_distance = None
-                    # Peek directly at the global distance of the first point of the next paragraph (For test)
-                    #if (i + 1) < num_qpaths:
-                    #    q_start_next = q_path[i + 1]    # K
-                    #    q_end_next = q_path[i + 2]      # Γ
-                    #    qpoints_cart_next, _ = BZ_Path.build_commensurate_path(q_start_next, q_end_next)
-                    #    if len(qpoints_cart_next) > 0:
-                            # Calculate the global distance of point K
-                    #        first_step_len = shortest_distance(qpoints_cart_next[0], qpoints_cart_next[1]) if len(
-                    #            qpoints_cart_next) > 1 else 0.0
-                    #        next_start_distance = prev_end_distance + first_step_len
-
-                    #if next_start_distance is not None:
-                    #    midpoint_distance = 0.5 * (prev_end_distance + next_start_distance)
-                    #else:
-                    #    midpoint_distance = prev_end_distance
-
                     merged_label = f"{prev_end_label}/{end_label}"
                     q_labels[-1] = (prev_end_distance, merged_label)
-
-                    #prev_end_distance = midpoint_distance
 
                 prev_end_label = end_label
                 continue
@@ -328,7 +338,12 @@ class BZ_methods(object):
             print("\n**************** The total number of q-points generated is {}  ****************".format(self.num_qpoints))
 
     def _validate_dump_group_supercell(self, params, bz_path):
-        """Check that the local cell and basis.in describe the same group."""
+        """Compare the local cell repetition count with the count encoded in basis.in.
+
+        For local-group mode, abs(det(P)) must equal the largest unit-cell index.
+        This is a cell-count consistency check; it does not verify every atomic
+        position or atom-to-basis assignment.
+        """
 
         if getattr(params, "dump_group_supercell", None) is None:
             return
@@ -360,13 +375,11 @@ class BZPathHelper:
     """
 
     def __init__(self, primitive_cell, supercell_cell):
-        """
-        Parameters
-        ----------
-        primitive_cell : array-like, shape (3,3)
-            Lattice vectors of the primitive cell (rows are basis vectors).
-        supercell_cell : array-like, shape (3,3)
-            Lattice vectors of the supercell (rows are basis vectors)
+        """Store row-wise primitive/supercell matrices and derive the repetition matrix.
+
+        Both inputs have shape (3, 3) and use the same length unit, normally Angstrom.
+        The integer matrix P satisfies P @ primitive = supercell. Raise ValueError
+        when the supplied cells do not admit the required integer relation.
         """
         self._primitive_cell = np.array(primitive_cell, dtype=float)
         self._supercell_cell = np.array(supercell_cell, dtype=float)
@@ -396,7 +409,11 @@ class BZPathHelper:
     # 1. Lattice matrix computations
     # =========================================================
     def _compute_P_matrix(self):
-        """Compute integer repetition matrix R where: R @ primitive = supercell."""
+        """Return integer P satisfying P @ primitive = supercell.
+
+        Solve the cell relation in floating point, round the entries to integers,
+        and check that rounding is within the configured numerical tolerance.
+        """
         P_float = np.linalg.solve(self._primitive_cell.T, self._supercell_cell.T).T
         P_int = np.rint(P_float).astype(int)
         if not np.allclose(P_float, P_int, atol=1e-4):
@@ -419,9 +436,12 @@ class BZPathHelper:
     # 3. Path generation
     # =========================================================
     def build_commensurate_path(self, start_frac, end_frac):
-        """
-        Generate commensurate q-points along a path between two reduced coordinates.
+        """Return Cartesian q points and their fractional positions along a segment.
 
+        start_frac/end_frac are reduced primitive reciprocal coordinates. Allowed
+        positions f lie between 0 and 1; points follow start + f*(end - start).
+        The returned arrays have shapes (Q, 3) and (Q,), with Cartesian reciprocal
+        units including 2*pi. No allowed points produces two empty arrays.
         """
         fractions_list = self._find_allowed_fractions(start_frac, end_frac)
 
@@ -442,26 +462,16 @@ class BZPathHelper:
     # 4. Internal commensurate fraction finding
     # =========================================================
     def _find_allowed_fractions(self, start_frac, end_frac):
-        """
-        Find all fractional positions f in [0,1] that satisfy commensurability.
-        A supercell is defined by P @ c = S for some repetition matrix P and we
-        want to find fractions so that
+        """Find exact fractional positions allowed by the supercell along a q segment.
 
-            [start_frac + f * (end_frac - start_frac)] @ P = n
+        With row-vector cells satisfying P @ primitive = supercell, a reduced
+        primitive reciprocal coordinate q is commensurate when q @ P.T is an
+        integer vector. For q = start + f*(end - start), solve each component as
+        an integer constraint on f and intersect the resulting Fraction sets.
 
-        where n is an integer multiple of the supercell size.
-
-        Returns
-        -------
-        list(Fraction)
-            List of allowed fractional positions f in [0,1] that satisfy commensurability.
-
-        Parameters
-        ----------
-        start_frac
-            start of line in reduced supercell coordinates
-        end_frac
-            end of line in reduced supercell coordinates
+        Return sorted fractions in [0, 1], or an empty list if the constraints
+        have no solution. Coincident endpoints use the single-point convention
+        and return [Fraction(0, 1)].
         """
 
         if np.allclose(
@@ -513,12 +523,12 @@ class BZPathHelper:
 
     @staticmethod
     def _as_commensurate_fraction(value, max_denominator=12, atol=1e-5):
-        """
-        Convert q-path coordinates to stable Fractions.
+        """Convert one coordinate to the Fraction used by the q-path solver.
 
-        Users often enter high-symmetry points as decimal approximations,
-        e.g. 0.33333 for 1/3. Treat nearby small-denominator fractions as
-        the intended value, otherwise preserve the decimal value.
+        Existing Fraction input is returned unchanged. For floating-point input,
+        prefer a nearby small-denominator fraction within atol (for example,
+        0.33333 becomes 1/3); otherwise use Fraction.limit_denominator() to form
+        a rational approximation of the floating-point value.
         """
         if isinstance(value, Fraction):
             return value

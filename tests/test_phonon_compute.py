@@ -12,10 +12,12 @@ import numpy as np
 from scipy.fftpack import fft
 
 from pySED.Phonon import _element_symbol_from_mass, spectral_energy_density
+from pySED.io.schema import TrajectoryBatch, POSITIONS, VELOCITIES
 from pySED.sed_kernel import (
     JOULE_PER_EV,
     JOULE_SECOND_TO_EV_PER_THZ,
     calculate_q_batch,
+    finalize_spectrum,
     SEDKernelConfig,
 )
 from pySED.backends.cpu import (
@@ -155,7 +157,7 @@ class SEDKernelTests(unittest.TestCase):
                 )
 
     def test_qpoint_progress_keeps_original_output_style(self):
-        """Internal batching must not change the visible per-Q progress text."""
+        """Progress messages include each q-point index and reduced coordinates."""
 
         reduced_qpoints = np.array(
             [[0.0, 0.25, 0.5], [0.5, 0.25, 0.0]]
@@ -284,7 +286,7 @@ class SEDKernelTests(unittest.TestCase):
         self.assertEqual(_element_symbol_from_mass(123.456), "unknown")
 
     def test_cpu_memory_estimate_uses_real_array_shapes(self):
-        """The CPU estimate should use block arrays and keep cute output."""
+        """Memory estimates account for trajectory blocks and SED arrays."""
 
         config = self._config(output_partial=False)
         working_bytes = estimate_kernel_working_bytes(
@@ -348,6 +350,50 @@ class SEDKernelTests(unittest.TestCase):
         )
         self.assertFalse(hasattr(calculator, "_sed_sum"))
 
+    def test_one_sided_fold_handles_odd_and_even_frame_counts(self):
+        """Retain every positive bin, excluding only an even-length Nyquist."""
+        cases = ((1, [1]), (2, [1]), (3, [1, 5]), (4, [1, 6]),
+                 (5, [1, 7, 7]), (6, [1, 8, 8]))
+        for num_frames, expected_power in cases:
+            for shape in ((2,), (2, 2, 3)):
+                with self.subTest(frames=num_frames, shape=shape):
+                    scales = np.arange(1, np.prod(shape) + 1).reshape(shape)
+                    power = np.arange(1, num_frames + 1, dtype=float)
+                    spectrum = power.reshape((-1,) + (1,) * len(shape)) * scales
+                    frequencies = np.fft.fftfreq(num_frames, d=0.001)
+                    actual, actual_frequencies = finalize_spectrum(
+                        2 * spectrum, frequencies, num_blocks=2,
+                    )
+                    expected = np.asarray(expected_power).reshape(
+                        (-1,) + (1,) * len(shape)
+                    ) * scales * JOULE_SECOND_TO_EV_PER_THZ
+                    np.testing.assert_allclose(actual, expected)
+                    np.testing.assert_array_equal(
+                        actual_frequencies, frequencies[frequencies >= 0],
+                    )
+
+    def test_five_frame_signal_retains_highest_positive_frequency_peak(self):
+        """A 400 THz signal sampled at 1 fs must survive the final fold."""
+        velocities = np.zeros((5, 1, 3))
+        velocities[:, 0, 0] = np.cos(2 * np.pi * 2 * np.arange(5) / 5)
+        config = SEDKernelConfig(
+            basis_ids=(np.array([0]),), masses=np.array([1.0]),
+            basis_to_type=(0,), qpoints=np.zeros((1, 3)), num_types=1,
+            output_partial=False, amu_2_kg=1.0,
+        )
+        spectrum = calculate_q_batch(
+            velocities, np.zeros((1, 3)), config.qpoints,
+            config.basis_ids, config,
+        )
+        actual, frequencies = finalize_spectrum(
+            spectrum, np.fft.fftfreq(5, d=0.001), num_blocks=1,
+        )
+        np.testing.assert_array_equal(frequencies, [0.0, 200.0, 400.0])
+        np.testing.assert_allclose(
+            actual[:, 0] / JOULE_SECOND_TO_EV_PER_THZ,
+            [0.0, 0.0, 12.5], atol=1e-12,
+        )
+
     def test_output_unit_conversion_preserves_integrated_energy(self):
         """The eV/THz spectrum must integrate to the same physical energy."""
 
@@ -374,6 +420,68 @@ class SEDKernelTests(unittest.TestCase):
             energy_from_internal_ev,
             places=14,
         )
+
+    def test_driver_legacy_scale_matches_2x_normalization(self):
+        """Check both scales against the 2.x FFT formula, including DC and odd N."""
+        for num_frames in (5, 8):
+            velocities = self.vels[:num_frames]
+            positions = np.broadcast_to(
+                np.repeat(self.cell_vecs, 2, axis=0), velocities.shape,
+            )
+            blocks = [
+                TrajectoryBatch(start=i * num_frames, data={
+                    POSITIONS: positions, VELOCITIES: velocities * amplitude,
+                })
+                for i, amplitude in enumerate((1.0, 2.0))
+            ]
+            for partial_output in (False, True):
+                config = self._config(partial_output)
+                lattice = SimpleNamespace(
+                    unitcell_index=np.repeat([1, 2, 3], 2),
+                    basis_index=np.tile([1, 2], 3),
+                    masses=np.tile(config.masses, 3),
+                    cell_ref_ids=np.array([0, 2, 4]), num_qpoints=7,
+                    qpoints=config.qpoints, reduced_qpoints=config.qpoints,
+                )
+                for spacing_fs in (1.0, 2.0):
+                    dt = spacing_fs * 1e-15
+                    raw = _reference_qpoints(velocities, self.cell_vecs, config)
+                    # The two block powers are 1 and 4 times the reference.
+                    old_two_sided = raw * 2.5 / (4 * np.pi * num_frames * dt * 3)
+                    frequencies = np.fft.fftfreq(num_frames, dt) / 1e12
+                    indices = np.flatnonzero(frequencies >= 0)
+                    old_folded = old_two_sided[indices].copy()
+                    for index in indices[1:]:
+                        old_folded[index] = (
+                            old_two_sided[index] + old_two_sided[-index]
+                        ) / 2.0
+                    for legacy in (False, True):
+                        with self.subTest(frames=num_frames, partial=partial_output,
+                                          dt=dt, legacy=legacy):
+                            params = SimpleNamespace(
+                                total_num_steps=2 * num_frames, output_data_stride=1,
+                                num_blocks=2, num_atoms=6, time_step=spacing_fs,
+                                backend="numpy", max_cores=1,
+                                output_partial=partial_output, trajectory_prefetch=False,
+                                legacy_unit=legacy,
+                            )
+                            with redirect_stdout(StringIO()):
+                                calculator = spectral_energy_density(
+                                    params, SimpleNamespace(n_atoms=6),
+                                )
+                                calculator.compute_sed(
+                                    params, lattice, blocks[0], iter(blocks[1:]),
+                                )
+                            expected = old_folded.copy()
+                            if not legacy:
+                                expected[1:] *= 2.0
+                                expected *= dt**2 * JOULE_SECOND_TO_EV_PER_THZ
+                            np.testing.assert_allclose(
+                                calculator.sed_avg, expected, rtol=1e-12, atol=0,
+                            )
+                            np.testing.assert_array_equal(
+                                calculator.freq_fft, frequencies[indices],
+                            )
 
     def test_block_scaling_includes_discrete_time_step_squared(self):
         """The FFT sum must include dt twice after taking its magnitude squared."""

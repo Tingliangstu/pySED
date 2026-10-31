@@ -24,7 +24,7 @@ from pySED.pipeline import (
     step_plot_sed,
     step_prepare_trajectory,
 )
-from pySED import FileIO
+from pySED import FileIO, Lorentz
 from pySED.construct_BZ import BZ_methods
 from pySED.Plot_SED import (
     _print_color_scale,
@@ -49,7 +49,7 @@ Si 0 0 0 0.001 0.002 0.003
 class ParserTests(unittest.TestCase):
     def test_sed_is_the_only_available_method(self):
         self.assertEqual(PARAMETERS["method"].default, "sed")
-        self.assertEqual(len(PARAMETERS), 45)
+        self.assertEqual(len(PARAMETERS), 46)
         with self.assertRaisesRegex(ValueError, "method must be 'sed'"):
             validate_common(SimpleNamespace(method="dsf"))
 
@@ -579,19 +579,22 @@ class ParserTests(unittest.TestCase):
             if_show_figures=False,
         )
 
-        with (
-            patch("pySED.Plot_SED.plt.savefig"),
-            redirect_stdout(io.StringIO()),
-        ):
-            plot_bands(data, params)
-            figure = plt.gcf()
-
-        self.assertEqual(
-            figure.axes[1].get_ylabel(),
-            r"$\ln\!\left[\mathrm{SED}(\mathbf{q},\omega)"
-            r"/(\mathrm{eV/THz})\right]$",
-        )
-        plt.close(figure)
+        for unit in ("eV/THz", "legacy 2.x scale"):
+            data.sed_unit = unit
+            with (
+                patch("pySED.Plot_SED.plt.savefig"),
+                redirect_stdout(io.StringIO()) as output,
+            ):
+                plot_bands(data, params)
+                figure = plt.gcf()
+            expected_label = (
+                r"$\ln\!\left[\mathrm{SED}(\mathbf{q},\omega)"
+                r"/(\mathrm{eV/THz})\right]$"
+                if unit == "eV/THz" else "ln[SED / (legacy 2.x scale)]"
+            )
+            self.assertEqual(figure.axes[1].get_ylabel(), expected_label)
+            self.assertIn(f"ln[SED / ({unit})]", output.getvalue())
+            plt.close(figure)
 
     def test_slice_frequency_limit_uses_the_matching_plot_control(self):
         """Plain plots and Lorentz overlays should use their own cutoffs."""
@@ -794,6 +797,150 @@ class ParserTests(unittest.TestCase):
                     )
             finally:
                 os.chdir(previous_directory)
+
+    def test_single_qpoint_output_reloads_for_plotting_and_fitting(self):
+        """Total, element, and direction spectra retain their q-point axis."""
+        frequency = np.linspace(1.0, 3.0, 401)
+        spectrum = 1.0 / (1.0 + ((frequency - 2.0) / 0.08) ** 2)
+        lattice = SimpleNamespace(
+            reduced_qpoints=np.array([[0.25, 0.0, 0.0]]),
+            q_distances=(0.0,), q_labels=((0.0, "Q"),),
+        )
+        with TemporaryDirectory() as directory:
+            previous_directory = os.getcwd()
+            try:
+                os.chdir(directory)
+                params = SimpleNamespace(
+                    out_files_name="single", output_partial=False,
+                    plot_partial_SED=False, plot_partial_element="Si",
+                    plot_partial_dir=None, qpoint_slice_index=0,
+                    lorentz_fit_freq_min=1.0, lorentz_fit_freq_max=3.0,
+                    fitting_function="lorentz", peak_min_significance=4.0,
+                    modulate_factor=0, initial_guess_hwhm=0.05,
+                    peak_max_hwhm=1.0, if_show_figures=False,
+                )
+                phonons = SimpleNamespace(
+                    sed_avg=spectrum[:, None], freq_fft=frequency,
+                    type_symbols=("Si",),
+                )
+                for output_partial, legacy in (
+                    (False, False), (False, True), (True, False), (True, True),
+                ):
+                    params.output_partial = output_partial
+                    phonons.legacy_unit = legacy
+                    params.legacy_unit = not legacy
+                    phonons.sed_avg = spectrum[:, None]
+                    if output_partial:
+                        phonons.sed_avg = (
+                            spectrum[:, None, None, None] * np.array([1, 2, 3])
+                        )
+                    FileIO.write_output(phonons, params, lattice)
+                    selections = [(False, None, 6 if output_partial else 1)]
+                    if output_partial:
+                        selections += [(True, None, 6), (True, "x", 1),
+                                       (True, "y", 2), (True, "z", 3)]
+                    for partial, direction, amplitude in selections:
+                        with self.subTest(partial=partial, direction=direction,
+                                          output_partial=output_partial):
+                            params.plot_partial_SED = partial
+                            params.plot_partial_dir = direction
+                            loaded = FileIO.load_data(params)
+                            self.assertEqual(loaded.legacy_unit, legacy)
+                            unit = "legacy 2.x scale" if legacy else "eV/THz"
+                            self.assertEqual(loaded.sed_unit, unit)
+                            np.testing.assert_allclose(
+                                loaded.sed_avg, amplitude * spectrum[:, None],
+                            )
+                            np.testing.assert_array_equal(
+                                loaded.qpoints, lattice.reduced_qpoints,
+                            )
+                            np.testing.assert_allclose(loaded.freq_fft, frequency)
+                            validate_qpoint_slice_index(params, loaded.qpoints)
+                            with redirect_stdout(io.StringIO()):
+                                result = Lorentz.lorentz(loaded, params)
+                            np.testing.assert_allclose(
+                                result.popt, [[2.0, amplitude, 0.08]], rtol=1e-5,
+                            )
+                            with patch("pySED.Plot_SED.plt.savefig") as savefig:
+                                savefig.side_effect = lambda *a, **kw: self.assertIn(
+                                    unit, plt.gca().get_ylabel(),
+                                )
+                                plot_slice(loaded, params)
+                                plot_slice(loaded, params, fit_result=result)
+                            self.assertEqual(savefig.call_count, 2)
+            finally:
+                os.chdir(previous_directory)
+
+    def test_legacy_unit_parser_defaults_and_boolean_spellings(self):
+        """Legacy output is opt-in and accepts boolean words as well as 0/1."""
+        with TemporaryDirectory() as directory:
+            path = Path(directory) / "input.in"
+            for value, expected in (
+                (None, False), ("True", True), ("true", True), ("TRUE", True),
+                ("False", False), ("false", False), ("FALSE", False),
+                ("1", True), ("0", False),
+            ):
+                path.write_text(
+                    "action = plot\n" + (
+                        f"legacy_unit = {value}\n" if value is not None else ""
+                    ), encoding="utf-8",
+                )
+                self.assertIs(read_input(path).legacy_unit, expected)
+            path.write_text("action = plot\nlegacy_unit = yes\n", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "True or False"):
+                read_input(path)
+
+    def test_unmarked_sed_uses_input_scale_without_rescaling(self):
+        """Headers from early 3.0 runs override input; unmarked 2.x files need True."""
+        with TemporaryDirectory() as directory:
+            path = Path(directory) / "old.SED"
+            values = np.arange(1.0, 4.0)[:, None]
+            for header in ("", "pySED spectral energy density; unit: eV/THz;"):
+                np.savetxt(path, values, header=header)
+                for fallback in (False, True):
+                    loaded, legacy = FileIO._read_sed(path, fallback)
+                    np.testing.assert_array_equal(loaded, values)
+                    self.assertEqual(legacy, fallback if not header else False)
+
+    def test_partial_sed_rejects_mixed_output_scales(self):
+        """Element sums must not combine legacy and physical intensities."""
+        with TemporaryDirectory() as directory:
+            prefix = str(Path(directory) / "mixed")
+            params = SimpleNamespace(
+                out_files_name=prefix, plot_partial_SED=True,
+                plot_partial_element="Si", plot_partial_dir=None,
+            )
+            partial_dir = Path(prefix + "_partial_SED")
+            partial_dir.mkdir()
+            for direction in ("x", "y", "z"):
+                np.savetxt(
+                    partial_dir / f"mixed.SED_Si_{direction}", [[1.0], [2.0]],
+                    header="legacy_unit: true" if direction == "x" else FileIO.SED_HEADER,
+                )
+            with self.assertRaisesRegex(ValueError, "inconsistent output scales"):
+                FileIO.load_data(params)
+
+    def test_sed_reload_preserves_single_frequency_row_orientation(self):
+        """A one-row file must stay (frequency, q-point), even for one q."""
+        with TemporaryDirectory() as directory:
+            params = SimpleNamespace(out_files_name=str(Path(directory) / "short"))
+            for num_qpoints in (1, 3):
+                with self.subTest(qpoints=num_qpoints):
+                    phonons = SimpleNamespace(
+                        sed_avg=np.arange(1, num_qpoints + 1)[None, :],
+                        freq_fft=np.array([0.0]),
+                    )
+                    lattice = SimpleNamespace(
+                        reduced_qpoints=np.zeros((num_qpoints, 3)),
+                        q_distances=np.arange(num_qpoints), q_labels=((0.0, "G"),),
+                    )
+                    FileIO.write_output(phonons, params, lattice)
+                    loaded = FileIO.load_data(params)
+                    self.assertEqual(loaded.sed_avg.shape, (1, num_qpoints))
+                    self.assertEqual(loaded.freq_fft.shape, (1,))
+                    np.testing.assert_array_equal(loaded.sed_avg, phonons.sed_avg)
+                    np.testing.assert_array_equal(loaded.freq_fft, phonons.freq_fft)
+                    np.testing.assert_array_equal(loaded.qpoints, lattice.reduced_qpoints)
 
     def test_explicit_compute_runs_when_sed_already_exists(self) -> None:
         with TemporaryDirectory() as directory:

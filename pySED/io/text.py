@@ -51,6 +51,7 @@ def _make_progress_reporter(total_bytes: int) -> ProgressCallback:
     last_percent = -1
 
     def report(num_frames: int, consumed_bytes: int) -> None:
+        """Update conversion progress when the completed percentage changes."""
         nonlocal last_percent
         percent = min(100, int(100 * consumed_bytes / total_bytes))
         if percent == last_percent:
@@ -95,6 +96,7 @@ def detect_text_format(path: Path) -> str:
 
 
 def _lattice_from_comment(comment: str) -> np.ndarray | None:
+    """Read the 3x3 Lattice matrix from an extended XYZ comment, if present."""
     match = re.search(
         r'lattice\s*=\s*"([^"]+)"',
         comment,
@@ -109,7 +111,12 @@ def _lattice_from_comment(comment: str) -> np.ndarray | None:
 
 
 def _properties_from_comment(comment: str):
-    """Return an extended-XYZ property map and its total column count."""
+    """Map extended-XYZ property names to column slices and declared types.
+
+    Return (properties, total_columns), where each properties entry is a
+    (slice, type_code) pair. Return None when no Properties declaration exists;
+    the XYZ reader then uses its positional-column fallback.
+    """
 
     match = re.search(
         r"properties\s*=\s*(?:\"([^\"]+)\"|'([^']+)'|([^\s]+))",
@@ -148,6 +155,7 @@ def _properties_from_comment(comment: str):
 
 
 def _property_slice(properties, *names):
+    """Return the column slice for the first matching property name."""
     for name in names:
         if name in properties:
             return properties[name][0]
@@ -155,6 +163,7 @@ def _property_slice(properties, *names):
 
 
 def _numeric_property(rows, selection, dtype, name, columns):
+    """Parse a fixed-width numeric XYZ property using the requested dtype."""
     if selection is None or selection.stop - selection.start != columns:
         raise ValueError(
             f"extended XYZ Properties must declare {name}:R:{columns}"
@@ -169,6 +178,12 @@ def _numeric_property(rows, selection, dtype, name, columns):
 
 
 def _stack_batch(start: int, frames: list[dict[str, np.ndarray]]):
+    """Stack matching frame fields into one TrajectoryBatch.
+
+    Frame-dependent fields gain a leading frame axis. Atom IDs remain a
+    single static array taken from the first frame. Reject changes to the
+    set of available fields so a batch cannot silently mix different layouts.
+    """
     fields = set(frames[0])
     if any(set(frame) != fields for frame in frames):
         raise ValueError("trajectory fields changed between frames")
@@ -187,7 +202,17 @@ def iter_gpumd_xyz(
     dtype=np.float32,
     progress: ProgressCallback | None = None,
 ) -> Iterator[TrajectoryBatch]:
-    """Parse GPUMD extended XYZ according to its ``Properties=`` schema."""
+    """Yield batches of GPUMD extended-XYZ frames in file atom order.
+
+    Properties= determines column positions; without it the fallback is
+    species, x/y/z, and optional vx/vy/vz. Positions/cells are in Angstrom,
+    and velocities are converted from Angstrom/fs to m/s. dtype controls
+    numeric position/velocity parsing; cells use float64.
+
+    Each batch contains at most batch_size frames, with a possibly shorter
+    last batch. Missing optional fields stay absent for the caller to validate.
+    The optional progress callback receives (frames_read, source_bytes_read).
+    """
 
     if batch_size < 1:
         raise ValueError("batch_size must be positive")
@@ -313,6 +338,7 @@ def iter_gpumd_xyz(
 
 
 def _lammps_cell(bounds: list[np.ndarray], triclinic: bool) -> np.ndarray:
+    """Convert orthogonal or tilted LAMMPS bounds to row-wise cell vectors."""
     if triclinic:
         xlo_bound, xhi_bound, xy = bounds[0]
         ylo_bound, yhi_bound, xz = bounds[1]
@@ -332,6 +358,7 @@ def _lammps_cell(bounds: list[np.ndarray], triclinic: bool) -> np.ndarray:
 
 
 def _expect(stream, prefix: str) -> str:
+    """Read a LAMMPS header line and verify its required prefix."""
     line = stream.readline()
     if not line or not line.startswith(prefix):
         raise ValueError(f"expected LAMMPS header '{prefix}'")
@@ -345,7 +372,17 @@ def iter_lammps_dump(
     dtype=np.float32,
     progress: ProgressCallback | None = None,
 ) -> Iterator[TrajectoryBatch]:
-    """Parse one LAMMPS custom dump containing positions and velocities."""
+    """Yield batches from a LAMMPS custom dump, sorting each frame by atom ID.
+
+    Require id plus x/y/z or xu/yu/zu columns. When vx/vy/vz are present,
+    convert from Angstrom/ps (metal) or Angstrom/fs (real) to m/s. Positions
+    remain in Angstrom; scaled xs/ys/zs coordinates are not supported.
+    Atom count and sorted IDs must remain consistent across frames.
+
+    dtype sets numeric atom-column parsing precision. Cell bounds are parsed
+    as float64, including triclinic tilts. The final batch may be shorter than
+    batch_size; progress receives (frames_read, source_bytes_read).
+    """
 
     if batch_size < 1:
         raise ValueError("batch_size must be positive")
@@ -468,7 +505,16 @@ def convert_text_trajectory(
     storage_dtype: str = "float32",
     lammps_unit: str = "metal",
 ) -> Path:
-    """Stream one supported text trajectory into canonical NetCDF."""
+    """Convert a supported text trajectory to NetCDF without loading it all.
+
+    Pass storage_dtype through to the text reader as well as the writer, so
+    float64 output does not first round positions and velocities to float32.
+    The reader supplies canonical units; NetCDFWriter handles on-disk units.
+
+    Write to a temporary file beside output, then replace output only after
+    finish() marks the conversion complete. On errors or interruption, close
+    the writer and remove the temporary file. Return the completed output path.
+    """
 
     source = Path(source)
     output = Path(output)
@@ -491,12 +537,14 @@ def convert_text_trajectory(
         batches = iter_gpumd_xyz(
             source,
             batch_size=batch_size,
+            dtype=np.dtype(storage_dtype),
             progress=progress,
         )
     elif source_format == LAMMPS_DUMP:
         batches = iter_lammps_dump(
             source,
             batch_size=batch_size,
+            dtype=np.dtype(storage_dtype),
             lammps_unit=lammps_unit,
             progress=progress,
         )

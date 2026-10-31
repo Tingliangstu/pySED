@@ -19,16 +19,24 @@ from pySED.structure import read_structure
 
 class structure_maker(object):
 
+    """Generate a replicated crystal and its matching SED basis mapping.
+
+    Read a primitive structure, call replicate_supercell once, then write
+    XYZ/LAMMPS coordinates and basis.in from the same object. All writers
+    preserve the atom-row order established by replication so coordinates,
+    masses, unit-cell indices, and basis indices refer to the same atoms.
+    """
     def __init__(self, structure_file_name='POSCAR',
                        lammps_data_flag=False,
                        lammps_infile_name=None,
                        description='Create LAMMPS or GPUMD data for SED method by using pySED'):
-        """
-        Generate the required file for SED projects (including lammps data for running lammps and basis.in for Reciprocal space)
-        :param structure_file_name: input file for primitive structure (POSCAR file is recommended).
-        :param lammps_data_flag: using the lammps interface to read input file (not recommended).
-        :param lammps_infile_name: if lammps_data_flag, this file is needed.
-        :param description: Some description.
+        """Read the primitive structure and initialize its one-based basis labels.
+
+        structure_file_name selects extended XYZ by its .xyz suffix; other names
+        use the POSCAR reader. lammps_data_flag instead loads lammps_infile_name
+        through the optional LAMMPS Python interface. description becomes the
+        header text in generated data and basis files. This constructor does not
+        yet replicate the structure or write output files.
         """
         self.description = str(description)
         self.lammpsInfile = lammps_infile_name
@@ -60,22 +68,31 @@ class structure_maker(object):
 
     def replicate_supercell(self, supercell=(1, 1, 1), origin_position=False):
 
+        """Replicate whole primitive-cell blocks along the three lattice vectors.
+
+        supercell gives three repeat counts. Each appended cell keeps the original
+        basis order, and positions, symbols, masses, and mapping indices are
+        extended together. origin_position translates the completed coordinates
+        so the minimum Cartesian value in each direction is zero. Results update
+        this object for the structure and basis writers.
+        """
         self.supercell = supercell
-        unitcells = np.copy(self.unitcell_index)                # deep copy
-        basis_atom_index = np.copy(self.basis_index)            # deep copy
+        # Keep the original basis arrays while extending the replicated arrays.
+        unitcells = np.copy(self.unitcell_index)
+        basis_atom_index = np.copy(self.basis_index)
         basis_atom_masses = np.copy(self.masses)
         basis_atom_types = np.copy(self.basis_atoms_symbols)
 
         position = np.copy(self.unitcell_positions[:, :])
 
-        # Generate supercell position
+        # Append each translated cell as a complete block in the original atom order.
         for i in range(self.supercell[0]):
             a1 = np.copy(self.cell[0, :]) * i
             for j in range(self.supercell[1]):
                 a2 = np.copy(self.cell[1, :]) * j
                 for k in range(self.supercell[2]):
                     a3 = np.copy(self.cell[2, :]) * k
-                    # Skip 0 indexes
+                    # The unshifted cell is already present in position.
                     if i == 0 and j == 0 and k == 0:
                         continue
                     new_cell = np.copy(self.unitcell_positions)
@@ -83,7 +100,7 @@ class structure_maker(object):
                     new_cell[:, 1] = new_cell[:, 1] + a1[1] + a2[1] + a3[1]     # y
                     new_cell[:, 2] = new_cell[:, 2] + a1[2] + a2[2] + a3[2]     # z
 
-                    # For unitcell index
+                    # All atoms in this copy share the next one-based cell ID.
                     unitcells = unitcells + 1
                     self.unitcell_index = np.append(self.unitcell_index, unitcells, axis=0)
                     self.basis_index = np.append(self.basis_index, basis_atom_index, axis=0)
@@ -93,7 +110,7 @@ class structure_maker(object):
 
                     position = np.append(position, new_cell, axis=0)
 
-        # For origin_position due to boundary origined from 0
+        # Shift the entire structure without changing relative atom positions.
         if origin_position:
             position[:, 0] = position[:, 0] - position[:, 0].min()
             position[:, 1] = position[:, 1] - position[:, 1].min()
@@ -103,6 +120,12 @@ class structure_maker(object):
         self.num_atoms = position.shape[0]
 
     def write_xyz(self, filename='model.xyz', pbc="T T T"):
+        """Write replicated Cartesian positions as an extended-XYZ structure.
+
+        The header contains the replicated 3x3 lattice, species/position columns,
+        and the supplied pbc flags. Rows remain in basis.in order; this is an
+        initial structure file, not a trajectory with velocities.
+        """
         lattice = self.calculate_supercell_matrix(self.cell, self.supercell)
         with open(filename, 'w') as fid:
             fid.write('{0:d}\n'.format(self.num_atoms))
@@ -122,6 +145,14 @@ class structure_maker(object):
     def write_lammps_data(self, file_name='lammps_data', lammps_data_types=None, atom_order=None):
 
         # Get lammps data boundary
+        """Write replicated atoms and a restricted-triclinic LAMMPS cell.
+
+        Rotate the cell and positions together into LAMMPS's restricted frame.
+        atom_order chooses species-to-type numbering without reordering atoms.
+        The metal layout writes id/type/x/y/z; the real layout also writes
+        molecule IDs and zero charges. Set lammps_data_types to select that layout;
+        it does not change the basis.in atom order.
+        """
         restricted_cell, rotation = self.calculate_restricted_cell(self.calculate_supercell_matrix(self.cell, self.supercell),
                                                                    return_rotation=True)
         xhi, yhi, zhi, xy, xz, yz = self.lammps_parameters_from_restricted_cell(restricted_cell)
@@ -206,8 +237,14 @@ class structure_maker(object):
 
         print('\n************* ' + file_name + ' is written successfully' + ' ************\n')
 
-    ## Most important file
     def write_lattice_basis_file(self, file_name='basis.in'):
+        """Write the atom-to-crystal mapping paired with the generated structure.
+
+        After two header lines, each row contains atom ID, unit-cell index,
+        basis index, and mass in amu. The three indices are one-based. Write this
+        from the same replicated object as the coordinates so trajectory rows and
+        basis rows stay aligned.
+        """
         basis_file = self.description + '\n'
         basis_file += "atoms_ids unitcell_index basis_index mass_types\n"
         for i in range(self.num_atoms):
@@ -222,6 +259,7 @@ class structure_maker(object):
 
     @staticmethod
     def calculate_supercell_matrix(cell, supercell):
+        """Scale the three row-wise lattice vectors by their replication factors."""
         cell = np.asarray(cell, dtype=float)
         supercell = np.asarray(supercell, dtype=float)
 
@@ -236,11 +274,12 @@ class structure_maker(object):
 
     @staticmethod
     def calculate_restricted_cell(cell, return_rotation=False):
-        """
-        Convert any right-handed triclinic cell to the lower-triangular
-        restricted representation used by LAMMPS. The returned rotation maps
-        row-vector Cartesian coordinates from the input cell frame to the
-        restricted frame: new_positions = old_positions @ rotation.
+        """Convert a right-handed 3x3 cell to LAMMPS's lower-triangular frame.
+
+        Lattice vectors are rows. Return the restricted cell, or (cell, rotation)
+        when return_rotation=True. Apply the same rotation to Cartesian row-vector
+        positions: new_positions = old_positions @ rotation. The transformation
+        preserves the cell geometry; degenerate or left-handed cells raise ValueError.
         """
         cell = np.asarray(cell, dtype=float)
         if cell.shape != (3, 3):
@@ -285,6 +324,7 @@ class structure_maker(object):
 
     @staticmethod
     def lammps_parameters_from_restricted_cell(restricted_cell):
+        """Extract box lengths and xy/xz/yz tilts from a restricted cell matrix."""
         restricted_cell = np.asarray(restricted_cell, dtype=float)
         if restricted_cell.shape != (3, 3):
             raise ValueError('restricted_cell must be a 3x3 matrix.')
@@ -300,6 +340,7 @@ class structure_maker(object):
 
     @staticmethod
     def calculate_lattice_parameters(cell, supercell):
+        """Return LAMMPS box lengths and tilts for the replicated cell."""
         supercell_matrix = structure_maker.calculate_supercell_matrix(cell, supercell)
         restricted_cell = structure_maker.calculate_restricted_cell(supercell_matrix)
         xhi, yhi, zhi, xy, xz, yz = structure_maker.lammps_parameters_from_restricted_cell(restricted_cell)

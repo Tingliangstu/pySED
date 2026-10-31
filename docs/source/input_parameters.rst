@@ -19,6 +19,8 @@ command line, pySED searches for ``input.in`` and then the legacy filename
    pysed input.in
    pySED input.in
 
+Boolean parameters accept ``True``/``False`` (case-insensitive) or ``1``/``0``.
+
 The table below lists the parameters accepted by the pySED input file. Each
 parameter has its own page with the parameter name as the title, plus syntax,
 meaning, defaults, examples, practical notes, and related parameters.
@@ -33,6 +35,7 @@ meaning, defaults, examples, practical notes, and related parameters.
    input_parameters/time_step
    input_parameters/output_data_stride
    input_parameters/out_files_name
+   input_parameters/legacy_unit
    input_parameters/basis_lattice_file
    input_parameters/lammps_unit
    input_parameters/output_partial
@@ -72,6 +75,7 @@ meaning, defaults, examples, practical notes, and related parameters.
        "time-step": "input_parameters/time_step.html",
        "output-data-stride": "input_parameters/output_data_stride.html",
        "out-files-name": "input_parameters/out_files_name.html",
+       "legacy-unit": "input_parameters/legacy_unit.html",
        "basis-lattice-file": "input_parameters/basis_lattice_file.html",
        "lammps-unit": "input_parameters/lammps_unit.html",
        "output-partial": "input_parameters/output_partial.html",
@@ -168,6 +172,9 @@ meaning, defaults, examples, practical notes, and related parameters.
    * - `out_files_name <input_parameters/out_files_name.html>`_
      - Files
      - Prefix for pySED output files.
+   * - `legacy_unit <input_parameters/legacy_unit.html>`_
+     - Output scale
+     - Temporarily use the pySED 2.x intensity scale for historical comparisons.
    * - `basis_lattice_file <input_parameters/basis_lattice_file.html>`_
      - Files
      - Path to ``basis.in``.

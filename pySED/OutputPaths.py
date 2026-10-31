@@ -8,14 +8,23 @@ LIFETIME_DIRECTORY = Path("Lifetime")
 
 
 def sed_data_files(prefix):
-    """The four files required to reload one complete SED result."""
+    """Return Paths for SED, reduced q points, THz frequencies, and path labels.
+
+    The tuple order is (.SED, .Qpts, .THz, .Q_distances_and_labels). prefix
+    may contain a directory. This function constructs names without creating
+    files or directories.
+    """
     return tuple(Path(str(prefix) + suffix) for suffix in (
         ".SED", ".Qpts", ".THz", ".Q_distances_and_labels",
     ))
 
 
 def partial_sed_data(prefix, element, direction):
-    """One element-labelled Cartesian component of the SED."""
+    """Return the data path for one element and Cartesian direction.
+
+    Use direction x, y, or z. For prefix /work/sample, the file is placed in
+    /work/sample_partial_SED/ and named sample.SED_<element>_<direction>.
+    """
     return (
         Path(str(prefix) + "_partial_SED")
         / f"{Path(prefix).name}.SED_{element}_{direction}"
@@ -23,7 +32,7 @@ def partial_sed_data(prefix, element, direction):
 
 
 def dispersion_figure(params):
-    """The selected total or element-resolved dispersion plot."""
+    """Return the path for the selected total or element-resolved dispersion plot."""
     if getattr(params, "plot_partial_SED", False):
         direction = params.plot_partial_dir or "xyz"
         return (
@@ -34,7 +43,12 @@ def dispersion_figure(params):
 
 
 def slice_figure(params, *, fitting=False):
-    """A plain single-Q spectrum or an explicit fit overlay."""
+    """Return the filename for a plain q-point slice or a fit overlay.
+
+    Plain partial slices include the selected element and direction. Fitting
+    uses the shared Fitting-Qpoint directory and the zero-based q index.
+    The plotting caller creates directories and writes the figure.
+    """
     q_index = params.qpoint_slice_index
     if fitting:
         return fitting_qpoint_figure(q_index)
@@ -48,19 +62,22 @@ def slice_figure(params, *, fitting=False):
 
 
 def fitting_qpoint_figure(q_index):
+    """Return the fit-overlay figure path for a zero-based q-point index."""
     return FITTING_QPOINT_DIRECTORY / f"Fitting-{q_index}-qpoint.png"
 
 
 def qpoint_lifetime_data(q_index):
+    """Return the frequency-lifetime data path for one q point."""
     return LIFETIME_DIRECTORY / f"Fitting-{q_index}-qpoint.Fre_lifetime"
 
 
 def combined_lifetime_data():
+    """Return the path for lifetime data combined across all q points."""
     return LIFETIME_DIRECTORY / "Fitting-All-Qpoints.Fre_lifetime"
 
 
 def lifetime_summary_figure(params=None):
-    """Return the summary figure beside the selected SED figure."""
+    """Return the lifetime summary path in the current or partial-SED directory."""
     filename = "Fitting-Frequency-Lifetime.png"
     if params is not None and getattr(params, "plot_partial_SED", False):
         return Path(params.out_files_name + "_partial_SED") / filename

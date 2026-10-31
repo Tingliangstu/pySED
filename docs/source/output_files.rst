@@ -11,8 +11,9 @@ Numerical and plotting outputs
    * - Output
      - Contents
    * - ``<prefix>.SED``
-     - One-sided SED in eV/THz; rows are positive-frequency bins and columns
-       follow ``<prefix>.Qpts``.
+     - One-sided SED in eV/THz by default; rows include DC and positive
+       frequencies, and columns follow ``<prefix>.Qpts``. The header records
+       the output scale, including the optional historical 2.x scale.
    * - ``<prefix>.Qpts``
      - Retained reduced Q coordinates.
    * - ``<prefix>.THz``
@@ -27,6 +28,10 @@ Numerical and plotting outputs
 With ``output_partial = 1``, directional matrices are written beneath
 ``<prefix>_partial_SED/`` as
 ``<basename>.SED_<Element>_<x|y|z>``.
+
+Total and partial outputs use the same :doc:`legacy_unit
+<input_parameters/legacy_unit>` setting. Saved scale metadata determines
+labels when reloading for plotting or fitting; see :doc:`sed_units`.
 
 Fitting outputs
 ---------------

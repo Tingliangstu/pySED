@@ -32,9 +32,12 @@ Parameter replacements
    * - ``with_eigs``
      - Removed without replacement.
 
-Old names are rejected with migration guidance; there is no v2.4 compatibility
-mode. SED output is now explicitly eV/THz, so old ``.SED`` files must not be
-treated as v3 reference data. Repository examples preserve their historical
+Old parameter names are rejected with migration guidance. SED output is
+eV/THz by default. The temporary :doc:`legacy_unit <input_parameters/legacy_unit>`
+option restores only the historical intensity scale for comparisons;
+it does not restore old input names or fitting behavior. Set it to ``True``
+when reading 2.x ``.SED`` files without scale metadata. This option will be
+removed in a future major release. Repository examples preserve their historical
 v2.4 outputs under ``example/legacy/pySED-2.4/outputs``.
 
 LAMMPS migration

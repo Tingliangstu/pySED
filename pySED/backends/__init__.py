@@ -1,15 +1,19 @@
-"""Select one execution backend; no plugin registry or inheritance tree.
+"""Select the CPU or GPU implementation used by the SED driver.
 
-Both backends are context managers with four operations:
-prepare(vels, cell_vecs, result, accumulator, prefetch=...) reports memory;
-compute(vels, cell_vecs, result) fills unnormalized NumPy SED in place;
-report(total_elapsed, trajectory_wait) prints optional backend diagnostics;
-close() releases owned resources, including on exceptions.
+Both backends are context managers: entering prepares reusable resources,
+and leaving releases them even when calculation fails. The driver calls
+prepare() once to check memory, compute() for each trajectory block, and
+report() after all blocks. compute() fills a NumPy result array in place;
+normalization and frequency folding are handled by Phonon and sed_kernel.
 """
 
 
 def create_backend(name, config, reduced_qpoints, max_cores):
-    """Load GPU support only when explicitly selected."""
+    """Return the backend selected by name, without starting its resources.
+
+    Use the result in a with block. NumPy supports serial or process-based
+    execution; CuPy is imported only when the GPU backend is selected.
+    """
     if name == "numpy":
         from pySED.backends.cpu import CPUBackend
         return CPUBackend(config, reduced_qpoints, max_cores)

@@ -13,6 +13,13 @@
 #     along with pySED.  If not, see <http://www.gnu.org/licenses/>.
 # =============================================================================
 
+"""Plot saved SED maps, single-q spectra, fit overlays, and lifetimes.
+
+The data object supplies spectra and axes from FileIO.load_data. Its sed_unit
+controls intensity labels; changing an input flag does not reinterpret a
+marked file. Plotting uses logarithmic intensity display without rescaling
+the numerical spectrum used by the fitter.
+"""
 import os
 
 import matplotlib.pyplot as plt
@@ -37,7 +44,7 @@ sns.set_theme(
 )
 
 def _resolve_color_limits(sed, params):
-    """Return natural-log color limits for SED values in eV/THz."""
+    """Return natural-log color limits in the spectrum's stored output scale."""
 
     values = np.asarray(sed)
     positive = values[np.isfinite(values) & (values > 0)]
@@ -89,7 +96,7 @@ def _input_filename(params):
     return os.path.basename(getattr(params, "input_file", "input.in"))
 
 
-def _print_color_scale(params, vmin, vmax):
+def _print_color_scale(params, vmin, vmax, unit="eV/THz"):
     """Print the resolved color scale in aligned, readable rows."""
 
     min_source = "user-defined" if params.colorbar_min is not None else "automatic"
@@ -97,7 +104,7 @@ def _print_color_scale(params, vmin, vmax):
     input_name = _input_filename(params)
     _print_plot_detail(
         "Colorbar",
-        "ln[SED / (eV/THz)] (dimensionless)",
+        f"ln[SED / ({unit})] (dimensionless)",
     )
     _print_plot_detail(
         "colorbar_min",
@@ -141,19 +148,24 @@ def resolve_slice_frequency_start(thz, params, *, fitting=False):
 
 
 def plot_bands(data, params):
-    # Get data
+    """Write a dispersion heatmap from SED values shaped (frequency, q).
+
+    freq_fft supplies THz frequencies; q_distances and q_labels describe the
+    path. Multiple segments or use_contourf select physical-coordinate contours;
+    otherwise imshow displays the matrix by pixel index. Color limits apply to
+    the natural logarithm of the stored intensities. The colorbar names the
+    scale recorded in data, and OutputPaths selects the output filename.
+    """
     sed_avg = data.sed_avg
     qpoints = data.qpoints
     thz = data.freq_fft
     q_distances = data.q_distances
     q_labels = data.q_labels
 
-    # ******************** Control plotting params ********************
     color = params.plot_color               # 'inferno', 'RdBu_r', 'jet', 'Spectral', 'RdYlGn' (https://matplotlib.org/stable/tutorials/colors/colormaps.html)
     interp = 'hanning'                      # 'hanning'
     df = params.plot_interval               # Scale interval for drawing
 
-    # For plot scale
     max_thz = max(thz)
     max_sed_y = np.size(sed_avg, 0)
     scale_factor = max_sed_y / max_thz
@@ -161,12 +173,12 @@ def plot_bands(data, params):
     vmin, vmax = _resolve_color_limits(sed_avg, params)
     sed_for_plot = _prepare_sed_for_log_scale(sed_avg, vmin, vmax)
 
-    # ************************ Creat a figure, set its size *********************
 
     fig, ax = plt.subplots()
     fig.set_size_inches(5.5+(params.num_qpaths/2-0.5), 5)  # Control the size of the output image
 
-    _print_color_scale(params, vmin, vmax)
+    unit = getattr(data, 'sed_unit', 'eV/THz')
+    _print_color_scale(params, vmin, vmax, unit)
 
     # Contour coordinates follow physical Q distances and frequencies;
     # imshow uses pixel indices. Keep their coordinate handling distinct.
@@ -205,7 +217,6 @@ def plot_bands(data, params):
             vmax=vmax,
         )
 
-    # colarbar
     bar = fig.colorbar(im, ax=ax)
     ticks = np.arange(vmin, vmax + 0.01, 2.0)
     if ticks.size >= 2:
@@ -213,11 +224,12 @@ def plot_bands(data, params):
         bar.set_ticklabels([f"{tick:g}" for tick in ticks])
     bar.outline.set_visible(False)
     bar.ax.tick_params(labelsize=8, width=0, length=0, pad=0.6)
-    bar.set_label(
+    colorbar_label = (
         r'$\ln\!\left[\mathrm{SED}(\mathbf{q},\omega)'
-        r'/(\mathrm{eV/THz})\right]$',
-        fontsize=13.5,
+        r'/(\mathrm{eV/THz})\right]$'
+        if unit == 'eV/THz' else f'ln[SED / ({unit})]'
     )
+    bar.set_label(colorbar_label, fontsize=13.5)
 
     # Set xticks and xticklabels
     if params.num_qpaths > 1 or params.use_contourf:
@@ -252,7 +264,6 @@ def plot_bands(data, params):
         yticks_labels = [f'{f:.1f}'.rstrip('0').rstrip('.') for f in freqs]
         ax.set_yticklabels(yticks_labels, fontsize=13.5)
 
-        # ax.set_ylim()
         if params.plot_cutoff_freq:
             ax.set_ylim([0, params.plot_cutoff_freq * scale_factor])
 
@@ -266,19 +277,22 @@ def plot_bands(data, params):
         plt.show()
 
 def plot_slice(data, params, fit_result=None):
-    """Plot a spectrum, optionally using the explicitly supplied peak fits."""
-    # ******************** Get data ********************
+    """Write one q-point intensity spectrum, optionally with fitted curves.
+
+    params.qpoint_slice_index selects a column of data.sed_avg. Plot original
+    intensities on a logarithmic y axis against freq_fft in THz. When a
+    fit_result is supplied, overlay its peak_fits curves and use the fitting
+    frequency bounds and filename; otherwise use the ordinary slice controls.
+    The y label follows data.sed_unit. The figure is closed after saving.
+    """
     sed_avg = data.sed_avg
     qpoints = data.qpoints
     thz = data.freq_fft
     q_index = params.qpoint_slice_index
 
-    ### ******************** creat a figure, set its size ********************
     fig, ax = plt.subplots()
     fig.set_size_inches(8, 4)
 
-    # ******************** For saving different files ********************
-    # Plot
     alpha = 0.6
 
     ax.semilogy(
@@ -338,9 +352,8 @@ def plot_slice(data, params, fit_result=None):
                 labelspacing=0.6,
             )
 
-    # ******************** set the figure labels ********************
     ax.set_ylabel(
-        r'$\Phi(\mathbf{q},\omega)$ (eV/THz)',
+        r'$\Phi(\mathbf{q},\omega)$' + f" ({getattr(data, 'sed_unit', 'eV/THz')})",
         fontsize=16,
     )
     ax.set_xlabel('Frequency (THz)', fontsize=16)
@@ -370,7 +383,13 @@ def plot_slice(data, params, fit_result=None):
 
 
 def plot_lifetime_summary(frequency, lifetime, params=None):
-    """Plot the combined linewidth-derived lifetimes versus frequency."""
+    """Write a frequency-versus-lifetime scatter plot and return its path.
+
+    Inputs contain frequencies in THz and lifetimes in ps. Filter non-finite
+    values, negative frequencies, and non-positive lifetimes; use a logarithmic
+    lifetime axis. Raise ValueError if no valid points remain. The output goes
+    beside total or partial SED figures according to params.
+    """
 
     frequency = np.asarray(frequency, dtype=float)
     lifetime = np.asarray(lifetime, dtype=float)

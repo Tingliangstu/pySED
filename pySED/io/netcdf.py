@@ -35,7 +35,8 @@ from pySED.io.schema import (
 
 _CDF_MAGICS = {b"CDF\x01", b"CDF\x02", b"CDF\x05"}
 _HDF5_MAGIC = b"\x89HDF\r\n\x1a\n"
-_SCHEMA_VERSION = 1
+# Version 2 preserves the requested precision while parsing text trajectories.
+_SCHEMA_VERSION = 2
 
 _ALIASES = {
     POSITIONS: ("coordinates", "positions", "position"),
@@ -47,6 +48,7 @@ _ALIASES = {
 
 
 def _netcdf4():
+    """Import netCDF4 or raise an error with its installation command."""
     try:
         import netCDF4
     except ImportError as exc:
@@ -68,10 +70,12 @@ def is_netcdf(path: Path) -> bool:
 
 
 def _first_variable(variables, names) -> str | None:
+    """Return the first available variable alias, or None."""
     return next((name for name in names if name in variables), None)
 
 
 def _unit(value: Any) -> str | None:
+    """Normalize a unit attribute for lookup in conversion tables."""
     if value is None:
         return None
     if isinstance(value, bytes):
@@ -88,6 +92,7 @@ def _unit(value: Any) -> str | None:
 
 
 def _position_factor(unit: str | None) -> float:
+    """Return the factor converting positions to Angstrom."""
     factors = {
         None: 1.0,
         "a": 1.0,
@@ -103,6 +108,7 @@ def _position_factor(unit: str | None) -> float:
 
 
 def _velocity_factor(unit: str | None) -> float:
+    """Return the factor converting velocities to m/s."""
     factors = {
         "m/s": 1.0,
         "angstrom/ps": 100.0,
@@ -120,6 +126,7 @@ def _velocity_factor(unit: str | None) -> float:
 
 
 def _time_factor(unit: str | None) -> float:
+    """Return the factor converting time values to ps."""
     factors = {
         None: 1.0,
         "ps": 1.0,
@@ -135,7 +142,13 @@ def _time_factor(unit: str | None) -> float:
 
 
 def _cell_matrices(lengths: np.ndarray, angles: np.ndarray) -> np.ndarray:
-    """Convert a, b, c, alpha, beta, gamma to row-vector matrices."""
+    """Convert cell lengths and angles to row-wise lattice vectors.
+
+    lengths and angles contain (a, b, c) and (alpha, beta, gamma) for each
+    frame. Angles are in degrees; lengths keep their input unit. Return an
+    array of shape (frames, 3, 3), with the first vector along x and the second
+    in the xy plane. A vanishing sin(gamma) raises ValueError.
+    """
 
     lengths = np.atleast_2d(np.asarray(lengths, dtype=float))
     angles = np.atleast_2d(np.asarray(angles, dtype=float))
@@ -163,9 +176,16 @@ def _cell_matrices(lengths: np.ndarray, angles: np.ndarray) -> np.ndarray:
 
 
 class NetCDFReader:
-    """Read GPUMD, LAMMPS, or pySED NetCDF as NumPy arrays."""
+    """Read supported NetCDF trajectories through canonical field names.
+
+    read() returns NumPy arrays with positions/cells in Angstrom, velocities
+    in m/s, and times in ps. It reads only the requested frame slices; info
+    contains metadata without loading full arrays. Use a with block or call
+    close() explicitly to release the file. Reading does not reorder atoms.
+    """
 
     def __init__(self, path: Path) -> None:
+        """Open a trajectory, resolve field aliases, and validate its dimensions."""
         self.path = Path(path)
         self._dataset = _netcdf4().Dataset(str(self.path), "r")
         self._dataset.set_auto_mask(False)
@@ -216,9 +236,11 @@ class NetCDFReader:
 
     @property
     def info(self) -> TrajectoryInfo:
+        """Return trajectory metadata without reading frame arrays."""
         return self._info
 
     def require(self, *fields: str) -> None:
+        """Raise KeyError if any requested trajectory field is unavailable."""
         missing = sorted(set(fields) - set(self.info.fields))
         if missing:
             raise KeyError(
@@ -227,6 +249,7 @@ class NetCDFReader:
             )
 
     def _slice(self, frames: slice | None) -> slice:
+        """Validate a frame slice and reject reads from a closed trajectory."""
         if self._dataset is None:
             raise RuntimeError("trajectory is closed")
         if frames is None:
@@ -237,10 +260,12 @@ class NetCDFReader:
 
     @staticmethod
     def _as_array(values, factor: float = 1.0):
+        """Convert values to an array and apply a unit factor if needed."""
         array = np.asarray(values)
         return array if factor == 1.0 else array * factor
 
     def _read_variable(self, field: str, frames: slice):
+        """Slice a frame-dependent variable or read a static variable in full."""
         variable = self._dataset.variables[self._variables[field]]
         frame_dims = {"frame", "frames", "time", "timestep", "timesteps"}
         if variable.ndim and variable.dimensions[0].lower() in frame_dims:
@@ -248,6 +273,13 @@ class NetCDFReader:
         return variable[:]
 
     def read(self, field: str, frames: slice | None = None):
+        """Read one field, optionally restricted to a slice of frames.
+
+        field is a canonical name from io.schema. Positions/velocities retain
+        shape (frames, atoms, 3), and cells use (frames, 3, 3), including a single
+        frame selected by slice. Unit attributes determine conversion to Angstrom,
+        m/s, or ps. Missing fields raise KeyError; unsupported units raise ValueError.
+        """
         self.require(field)
         selection = self._slice(frames)
         if field == CELLS:
@@ -265,6 +297,12 @@ class NetCDFReader:
         return self._as_array(values)
 
     def _read_cells(self, frames: slice):
+        """Return selected cell matrices in Angstrom, with lattice vectors as rows.
+
+        Repeat a static 3x3 cell for each requested frame, or read frame-dependent
+        vectors directly. If only lengths and angles are stored, reconstruct
+        the vectors with _cell_matrices instead.
+        """
         if self._cell_vectors:
             variable = self._dataset.variables[self._cell_vectors]
             if variable.ndim == 2:
@@ -289,15 +327,24 @@ class NetCDFReader:
         return self._as_array(cells)
 
     def read_positions(self, frames: slice | None = None):
+        """Read selected atom positions in Angstrom as (frames, atoms, 3)."""
         return self.read(POSITIONS, frames)
 
     def read_velocities(self, frames: slice | None = None):
+        """Read selected atom velocities in m/s as (frames, atoms, 3)."""
         return self.read(VELOCITIES, frames)
 
     def read_cells(self, frames: slice | None = None):
+        """Read selected cell matrices in Angstrom with lattice vectors as rows."""
         return self.read(CELLS, frames)
 
     def iter_batches(self, fields, batch_size: int):
+        """Yield dictionaries containing the requested fields in frame batches.
+
+        Each batch contains at most batch_size consecutive frames; the final one
+        may be shorter. Values use the same canonical units as read(). Static
+        fields such as atom IDs are not given an extra frame axis.
+        """
         if batch_size < 1:
             raise ValueError("batch_size must be positive")
         for start in range(0, self.info.n_frames, batch_size):
@@ -305,19 +352,28 @@ class NetCDFReader:
             yield {field: self.read(field, frames) for field in fields}
 
     def close(self) -> None:
+        """Close the NetCDF handle if it is open."""
         if getattr(self, "_dataset", None) is not None:
             self._dataset.close()
             self._dataset = None
 
     def __enter__(self):
+        """Return this reader for context-managed access."""
         return self
 
     def __exit__(self, exc_type, exc, traceback) -> None:
+        """Close the trajectory when leaving the reader context."""
         self.close()
 
 
 class NetCDFWriter:
-    """Append normalized batches to a compact, analysis-friendly NetCDF."""
+    """Append trajectory batches to a NetCDF cache with explicit unit metadata.
+
+    Input batches use the in-memory schema: Angstrom, m/s, and ps. On disk,
+    velocities are stored in Angstrom/ps and converted back by NetCDFReader.
+    The first append creates the file and fixes its fields and atom count.
+    finish() marks successful completion; abort() leaves it incomplete.
+    """
 
     def __init__(
         self,
@@ -328,6 +384,7 @@ class NetCDFWriter:
         storage_dtype: str = "float32",
         lammps_unit: str = "metal",
     ) -> None:
+        """Validate storage options and prepare an unopened trajectory writer."""
         if not 0 <= compression_level <= 9:
             raise ValueError("compression_level must be between 0 and 9")
         if storage_dtype not in {"float32", "float64"}:
@@ -343,6 +400,7 @@ class NetCDFWriter:
         self._next_frame = 0
 
     def _compression(self, chunks):
+        """Return NetCDF chunking and optional compression settings."""
         options = {"chunksizes": chunks}
         if self.compression_level:
             options.update(
@@ -353,6 +411,13 @@ class NetCDFWriter:
         return options
 
     def _initialize(self, batch: TrajectoryBatch) -> None:
+        """Create cache dimensions, fields, and provenance from the first batch.
+
+        Record source path/size/mtime, schema version, precision, compression,
+        and LAMMPS units so later runs can decide whether the cache is reusable.
+        Position/velocity storage uses storage_dtype; cells and times use float64.
+        The file remains marked incomplete until finish() succeeds.
+        """
         positions = batch.data[POSITIONS]
         if positions.ndim != 3 or positions.shape[-1] != 3:
             raise ValueError("positions must have shape (frame, atom, 3)")
@@ -449,6 +514,12 @@ class NetCDFWriter:
             self._variables[TIMES] = time_var
 
     def append(self, batch: TrajectoryBatch) -> None:
+        """Write the next consecutive batch, starting at the expected frame index.
+
+        All batches must contain the same fields. Positions and cells are already
+        in Angstrom; velocities are converted from m/s to the on-disk Angstrom/ps
+        convention. Atom IDs are written once because their mapping is static.
+        """
         if self._dataset is None:
             self._initialize(batch)
         if batch.start != self._next_frame:
@@ -471,6 +542,7 @@ class NetCDFWriter:
         self._next_frame = batch.stop
 
     def finish(self) -> None:
+        """Mark a nonempty conversion complete and close its dataset."""
         if self._dataset is None or self._next_frame == 0:
             raise ValueError("trajectory contains no frames")
         self._dataset.pysed_conversion_complete = 1
@@ -478,6 +550,11 @@ class NetCDFWriter:
         self._dataset = None
 
     def abort(self) -> None:
+        """Close an unfinished dataset without marking conversion complete.
+
+        The writer does not remove the file. The conversion function that owns
+        the temporary path is responsible for removing it after an error.
+        """
         if self._dataset is not None:
             self._dataset.close()
             self._dataset = None
@@ -491,7 +568,13 @@ def converted_file_is_current(
     lammps_unit: str = "metal",
     source_format: str | None = None,
 ) -> bool:
-    """Check whether a converted NetCDF still matches its text source."""
+    """Return whether a completed cache matches its source and conversion options.
+
+    Compare the source path, size, and modification time plus schema version,
+    storage dtype, compression, LAMMPS units, and optional source format.
+    An unreadable or incomplete cache returns False. This check concerns
+    trajectory conversion, not later SED settings such as legacy_unit.
+    """
 
     if not Path(output).is_file():
         return False

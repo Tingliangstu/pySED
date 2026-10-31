@@ -32,7 +32,12 @@ TIMES = "times"
 
 @dataclass(frozen=True)
 class TrajectoryInfo:
-    """Trajectory metadata read without loading its arrays."""
+    """Describe trajectory size and available fields without loading frames.
+
+    n_frames and n_atoms are counts; fields contains the canonical names
+    such as positions, velocities, and cells. Source metadata identifies the
+    file format/program and is separate from the in-memory unit convention.
+    """
 
     path: Path
     n_frames: int
@@ -44,15 +49,23 @@ class TrajectoryInfo:
 
 @dataclass
 class TrajectoryBatch:
-    """A consecutive block of frames produced by a text parser."""
+    """Hold consecutive trajectory frames using canonical field names.
+
+    start is the zero-based index of the first frame. Positions and velocities
+    have shape (frames, atoms, 3), cells (frames, 3, 3), and atom IDs (atoms,).
+    Coordinates and cells are in Angstrom, velocities in m/s, and optional
+    times in ps. Cell lattice vectors are rows. stop is the exclusive end index.
+    """
 
     start: int
     data: dict[str, np.ndarray]
 
     @property
     def n_frames(self) -> int:
+        """Return the number of frames in this batch."""
         return int(self.data[POSITIONS].shape[0])
 
     @property
     def stop(self) -> int:
+        """Return the exclusive trajectory-frame index at the end of this batch."""
         return self.start + self.n_frames

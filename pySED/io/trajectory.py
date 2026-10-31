@@ -7,7 +7,12 @@
 #     (at your option) any later version.
 # =============================================================================
 
-"""One block-oriented trajectory interface for SED computation."""
+"""Provide equal-sized trajectory blocks to the SED calculation.
+
+Text parser batches are chosen for I/O efficiency and need not match SED
+blocks. These sources assemble or slice them into the block layout requested
+by the calculation. prefetch_one can overlap one upcoming read with compute.
+"""
 
 from __future__ import annotations
 
@@ -40,6 +45,7 @@ class NetCDFBlockSource:
     """Yield exact consecutive SED blocks from one NetCDF trajectory."""
 
     def __init__(self, path: Path, required_frames: int) -> None:
+        """Validate required SED fields and the available frame count."""
         self.path = Path(path)
         self.required_frames = int(required_frames)
         with NetCDFReader(self.path) as trajectory:
@@ -52,7 +58,12 @@ class NetCDFBlockSource:
             )
 
     def iter_blocks(self, block_size: int, num_blocks: int):
-        """Read only the requested NetCDF frame slices, in order."""
+        """Yield num_blocks consecutive batches of exactly block_size frames.
+
+        Read positions, velocities, and cells through NetCDFReader, so returned
+        batches use canonical units. Require block_size*num_blocks to equal the
+        requested frame count; trailing frames in a longer trajectory are ignored.
+        """
 
         with NetCDFReader(self.path) as trajectory:
             trajectory.require(*_SED_FIELDS)
@@ -67,7 +78,12 @@ class NetCDFBlockSource:
 
 
 class DirectTextBlockSource:
-    """Parse one text trajectory sequentially and yield exact SED blocks."""
+    """Assemble equal-sized SED blocks from one forward pass through text.
+
+    Parser batches can cross SED block boundaries, so iter_blocks copies the
+    needed slices into a block buffer. info becomes available after the first
+    parser batch is read. A source instance can be consumed only once.
+    """
 
     def __init__(
         self,
@@ -77,6 +93,7 @@ class DirectTextBlockSource:
         parser_batch_size: int,
         lammps_unit: str,
     ) -> None:
+        """Store text-reader options for a single-pass trajectory stream."""
         self.path = Path(path)
         self.source_format = source_format
         self.required_frames = int(required_frames)
@@ -86,6 +103,7 @@ class DirectTextBlockSource:
         self._started = False
 
     def _batches(self):
+        """Select the GPUMD or LAMMPS iterator for this trajectory."""
         if self.source_format == GPUMD_XYZ:
             return iter_gpumd_xyz(
                 self.path,
@@ -102,7 +120,13 @@ class DirectTextBlockSource:
         )
 
     def iter_blocks(self, block_size: int, num_blocks: int):
-        """Scan the text once and assemble the requested block boundaries."""
+        """Yield exact SED blocks assembled from possibly different-sized parser batches.
+
+        Require positions, velocities, and cells in every batch. Fill each block
+        buffer across parser boundaries and stop after the requested frame count.
+        An incomplete final block raises EOFError rather than entering the FFT;
+        the underlying text iterator is closed on completion or failure.
+        """
 
         if self._started:
             raise RuntimeError("a direct text trajectory can be consumed once")
@@ -158,6 +182,8 @@ class DirectTextBlockSource:
                         block_start = consumed_frames
                         block_fill = 0
 
+                    # Copy only up to the next parser-batch or SED-block
+                    # boundary; any remaining parser frames fill the next block.
                     take = min(
                         block_size - block_fill,
                         batch.n_frames - batch_offset,
@@ -178,6 +204,8 @@ class DirectTextBlockSource:
                             data=block_data,
                         )
                         yielded_blocks += 1
+                        # The yielded array may still be used by computation
+                        # during prefetch, so the next block needs new storage.
                         block_data = None
 
                 if yielded_blocks == num_blocks:
@@ -212,6 +240,7 @@ def trajectory_block_source(params):
 
 
 def _next_or_end(iterator):
+    """Return the next item, or the end sentinel when an iterator is exhausted."""
     try:
         return next(iterator)
     except StopIteration:
@@ -220,7 +249,13 @@ def _next_or_end(iterator):
 
 @contextmanager
 def prefetch_one(items, enabled: bool):
-    """Yield an iterator with at most one item prepared in the background."""
+    """Yield an iterator that prepares at most one upcoming item in a thread.
+
+    Use as a context manager. With enabled=False, consume the original iterator
+    synchronously. With enabled=True, errors from the background read surface
+    when that item is requested. Exiting waits for an active read and closes
+    the source, including when the calculation exits early.
+    """
 
     iterator = iter(items)
     if not enabled:
@@ -239,6 +274,7 @@ def prefetch_one(items, enabled: bool):
     future = executor.submit(_next_or_end, iterator)
 
     def consume():
+        """Yield prefetched items while scheduling the next iterator read."""
         nonlocal future
         while True:
             item = future.result()

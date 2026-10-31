@@ -21,6 +21,7 @@ from pySED.structure.atoms import atom_data
 
 def mass_to_symbol(mass, tolerance=5e-2):
 
+    """Match a mass to an element within tolerance, falling back to H."""
     for element in atom_data:
         if element[3] is not None and abs(mass - element[3]) < tolerance:
             return element[1]
@@ -29,6 +30,7 @@ def mass_to_symbol(mass, tolerance=5e-2):
 
 def symbol_to_mass(symbol):
 
+    """Return an element mass, falling back to 1 amu for an unknown symbol."""
     for element in atom_data:
         if element[1] is not None and symbol==element[1]:
             return element[3]
@@ -36,10 +38,10 @@ def symbol_to_mass(symbol):
     return 1           # If no match is found, use H mass as the wildcard
 
 def get_units(lammps_input_file):
-    """
-    Get the units label for LAMMPS "units" command from a list of LAMMPS input commands
-    :param lammps_input_file: LAMMPS input file name (strings)
-    :return units: string containing the units
+    """Read the units command from a LAMMPS input file.
+
+    Return the unit-style token on the first matching line. If no units
+    command is found, return lj, matching the LAMMPS default.
     """
     lammps_commands_list = open(lammps_input_file).read().split('\n')
 
@@ -50,12 +52,13 @@ def get_units(lammps_input_file):
     return 'lj'
 
 
-def get_structure_from_lammps(lammps_input_file, show_log = False):  # This function is not recommended for use
+def get_structure_from_lammps(lammps_input_file, show_log = False):
     """
-    Get the crystal structure from lammps input, if using the function one need a installed python-lammps interface on your machine,
-    so it is not recommended. This function maybe only use for test and maybe will be removed in the future.
-    :param command_list: LAMMPS input file (One or more lines)
-    :return: numpy array matrix with forces of atoms [Natoms x 3]
+    Read a structure through the optional LAMMPS Python interface.
+
+    :param lammps_input_file: Path to the LAMMPS input commands.
+    :param show_log: Whether LAMMPS writes its screen and log output.
+    :return: Dictionary containing the cell, positions, masses, and symbols.
     """
 
     print("\n********************* Reading From LAMMPS Data **********************")
@@ -72,15 +75,12 @@ def get_structure_from_lammps(lammps_input_file, show_log = False):  # This func
     else:
         sys.exit('\n\tFile error: The in file that lammps needs to read does not exist!\n')
 
-    # lines = open(in_lammps,'r').readlines()
-    # for line in lines: self.lmp.command(line)
     """
     Do the same as lmp.command(filename) but don't allow the script to be
     continued after quit.
     """
     lines = open(lammps_input_file, 'r').readlines()
     for line in lines:
-        # print(line)
         if "quit" in line and line[0] != "#":
             sys.exit('\n\tQuit error: It is not appropriate '
                      'to exit the execution of the in.file at this time\n')  ## Quit lammps if find the keyword 'quit'
@@ -157,11 +157,13 @@ def get_structure_from_lammps(lammps_input_file, show_log = False):  # This func
     return structure
 
 def read_from_file_structure_poscar(file_name='POSCAR', number_of_dimensions = 3):
-    """
-    Read crystal structure from a VASP POSCAR type file
-    :param file_name: POSCAR filename
-    :param number_of_dimensions: number of dimensions of the crystal structure
-    :return: Atoms (like phonopy) type object containing the crystal structure
+    """Read a standard VASP 5-style POSCAR into a structure dictionary.
+
+    Expect species names/counts and then a Direct or Cartesian coordinate
+    mode; a Selective dynamics line is not handled. Direct positions are
+    converted with the scaled row-wise lattice. Return cell, positions,
+    optional scaled_positions, masses, and symbols in file atom order.
+    The usual input is a three-dimensional cell.
     """
 
     # Check file exists
@@ -226,10 +228,12 @@ def read_from_file_structure_poscar(file_name='POSCAR', number_of_dimensions = 3
     return structure
 
 def read_from_file_structure_xyz(file_name='model.xyz'):
-    """
-    Read crystal structure from an extended XYZ file (with Lattice and Properties)
-    :param file_name: EXTXYZ filename
-    :return: Dictionary containing the crystal structure
+    """Read the first structure in an extended-XYZ file with lattice metadata.
+
+    Require a nine-value Lattice entry and Properties describing position and
+    species columns. Return the row-wise cell, Cartesian positions, masses,
+    and symbols in file atom order. This structure reader uses the supplied
+    coordinate units; it does not perform trajectory velocity conversion.
     """
     # Check file exists
     if not os.path.isfile(file_name):
@@ -325,9 +329,7 @@ def read_from_file_structure_xyz(file_name='model.xyz'):
 
 if __name__ == "__main__":
 
-    file_name = 'HKUST-1_cubic.vasp'                              ## The in file for lammps
-
-    # structure = get_structure_from_lammps(file_name)
+    file_name = 'HKUST-1_cubic.vasp'  # POSCAR-format structure for this reader example.
 
     structure = read_from_file_structure_poscar(file_name=file_name)
     print(structure['masses'])

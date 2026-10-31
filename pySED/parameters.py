@@ -36,46 +36,55 @@ class Parameter:
 # ==================== Value readers ====================
 
 def _one(values):
+    """Require and return exactly one parameter value."""
     if len(values) != 1:
         raise ValueError("requires exactly 1 value")
     return values[0]
 
 
 def read_text(values):
+    """Read one string, removing surrounding quote characters."""
     return _one(values).strip("'\"")
 
 
 def read_lower_text(values):
+    """Read one string and convert it to lowercase."""
     return read_text(values).lower()
 
 
 def read_int(values):
+    """Read one integer parameter value."""
     return int(_one(values))
 
 
 def read_float(values):
+    """Read one floating-point parameter value."""
     return float(_one(values))
 
 
 def read_bool(values):
-    value = _one(values)
-    if value not in {"0", "1"}:
-        raise ValueError("must be 0 or 1")
-    return value == "1"
+    """Read a case-insensitive True/False value or its 1/0 equivalent."""
+    value = _one(values).lower()
+    if value not in {"0", "1", "true", "false"}:
+        raise ValueError("must be 0 or 1, or True or False")
+    return value in {"1", "true"}
 
 
 def read_optional_float(values):
+    """Read one floating-point value or the explicit None value."""
     value = _one(values)
     return None if value.lower() == "none" else float(value)
 
 
 def read_int3(values):
+    """Read exactly three integers into an array."""
     if len(values) != 3:
         raise ValueError("requires 3 values")
     return np.array(values, dtype=int)
 
 
 def read_matrix3(values):
+    """Read nine numbers into a 3x3 row-wise matrix."""
     if len(values) != 9:
         raise ValueError("requires 9 values")
     return np.array(values, dtype=float).reshape(3, 3)
@@ -102,6 +111,7 @@ def parse_float_or_fraction(value, max_simple_denominator=12, atol=1.0e-5):
 
 
 def read_q_path(values):
+    """Read q-path coordinates as exact or simplified fractions."""
     return np.array(
         [parse_float_or_fraction(value) for value in values],
         dtype=object,
@@ -137,6 +147,7 @@ PARAMETERS = {
     # Trajectory and output
     "trajectory_file": Parameter("dump.xyz", read_text),
     "out_files_name": Parameter("pySED", read_text),
+    "legacy_unit": Parameter(False, read_bool),
     "lammps_unit": Parameter("metal", read_lower_text),
     "trajectory_read_mode": Parameter("cache", read_lower_text),
     "trajectory_prefetch": Parameter(True, read_bool),
@@ -206,6 +217,13 @@ supported_actions = {"thinking", "compute", "plot", "fit"}
 # ==================== Validation ====================
 
 def validate_common(params):
+    """Check workflow choices, trajectory sampling, and resource settings.
+
+    Compute/thinking actions require positive time_step and output_data_stride;
+    plot/fit may leave those unset. Validate backend, trajectory mode, LAMMPS
+    units, block/worker counts, and NetCDF tuning values. Invalid settings
+    raise ValueError; SED geometry and fitting checks are in validate_sed.
+    """
     if params.method != "sed":
         raise ValueError("method must be 'sed'")
     if params.action not in supported_actions:
@@ -249,7 +267,11 @@ def validate_common(params):
 
 
 def validate_qpoint_slice_index(params, qpoints=None):
-    """Validate the zero-based q-point selection parameter."""
+    """Check that qpoint_slice_index is a valid zero-based selection.
+
+    Without loaded qpoints, only reject negative values. When qpoints are
+    provided, also enforce the available row count and report the valid range.
+    """
 
     q_index = params.qpoint_slice_index
     if q_index < 0:
@@ -269,7 +291,18 @@ def validate_qpoint_slice_index(params, qpoints=None):
 
 
 def validate_sed(params):
-    """Validate and prepare SED parameters."""
+    """Validate SED geometry, sampling, plotting, and peak-fit controls.
+
+    Compute/thinking require a primitive cell, q path, basis file, and a frame
+    count divisible into complete blocks. Plot/fit can use saved spectra without
+    these computation inputs. Supplied controls are still validated for every
+    action. Local-group cells must be nonsingular and use fixed primitive
+    geometry. Invalid combinations raise ValueError.
+
+    This function also unpacks params.plot_partial_SED from its parsed tuple
+    into a boolean plus plot_partial_element and plot_partial_dir attributes.
+    A selected element is checked against masses in basis.in.
+    """
 
     needs_compute = params.action in {"thinking", "compute"}
     if needs_compute and params.num_atoms <= 0:

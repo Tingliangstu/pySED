@@ -22,7 +22,12 @@ import numpy as np
 
 
 def qpoint_batches(num_qpoints, num_workers):
-    """Split typical 20-40 Q points into small, balanced worker batches."""
+    """Return non-overlapping (start, stop) ranges covering all q points.
+
+    Stop indices are exclusive. For two or more q points, distribute work
+    into batches of two to five points where possible, balancing the remainder
+    to avoid a tiny final batch. A single q point gets the range (0, 1).
+    """
 
     if num_qpoints < 1:
         return []
@@ -51,7 +56,12 @@ def qpoint_batches(num_qpoints, num_workers):
 
 
 def estimate_kernel_working_bytes(vels, config, max_q_batch):
-    """Estimate the largest temporary arrays used by one SED kernel."""
+    """Estimate temporary array storage for one q-point batch, in bytes.
+
+    Count the selected basis velocities, complex phase/projection/FFT arrays,
+    and real power/output arrays. The estimate depends on frame count, input
+    dtype, and partial-output channels; it excludes Python and library overhead.
+    """
 
     num_frames = vels.shape[0]
     max_basis_atoms = max(len(ids) for ids in config.basis_ids)
@@ -75,7 +85,7 @@ def estimate_kernel_working_bytes(vels, config, max_q_batch):
 
 
 def print_qpoints(reduced_qpoints, q_start, q_stop):
-    """Keep the familiar one-line progress message for each Q point."""
+    """Print the index and reduced coordinates of each q point in a batch."""
     num_qpoints = len(reduced_qpoints)
     for q_index in range(q_start, q_stop):
         qpoint = reduced_qpoints[q_index]
@@ -91,7 +101,13 @@ def print_cpu_memory_estimate(
     vels, cell_vecs, config, accumulator, result, *,
     backend, num_workers=1, parallel=False, prefetch=False,
 ):
-    """Report host-array memory without changing any calculation arrays."""
+    """Print estimated peak host-array storage in decimal GB.
+
+    Include the current trajectory block, output and accumulated spectra,
+    shared-memory copies, and a possible prefetched block. CPU execution also
+    includes active workers' temporary arrays; GPU working memory is reported
+    separately by the GPU backend.
+    """
     batches = qpoint_batches(config.qpoints.shape[0], num_workers)
     max_q_batch = max(stop - start for start, stop in batches)
     worker_peak = estimate_kernel_working_bytes(vels, config, max_q_batch)

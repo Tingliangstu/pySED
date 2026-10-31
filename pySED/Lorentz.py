@@ -13,14 +13,15 @@
 #     along with pySED.  If not, see <http://www.gnu.org/licenses/>.
 # =============================================================================
 
-"""Independent zero-background fitting of SED spectral peaks.
+"""Detect SED peaks and fit each one independently with zero background.
 
-The fitter deliberately keeps the pySED workflow simple. Peaks are detected
-with a local-noise significance threshold, and each peak receives the complete
-local basin between the smoothed valleys separating it from neighboring
-detected peaks. Every peak is then fitted independently. The only optional
-modelling choice is the line shape: Lorentzian, velocity-spectrum DHO, or an
-AICc-based choice between those two shapes.
+A smoothed logarithmic spectrum locates peaks and the valleys separating
+them. Fitting then uses the original, unsmoothed intensities within each
+local interval. Line shapes are Lorentzian, velocity-spectrum DHO, or an
+automatic choice between them using AICc and the weak-damping convention.
+
+The lorentz class stores fit parameters and diagnostics. FileIO and Plot_SED
+handle saved results and figures separately.
 """
 
 import numpy as np
@@ -36,7 +37,11 @@ _DHO_MIN_DISTINGUISHABLE_DAMPING_RATIO = 0.05
 
 
 def hwhm_to_lifetime_ps(hwhm):
-    """Convert ordinary-frequency HWHM in THz to lifetime in ps."""
+    """Convert an array of ordinary-frequency HWHM values from THz to lifetimes in ps.
+
+    Use tau = 1/(2*pi*HWHM). Zero, negative, or non-finite widths produce NaN,
+    allowing the caller to omit invalid lifetime records.
+    """
 
     hwhm = np.asarray(hwhm, dtype=float)
     lifetime = np.full(hwhm.shape, np.nan, dtype=float)
@@ -90,7 +95,12 @@ def _rolling_mad(values, window_len=_PEAK_DETECTION_NOISE_WINDOW):
 
 
 def _smoothed_log_sed(sed):
-    """Return the seven-point detection-smoothed logarithmic spectrum."""
+    """Return the detection-smoothed logarithm of a one-dimensional spectrum.
+
+    Replace non-positive/non-finite samples with a small positive floor before
+    taking the log, then apply the short Hann window. Raise ValueError when
+    no positive finite sample exists. This result is not used as fitted intensity.
+    """
 
     sed = np.asarray(sed, dtype=float)
     positive = sed[np.isfinite(sed) & (sed > 0)]
@@ -106,7 +116,14 @@ def _smoothed_log_sed(sed):
 
 
 def _find_sed_peaks(sed, peak_min_significance=4.0):
-    """Detect SED peaks using dimensionless local-noise significance."""
+    """Return peak indices and their dimensionless local-noise significance.
+
+    Find candidates in a Hann-smoothed log spectrum using a prominence
+    threshold based on the local median absolute deviation. Refine each
+    candidate to a nearby maximum in the original data, merge duplicates,
+    and return indices in ascending order. Smoothing is for detection only;
+    the original spectrum remains available for the subsequent fit.
+    """
 
     sed = np.asarray(sed, dtype=float)
     if (
@@ -163,7 +180,12 @@ def _select_lorentz_frequency_range(
     freq_min=None,
     freq_max=None,
 ):
-    """Select the inclusive frequency interval used for fitting."""
+    """Return the frequency and SED samples within inclusive THz bounds.
+
+    None leaves the corresponding end unrestricted. At least three selected
+    samples are required for peak detection; the later fitting step applies
+    its own minimum-window requirement.
+    """
 
     frequency = np.asarray(frequency)
     sed = np.asarray(sed)
@@ -235,7 +257,12 @@ def _half_maximum_frequencies(fitting_function, center, hwhm):
 
 
 def _aicc(residuals, num_parameters):
-    """Return the small-sample Akaike information criterion."""
+    """Return the small-sample Akaike score from residuals and parameter count.
+
+    Lower scores are preferred when comparing models fitted to the same data.
+    Return infinity when there are too few samples for the correction, and
+    floor the residual variance to keep a perfect fit numerically finite.
+    """
 
     residuals = np.asarray(residuals, dtype=float)
     num_samples = residuals.size
@@ -255,13 +282,13 @@ def _aicc(residuals, num_parameters):
 
 
 def _peak_fit_interval(left_base, right_base, peak, size, modulate_factor):
-    """Return the local valley-bounded interval for one peak.
+    """Return inclusive (start, end) indices for one local peak fit.
 
-    The interval follows the original pySED slicing rule:
-    ``[left_base + modulate_factor, right_base - modulate_factor)``.
-    The right endpoint is exclusive, as in the former NumPy slice. A minimal
-    local expansion is used only if that range has too few samples for a
-    three-parameter fit.
+    The initial window corresponds to the historical Python slice
+    [left_base + modulate_factor, right_base - modulate_factor), so the
+    returned end is one less than that slice's stop. If trimming excludes
+    the peak, fall back to its immediate neighborhood. Expand toward at least
+    five samples where the available data allow it.
     """
 
     start = max(0, int(left_base) + modulate_factor)
@@ -285,7 +312,12 @@ def _local_peak_bases(
     peaks,
     peak_number,
 ):
-    """Return the complete smoothed valley-to-valley basin of one peak."""
+    """Return indices of the valleys on either side of one detected peak.
+
+    Search the smoothed detection signal between neighboring peaks; for the
+    first or last peak, search toward the data boundary. These indices define
+    the local basin before modulate_factor trims the fitting window.
+    """
 
     valley_signal = np.asarray(valley_signal, dtype=float)
     peaks = np.asarray(peaks, dtype=int)
@@ -320,7 +352,17 @@ def _fit_single_peak_candidate(
     peak_max_hwhm,
     fitting_function,
 ):
-    """Fit one zero-background peak with one prescribed line shape."""
+    """Fit one zero-background line shape on the inclusive [start, end] interval.
+
+    frequency and width parameters are in THz; sed retains its stored intensity
+    scale. Divide intensities by the observed peak amplitude for optimization,
+    then restore amplitude and uncertainty to that scale. This avoids optimizer
+    convergence depending on very small or large SED values.
+
+    Return a dictionary containing (center, amplitude, HWHM) in a (1, 3)
+    peak_parameters array, matching standard errors, observed/predicted curves,
+    AICc, and flags for unresolved, bounded, or incomplete peak widths.
+    """
 
     if fitting_function not in _FITTING_FUNCTIONS:
         raise ValueError(f"unsupported fitting function '{fitting_function}'")
@@ -424,7 +466,13 @@ def _fit_single_peak(
     peak_max_hwhm=1.0e6,
     fitting_function="auto",
 ):
-    """Fit one peak, selecting Lorentz/DHO by AICc when requested."""
+    """Fit one peak with a selected line shape or compare both supported models.
+
+    Arguments and the returned dictionary follow _fit_single_peak_candidate.
+    In auto mode, fit both candidates on the same samples, prefer Lorentzian
+    for a weakly damped DHO, then compare AICc and favor Lorentzian for a near
+    tie. If every requested candidate fails, raise RuntimeError with the reasons.
+    """
 
     if fitting_function not in {*_FITTING_FUNCTIONS, "auto"}:
         raise ValueError(f"unsupported fitting function '{fitting_function}'")
@@ -489,9 +537,26 @@ def _fit_single_peak(
 
 
 class lorentz:
-    """Fit one Q point; return results without changing params or writing files."""
+    """Fit the peaks of one selected q-point spectrum and store their diagnostics.
+
+    Construct with data containing freq_fft (THz) and sed_avg (frequency, q),
+    and params selecting the q index, fit range, significance, and line shape.
+    popt has one row per successful peak: (center_THz, amplitude, HWHM_THz).
+    pcov stores matching standard errors, not full covariance matrices;
+    peak_fits contains the individual curves, models, and quality flags.
+
+    Results are sorted by fitted frequency. Amplitudes retain the input scale.
+    This class prints diagnostics but does not write files or modify params.
+    """
 
     def __init__(self, data, params):
+        """Select a spectrum, detect peaks, fit their local intervals, and collect results.
+
+        A spectrum beginning at zero is extended by a few mirrored samples so a
+        zero-frequency peak can be detected. Only nonnegative-frequency peaks
+        are retained. Each successful fit contributes a row to popt/pcov; no
+        successful fits produce empty arrays with shape (0, 3).
+        """
         self.q_index = params.qpoint_slice_index
         self.lorentz_fit_freq_min = getattr(params, "lorentz_fit_freq_min", None)
         self.lorentz_fit_freq_max = getattr(params, "lorentz_fit_freq_max", None)
@@ -538,6 +603,8 @@ class lorentz:
         keep = self.thz[peaks] >= 0.0
         peaks = peaks[keep]
         peak_significance = peak_significance[keep]
+        # Smooth only the signal used to locate valleys between peaks. The
+        # fitter below receives self.sed, preserving the original peak widths.
         valley_signal = _smoothed_log_sed(self.sed)
 
         print("  >  Peak detection")

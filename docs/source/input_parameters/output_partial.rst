@@ -17,7 +17,9 @@ output_partial
 
 **Outputs**
    pySED writes partial files under ``<out_files_name>_partial_SED/`` with names
-   such as ``<out_files_name>.SED_O_x``. Their unit is ``eV/THz``.
+   such as ``<out_files_name>.SED_O_x``. Their unit is ``eV/THz`` by default;
+   ``legacy_unit = True`` selects the historical 2.x scale for both total
+   and partial output.
 
 **Notes**
    Enable this in compute mode. Plot selected partial components later with
@@ -30,4 +32,5 @@ Related parameters
 
 - :doc:`plot_partial_SED <plot_partial_SED>`
 - :doc:`out_files_name <out_files_name>`
+- :doc:`legacy_unit <legacy_unit>`
 - :doc:`basis_lattice_file <basis_lattice_file>`

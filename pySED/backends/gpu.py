@@ -28,6 +28,7 @@ class _GPUEventProfiler:
     """Accumulate asynchronous CUDA event timings with minimal interference."""
 
     def __init__(self, cupy_module):
+        """Store the CuPy runtime and initialize per-stage event records."""
         self.cp = cupy_module
         self.events = {}
 
@@ -92,9 +93,16 @@ def _load_cupy():
 
 
 class GPUBackend:
-    """Own one CUDA device's arrays, Q batching, memory checks, and timing."""
+    """Compute SED blocks on one CUDA device using CuPy.
+
+    Entering the context uploads basis indices and q points once. prepare()
+    selects a q-batch size that fits the estimated free device memory.
+    Each compute() uploads one trajectory block and copies its complete
+    unnormalized spectrum back into the caller's NumPy result array.
+    """
 
     def __init__(self, config, reduced_qpoints):
+        """Store the topology and initialize empty device-buffer references."""
         self.config = config
         self.reduced_qpoints = reduced_qpoints
         self._cupy = None
@@ -104,6 +112,7 @@ class GPUBackend:
         self._gpu_total_bytes = 0
 
     def __enter__(self):
+        """Open the CUDA backend and upload basis indices and q points."""
         self._cupy = _load_cupy()
         try:
             self._gpu_event_profiler = _GPUEventProfiler(self._cupy)
@@ -121,6 +130,7 @@ class GPUBackend:
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """Release device buffers when leaving the computation context."""
         self.close()
 
     def close(self):
@@ -132,6 +142,7 @@ class GPUBackend:
             self._cupy.get_default_pinned_memory_pool().free_all_blocks()
 
     def prepare(self, vels, cell_vecs, result, accumulator, *, prefetch):
+        """Report host-memory use and check available device memory."""
         print_cpu_memory_estimate(
             vels, cell_vecs, self.config, accumulator, result,
             backend="cupy", prefetch=prefetch,
@@ -139,7 +150,13 @@ class GPUBackend:
         self._check_gpu_memory(vels, cell_vecs, result)
 
     def compute(self, vels, cell_vecs, result):
-        """Upload one block once and return its complete result only once."""
+        """Calculate one block on the GPU and fill the host result array in place.
+
+        Upload velocities (frames, atoms, 3) and reference positions (cells, 3)
+        once. Q batches reuse those arrays, and their results remain on the GPU
+        until one final download. CUDA events record upload, projection, FFT,
+        and download time without adding a synchronization after every operation.
+        """
 
         kernel_config = self.config
         cp = self._cupy
@@ -211,7 +228,12 @@ class GPUBackend:
         result,
         q_batch_size,
     ):
-        """Estimate GPU memory for one selectable Q-point batch size."""
+        """Estimate device storage for a candidate q-batch size, in bytes.
+
+        Include the uploaded block and kernel temporaries. When q points are
+        split across batches, also count the complete result retained on the GPU.
+        A 20 percent allowance covers additional allocation overhead.
+        """
 
         kernel_config = self.config
         num_qpoints = kernel_config.qpoints.shape[0]
@@ -237,7 +259,12 @@ class GPUBackend:
         )
 
     def _check_gpu_memory(self, vels, cell_vecs, result):
-        """Choose the largest safe Q batch and fail before an obvious OOM."""
+        """Select the largest q batch whose estimated storage fits free GPU memory.
+
+        Store the selected size for compute(). If even one q point does not fit,
+        raise MemoryError before uploading the trajectory block. The check uses
+        an allocation estimate, not a reservation of device memory.
+        """
 
         kernel_config = self.config
         cp = self._cupy
@@ -274,7 +301,12 @@ class GPUBackend:
         )
 
     def report(self, total_elapsed, trajectory_wait):
-        """Print one concise timing summary accumulated over all blocks."""
+        """Print accumulated GPU-stage times alongside CPU trajectory-wait time.
+
+        Projection and FFT timings are parts of the overall GPU compute timing;
+        the remaining GPU time is reported separately to avoid counting them
+        twice. All durations are seconds; memory figures use decimal GB.
+        """
 
         event_times = self._gpu_event_profiler.elapsed_seconds()
         compute = event_times.get("compute", 0.0)

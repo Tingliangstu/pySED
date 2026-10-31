@@ -23,12 +23,27 @@ from scipy.fftpack import fft
 
 
 JOULE_PER_EV = 1.602176634e-19
+# The angular-frequency density gains 2*pi when expressed per ordinary
+# frequency; 1e12 converts per Hz to per THz, and JOULE_PER_EV converts energy.
 JOULE_SECOND_TO_EV_PER_THZ = 2 * np.pi * 1.0e12 / JOULE_PER_EV
+SED_UNIT = "eV/THz"
+LEGACY_SED_UNIT = "legacy 2.x scale"
+LEGACY_UNIT_NOTICE = (
+    "legacy_unit is for comparison with pySED 2.x results and will be "
+    "removed in a future major release. Use legacy_unit = False for new calculations."
+)
 
 
 @dataclass(frozen=True)
 class SEDKernelConfig:
-    """Static topology shared by the mathematical kernel and both backends."""
+    """Static atom mapping and q points shared by CPU and GPU calculations.
+
+    ``basis_ids`` contains one zero-based atom-index array per basis atom,
+    ordered consistently across cells. ``masses`` has one mass in amu per
+    basis atom, and ``basis_to_type`` selects its partial-output channel.
+    ``qpoints`` has shape (Q, 3) in inverse Angstrom with the 2*pi factor
+    included; ``amu_2_kg`` converts masses for the kinetic-energy weighting.
+    """
 
     basis_ids: tuple
     masses: np.ndarray
@@ -49,15 +64,19 @@ def calculate_q_batch(
     fft_function=fft,
     project_function=None,
 ):
-    """Compute unnormalized SED; this function owns no files or workers.
+    """Compute mass-weighted FFT power for a batch of q points.
 
     Shapes: vels (T, atoms, 3), cell_vecs (cells, 3), qpoints (Q, 3).
+    Velocities are in m/s; cell vectors are reference positions in Angstrom.
+    Cartesian q points include 2*pi, making ``cell_vecs @ qpoints.T`` a phase
+    in radians. ``basis_ids_by_basis`` selects matching atoms in each cell.
     Each basis selects one atom per cell. The projection sums only cells,
     producing (T, 3, Q); FFT acts only on T. The result is (T, Q), or
     (T, Q, types, 3) for partial SED. Here T becomes the full FFT grid.
 
-    NumPy and CuPy use the same operations. Backends may wrap projection
-    and FFT for timing; the physics does not depend on those wrappers.
+    The same operations support NumPy and CuPy arrays through ``xp`` and
+    ``fft_function``. This returns a new array of power; sampling-time
+    normalization, block averaging, and one-sided folding are separate steps.
     """
     project = xp.tensordot if project_function is None else project_function
 
@@ -93,23 +112,43 @@ def calculate_q_batch(
     return result
 
 
-def block_normalization(dt, duration, num_unit_cells):
-    """Scale FFT power; dt and duration are seconds, velocities are m/s."""
-    return dt**2 / (4 * np.pi * duration * num_unit_cells)
+def block_normalization(dt, duration, num_unit_cells, *, legacy_unit=False):
+    """Return the factor applied to each block's mass-weighted FFT power.
+
+    ``dt`` is the saved-frame interval and ``duration`` is the block duration,
+    both in seconds; ``num_unit_cells`` is the number of repeated cells.
+    The physical factor is dt**2 / (4*pi*duration*num_unit_cells): the squared
+    interval converts the squared discrete FFT sum into a squared time integral.
+    Legacy 2.x scaling omits dt**2. Output-unit conversion is done later.
+    """
+    time_factor = 1.0 if legacy_unit else dt**2
+    return time_factor / (4 * np.pi * duration * num_unit_cells)
 
 
-def finalize_spectrum(sed_sum, frequencies, num_blocks):
-    """Average and fold in place; return one-sided SED (eV/THz) and THz.
+def finalize_spectrum(sed_sum, frequencies, num_blocks, *, legacy_unit=False):
+    """Average blocks and fold to eV/THz or the historical 2.x output scale.
 
-    Keep the existing 3.0 frequency selection, including exclusion of the
-    Nyquist bin. Do not change this convention as part of a code move.
+    DC and all positive frequencies are retained; an even-length Nyquist
+    bin is excluded. The default scale sums each positive/negative pair and
+    converts to eV/THz. Legacy scaling averages each pair and skips that unit
+    conversion. Frequencies remain in THz in both modes.
+
+    ``sed_sum`` already contains block-normalized spectra, with frequency
+    on axis 0 and optional q/type/direction axes afterward. ``frequencies``
+    is the corresponding full FFT grid in THz. The input array is modified
+    in place; the returned (spectrum, frequency_grid) uses slices of the
+    original arrays. Use the same ``legacy_unit`` value as block_normalization.
     """
     sed_sum /= num_blocks
     n_half = len(frequencies) // 2
+    n_positive = (len(frequencies) + 1) // 2
     negative = sed_sum[:n_half:-1, ...]
     paired_length = negative.shape[0]
     positive = sed_sum[1 : 1 + paired_length, ...]
     sed_sum[1 : 1 + paired_length, ...] = positive + negative
-    sed_avg = sed_sum[:n_half, ...]
-    sed_avg *= JOULE_SECOND_TO_EV_PER_THZ
-    return sed_avg, frequencies[:n_half]
+    sed_avg = sed_sum[:n_positive, ...]
+    if legacy_unit:
+        sed_avg[1:, ...] /= 2.0
+    else:
+        sed_avg *= JOULE_SECOND_TO_EV_PER_THZ
+    return sed_avg, frequencies[:n_positive]

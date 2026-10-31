@@ -44,7 +44,12 @@ LEGACY_PARAMETER_HINTS = {
 
 
 def _read_entries(input_file):
-    """Return ``(line_number, key, values)`` entries from an input file."""
+    """Read (line_number, key, values) records from a key = value input file.
+
+    Ignore blank lines and comments, retain quoted tokens, and reject duplicate
+    keys or malformed assignments. Line numbers are preserved so later conversion
+    errors can identify the offending input line.
+    """
 
     path = Path(input_file).expanduser().resolve()
     if not path.is_file():
@@ -89,7 +94,13 @@ def _read_entries(input_file):
 
 
 def read_input(input_file="input.in"):
-    """Parse an input file into a simple parameter namespace."""
+    """Return validated parameters with defaults and input-relative paths resolved.
+
+    Convert each key using PARAMETERS, rejecting unknown keys and reporting
+    migration hints for removed 2.x names. Resolve trajectory_file and
+    basis_lattice_file relative to the input file's directory, then run common
+    and SED validation. Return a SimpleNamespace used by the pipeline.
+    """
 
     input_path = Path(input_file).expanduser().resolve()
     entries = _read_entries(input_path)

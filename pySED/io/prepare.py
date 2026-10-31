@@ -28,12 +28,18 @@ from pySED.io.text import convert_text_trajectory, detect_text_format
 
 
 def default_converted_path(source: Path) -> Path:
+    """Return the .pysed.nc cache path beside the source trajectory."""
     path = Path(source)
     return path.with_name(f"{path.name}.pysed.nc")
 
 
 def detect_trajectory(source: Path) -> str:
-    """Return the actual source format; there is no user format setting."""
+    """Identify text or NetCDF format from the file contents and metadata.
+
+    NetCDF conversion metadata takes precedence over the producing program
+    name. Text files are distinguished by their first header. Missing files
+    raise FileNotFoundError; filenames alone do not select a parser.
+    """
 
     source = Path(source).expanduser()
     if not source.is_file():
@@ -64,7 +70,14 @@ def prepare_trajectory(
     text_mode: str = "cache",
     force: bool = False,
 ) -> tuple[Path, str]:
-    """Return the trajectory path selected for the compute pipeline."""
+    """Return (readable_path, source_format) for the selected trajectory mode.
+
+    Native NetCDF and direct text mode return the source path unchanged.
+    Cache mode reuses a matching .pysed.nc file or rebuilds it from text when
+    source metadata or conversion settings differ. force bypasses reuse only
+    for text-to-NetCDF conversion. storage_dtype controls both text parsing
+    and cache precision; this function does not choose the SED intensity scale.
+    """
 
     source = Path(source).expanduser()
     source_format = detect_trajectory(source)
