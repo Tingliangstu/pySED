@@ -122,7 +122,7 @@ def print_cpu_memory_estimate(
         + active_workers * worker_peak
     )
     print(
-        "\n  Estimated peak CPU array memory: "
+        "\n  🚀🚀 Estimated peak CPU array memory: "
         f"{estimated_bytes / 1e9:.2f} GB "
         "(trajectory block reading + SED arrays; excluding Python overhead)."
     )
