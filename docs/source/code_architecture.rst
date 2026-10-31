@@ -202,8 +202,7 @@ fitting models, or output filenames.
 
 For synchronization from MDtrace, port a mathematical change into the kernel
 and a resource-management change into the corresponding backend. Do not copy
-the upstream ``Phonon.py`` wholesale over the split implementation. Source
-snapshots remain recorded in ``SYNCING.md`` and ``sync/``.
+the upstream ``Phonon.py`` wholesale over the split implementation.
 
 Run the regression suite from the repository root:
 

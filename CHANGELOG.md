@@ -36,8 +36,7 @@
   migrated examples, a deterministic synthetic example, and a v2.4 migration
   guide.
 - Added cross-platform tests, warnings-as-errors documentation builds, package
-  builds, installed-wheel CLI smoke tests, and provenance manifests for the
-  read-only MDtrace SED snapshot.
+  builds, and installed-wheel CLI smoke tests.
 - Fixed cache invalidation when `lammps_unit` changes, extended-XYZ property
   reordering, and false-success reporting for failed plot/fit actions.
 
