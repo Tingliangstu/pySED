@@ -40,7 +40,7 @@ _LOGO_LINES = (
 )
 _BANNER_WIDTH = max(len(line) for line in _LOGO_LINES)
 _BANNER_INDENT = "    "
-_LOGO_INDENT = " " * ((96 - _BANNER_WIDTH) // 2)
+_LOGO_INDENT = _BANNER_INDENT
 
 
 LOGO = "\n".join(f"{_LOGO_INDENT}{line}" for line in _LOGO_LINES)
@@ -86,35 +86,35 @@ def _show_help() -> None:
     """Print command-line usage and exit successfully."""
     _print_banner()
     print(
-        f"""    USAGE:
+        f"""    🚀 USAGE:
         pySED [input_file]      or    pysed [input_file]
         pySED -h                or    pysed --help
 
-    DESCRIPTION:
+    ℹ DESCRIPTION:
         pySED is a tool for calculating Phonon Spectral Energy Density (SED)
         and phonon lifetimes from Molecular Dynamics (MD) simulation trajectories.
         It supports GPUMD/LAMMPS trajectories output formats.
 
         If no input_file is given, defaults to `input_SED.in` in the current directory.
 
-    REFERENCE:
-    [1] Liang et al., J. Appl. Phys. 138, 075101 (2025). (For pySED paper)
-        https://doi.org/10.1063/5.0278798
-
-    [2] Thomas et al., Phys. Rev. B 81, 081411 (2010). (For the SED method)
-        https://doi.org/10.1103/PhysRevB.81.081411
-
-    Please cite these papers when using pySED in your research.
-
-    INPUT PARAMETERS (input_SED.in):
+    ⚙ INPUT PARAMETERS (input_SED.in):
         Write one parameter = value per line. Use # for comments.
         Boolean values accept True/False or 1/0.
 
-        To create a basic input file, run:
+        🚀 To create a basic input file, run:
             pysed init
 
-        Online manual:
+        For detailed parameter descriptions and usage, see the manual:
             {_MANUAL_URL}
+
+    ▣ REFERENCE:
+        [1] Liang et al., J. Appl. Phys. 138, 075101 (2025). (For pySED paper)
+            https://doi.org/10.1063/5.0278798
+
+        [2] Thomas et al., Phys. Rev. B 81, 081411 (2010). (For the SED method)
+            https://doi.org/10.1103/PhysRevB.81.081411
+
+        ** Please cite these papers when using pySED in your research. **
 """
     )
     raise SystemExit(0)
