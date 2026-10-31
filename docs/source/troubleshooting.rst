@@ -44,7 +44,7 @@ GPU backend fails
 -----------------
 
 Confirm that the installed CuPy wheel matches the CUDA Toolkit and driver.
-Switch to ``backend = numpy`` to distinguish an input/data problem from a
+Switch to ``device = cpu`` to distinguish an input/data problem from a
 CUDA installation problem.
 
 Further help

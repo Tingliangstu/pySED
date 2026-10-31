@@ -378,7 +378,7 @@ class SEDKernelTests(unittest.TestCase):
                             params = SimpleNamespace(
                                 total_num_steps=2 * num_frames, output_data_stride=1,
                                 num_blocks=2, num_atoms=6, time_step=spacing_fs,
-                                backend="numpy", max_cores=1,
+                                device="cpu", max_cores=1,
                                 output_partial=partial_output, trajectory_prefetch=False,
                                 legacy_unit=legacy,
                             )

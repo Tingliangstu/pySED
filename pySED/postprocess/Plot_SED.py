@@ -93,7 +93,7 @@ def _print_plot_detail(label, value):
 def _input_filename(params):
     """Return the actual input filename for user-facing plot guidance."""
 
-    return os.path.basename(getattr(params, "input_file", "input.in"))
+    return os.path.basename(getattr(params, "input_file", "input_SED.in"))
 
 
 def _print_color_scale(params, vmin, vmax, unit="eV/THz"):

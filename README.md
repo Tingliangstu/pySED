@@ -80,14 +80,35 @@ For the complete list, please visit the [publications page](https://github.com/A
 The [example files](https://github.com/AI4MD-lab/pySED/tree/main/example) have so many case provided to show how to use **pySED**.
 If you can successfully reproduce these cases, you are ready to apply `pySED` to your own research systems.  
 
-Users can always use the `pysed -h` flag to explore available options and understand how to prepare input files for pySED.
+Create a basic `input_SED.in` in the current directory with:
+
+```bash
+pysed init
+```
+
+Edit the generated file for your trajectory, structure, and MD sampling, then
+run `pysed`. If `input_SED.in` already exists, `pysed init` preserves it and
+returns an error. Use `pysed init -h` to see command help without creating a file.
+
+Use `pysed -h` for a short overview and the manual link. For detailed help on
+an input parameter, run `pysed <parameter> -h`:
+
+```bash
+pysed action -h
+pysed total_num_steps -h
+pysed device -h
+```
+
+Parameter help works offline, does not require an input file, and does not
+start a calculation. Select CPU or GPU computation in `input_SED.in` with
+`device = cpu` (default) or `device = gpu`.
 
 We also strongly encourage readers to browse through the [pySED paper](https://doi.org/10.1063/5.0278798), 
 as it contains a wealth of details that can greatly aid in understanding both the theoretical foundations 
 and the practical aspects of the SED methods it presents.
 
 
-**Online manual** [https://pysed.readthedocs.io](https://pysed.readthedocs.io/en/latest/) includes the `input.in` parameter guide, quick-start workflow, examples, theory notes, and practical tips for preparing SED calculations.
+**Online manual** [https://pysed.readthedocs.io](https://pysed.readthedocs.io/en/latest/) covers the parameter guide, quick-start workflow, examples, theory notes, and practical tips. Use `pysed <parameter> -h` for detailed parameter help.
 
 
 ### 1D Systems

@@ -225,7 +225,7 @@ def step_plot_sed(params):
             Plot_SED.resolve_slice_frequency_limit(data.freq_fft, params)
         )
         input_name = Path(
-            getattr(params, "input_file", "input.in")
+            getattr(params, "input_file", "input_SED.in")
         ).name
         frequency_parameter = (
             frequency_control or "plot_cutoff_freq"
@@ -393,13 +393,7 @@ def run(params):
     reports failure instead of printing a successful completion.
     """
 
-    method = getattr(params, "method", "sed")
     action = getattr(params, "action", "thinking")
-
-    if method != "sed":
-        raise ValueError(
-            f"unknown method '{method}'; the supported method is 'sed'"
-        )
 
     steps = {
         "compute": step_compute_sed,

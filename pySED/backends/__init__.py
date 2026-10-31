@@ -23,16 +23,16 @@ normalization and frequency folding are handled by Phonon and sed_kernel.
 """
 
 
-def create_backend(name, config, reduced_qpoints, max_cores):
-    """Return the backend selected by name, without starting its resources.
+def create_backend(device, config, reduced_qpoints, max_cores):
+    """Return the implementation for cpu or gpu without starting its resources.
 
     Use the result in a with block. NumPy supports serial or process-based
     execution; CuPy is imported only when the GPU backend is selected.
     """
-    if name == "numpy":
+    if device == "cpu":
         from pySED.backends.cpu import CPUBackend
         return CPUBackend(config, reduced_qpoints, max_cores)
-    if name == "cupy":
+    if device == "gpu":
         from pySED.backends.gpu import GPUBackend
         return GPUBackend(config, reduced_qpoints)
-    raise ValueError(f"unsupported SED backend '{name}'")
+    raise ValueError(f"unsupported SED device '{device}'")

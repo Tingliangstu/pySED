@@ -145,7 +145,7 @@ class spectral_energy_density:
             for block in chain((first_trajectory_block,), remaining_trajectory_blocks)
         )
         with create_backend(
-            params.backend, kernel_config, self.reduced_qpoints, params.max_cores,
+            params.device, kernel_config, self.reduced_qpoints, params.max_cores,
         ) as backend:
             self._loop_over_blocks(backend, trajectory_blocks)
 

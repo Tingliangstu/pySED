@@ -1,8 +1,8 @@
 Input Parameters
 ================
 
-pySED reads a plain-text control file. The preferred file name is
-``input.in``, but another file name can be passed on the command line. Each
+pySED reads a plain-text control file. The default file name is
+``input_SED.in``, but another file name can be passed on the command line. Each
 active line has the form
 
 .. code-block:: text
@@ -10,14 +10,13 @@ active line has the form
    parameter_name = value
 
 Blank lines and text after ``#`` are ignored. If no input file is passed on the
-command line, pySED searches for ``input.in`` and then the legacy filename
-``input_SED.in`` in the current directory:
+command line, pySED reads ``input_SED.in`` in the current directory:
 
 .. code-block:: bash
 
    pysed
-   pysed input.in
-   pySED input.in
+   pysed input_SED.in
+   pySED custom.in
 
 Boolean parameters accept ``True``/``False`` (case-insensitive) or ``1``/``0``.
 
@@ -69,7 +68,6 @@ meaning, defaults, examples, practical notes, and related parameters.
    (function () {
      var pages = {
        "action": "input_parameters/action.html",
-       "method": "input_parameters/method.html",
        "num-atoms": "input_parameters/num_atoms.html",
        "total-num-steps": "input_parameters/total_num_steps.html",
        "time-step": "input_parameters/time_step.html",
@@ -85,7 +83,7 @@ meaning, defaults, examples, practical notes, and related parameters.
        "netcdf-batch-size": "input_parameters/netcdf_batch_size.html",
        "netcdf-compression-level": "input_parameters/netcdf_compression_level.html",
        "max-cores": "input_parameters/max_cores.html",
-       "backend": "input_parameters/backend.html",
+       "device": "input_parameters/device.html",
        "prim-unitcell": "input_parameters/prim_unitcell.html",
        "prim-axis": "input_parameters/prim_axis.html",
        "supercell-dim": "input_parameters/supercell_dim.html",
@@ -121,7 +119,7 @@ meaning, defaults, examples, practical notes, and related parameters.
        "dump-xyz-file": "input_parameters/trajectory_file.html",
        "pos-file": "input_parameters/trajectory_file.html",
        "vels-file": "input_parameters/trajectory_file.html",
-       "use-parallel": "input_parameters/backend.html",
+       "use-parallel": "input_parameters/device.html",
        "plot-sed": "input_parameters/action.html",
        "lorentz": "input_parameters/fitting_function.html",
        "peak-height": "input_parameters/peak_min_significance.html",
@@ -154,9 +152,6 @@ meaning, defaults, examples, practical notes, and related parameters.
    * - `action <input_parameters/action.html>`_
      - Workflow
      - Select automatic dispatch, compute, plot, or fit.
-   * - `method <input_parameters/method.html>`_
-     - Workflow
-     - Select the SED workflow; ``sed`` is the only accepted value.
    * - `num_atoms <input_parameters/num_atoms.html>`_
      - MD simulation
      - Number of atoms in the MD trajectory.
@@ -202,9 +197,9 @@ meaning, defaults, examples, practical notes, and related parameters.
    * - `max_cores <input_parameters/max_cores.html>`_
      - Parallelization
      - Maximum number of worker processes.
-   * - `backend <input_parameters/backend.html>`_
+   * - `device <input_parameters/device.html>`_
      - Parallelization
-     - Select NumPy or the optional CuPy backend.
+     - Select CPU or GPU computation.
    * - `prim_unitcell <input_parameters/prim_unitcell.html>`_
      - Crystal structure
      - Primitive lattice vectors.

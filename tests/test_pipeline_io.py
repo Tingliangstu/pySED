@@ -10,8 +10,12 @@ from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
-import matplotlib.pyplot as plt
+import matplotlib
 import numpy as np
+
+# Plot assertions inspect saved figures and axes; they do not need a GUI.
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 
 from pySED.parser import read_input
 from pySED.parameters import validate_qpoint_slice_index
@@ -63,7 +67,6 @@ class ParserTests(unittest.TestCase):
     def test_fit_failure_propagates_without_a_false_success_message(self):
         with TemporaryDirectory() as directory:
             params = SimpleNamespace(
-                method="sed",
                 action="fit",
                 out_files_name=str(Path(directory) / "missing"),
             )
@@ -114,7 +117,7 @@ class ParserTests(unittest.TestCase):
         """Explicit fitting processes every q point without mutating user input."""
         data = SimpleNamespace(q_distances=np.array([0.0, 0.5]))
         params = SimpleNamespace(
-            method="sed", action="fit", lorentz_fit_all_qpoint=True,
+            action="fit", lorentz_fit_all_qpoint=True,
             qpoint_slice_index=0, if_show_figures=True,
         )
         original_params = vars(params).copy()
@@ -771,12 +774,17 @@ class ParserTests(unittest.TestCase):
             self.assertFalse(hasattr(params, "plot_partial_type"))
             self.assertEqual(params.trajectory_read_mode, "cache")
             self.assertTrue(params.trajectory_prefetch)
+            self.assertEqual(params.device, "cpu")
+            self.assertFalse(hasattr(params, "backend"))
+
+            with input_file.open("a", encoding="utf-8") as stream:
+                stream.write("device = GPU\n")
+            self.assertEqual(read_input(input_file).device, "gpu")
 
     def test_dump_group_supercell_is_parsed_and_requires_fixed_primitive(self) -> None:
         with TemporaryDirectory() as directory:
             input_file = Path(directory) / "input.in"
             input_file.write_text(
-                "method = sed\n"
                 "action = plot\n"
                 "rescale_prim = 0\n"
                 "dump_group_supercell = 4 0 0  0 4 0  0 0 4\n",
@@ -789,7 +797,6 @@ class ParserTests(unittest.TestCase):
             )
 
             input_file.write_text(
-                "method = sed\n"
                 "action = plot\n"
                 "dump_group_supercell = 4 0 0  0 4 0  0 0 4\n",
                 encoding="utf-8",
@@ -815,7 +822,6 @@ class ParserTests(unittest.TestCase):
             input_file = root / "input.in"
             input_file.write_text(
                 "action = compute\n"
-                "method = sed\n"
                 "num_atoms = 6144\n"
                 "total_num_steps = 10\n"
                 "time_step = 1\n"
@@ -952,13 +958,17 @@ class ParserTests(unittest.TestCase):
                 "action = plot\noutput_partial = 2\n",
                 "must be 0 or 1",
             ),
-            "invalid_backend": (
-                "action = plot\nbackend = unknown\n",
-                "backend 'unknown' is not available",
+            "invalid_device": (
+                "action = plot\ndevice = unknown\n",
+                "device 'unknown' is not available",
             ),
-            "unsupported_method": (
-                "action = plot\nmethod = dsf\n",
-                "method must be 'sed'",
+            "library_name_is_not_a_device": (
+                "action = plot\ndevice = numpy\n",
+                "device 'numpy' is not available",
+            ),
+            "old_backend_name": (
+                "action = plot\nbackend = numpy\n",
+                "parameter 'backend' is not valid",
             ),
             "removed_parameter": (
                 "action = plot\ncompress = 1\n",
@@ -1041,7 +1051,8 @@ class ParserTests(unittest.TestCase):
                 Path(params.trajectory_path).name,
                 "dump.xyz.pysed.nc",
             )
-            self.assertEqual(Path(params.trajectory_path).parent, root)
+            # Windows temp paths may use an 8.3 alias before read_input resolves them.
+            self.assertTrue(Path(params.trajectory_path).parent.samefile(root))
             self.assertFalse(
                 (trajectory_directory / "dump.xyz.pysed.nc").exists()
             )
@@ -1079,7 +1090,7 @@ class ParserTests(unittest.TestCase):
             step_prepare_trajectory(params)
 
             self.assertEqual(params.source_format, "gpumd_xyz")
-            self.assertEqual(params.trajectory_path, str(trajectory))
+            self.assertTrue(Path(params.trajectory_path).samefile(trajectory))
             self.assertTrue(params.trajectory_prefetch)
             self.assertFalse((root / "dump.xyz.pysed.nc").exists())
 
@@ -1119,7 +1130,7 @@ class ParserTests(unittest.TestCase):
             step_prepare_trajectory(params)
 
             self.assertEqual(params.source_format, "gpumd_netcdf")
-            self.assertEqual(params.trajectory_path, str(trajectory))
+            self.assertTrue(Path(params.trajectory_path).samefile(trajectory))
             self.assertFalse((root / "movie.nc.pysed.nc").exists())
 
 

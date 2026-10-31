@@ -102,7 +102,7 @@ class CachedTrajectoryParityTests(unittest.TestCase):
             num_blocks=2,
             num_atoms=2,
             time_step=1.0,
-            backend="numpy",
+            device="cpu",
             max_cores=1,
             output_partial=False,
             trajectory_prefetch=prefetch,

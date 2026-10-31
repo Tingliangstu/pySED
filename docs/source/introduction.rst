@@ -19,5 +19,5 @@ Main Features
 - **Qualitative Phonon Lifetimes**: Provides qualitative insights into phonon lifetimes based on SED analysis.
 - **Parallel Processing**: Supports parallel execution to accelerate SED computations and obtain results quickly.
 
-For the additional trajectory formats, CPU/GPU backends, and fitting options
+For the additional trajectory formats, CPU/GPU computation, and fitting options
 in pySED 3.0, see :doc:`sed_workflow` and :doc:`peak_fitting`.

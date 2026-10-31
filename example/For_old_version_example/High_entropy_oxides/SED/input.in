@@ -1,7 +1,6 @@
 # pySED 3.0 migration of the historical high-entropy oxide example
 action = compute
-method = sed
-backend = numpy
+device = cpu
 
 trajectory_file = ../lammps_run/trajectory.dump
 trajectory_read_mode = cache

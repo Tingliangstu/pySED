@@ -46,6 +46,10 @@ jobs:
           python-version: "3.12"
           cache: pip
           cache-dependency-path: docs/requirements.txt
+      - name: Install Pandoc for notebook documentation
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc
       - name: Install pySED and documentation dependencies
         run: |
           python -m pip install --upgrade pip

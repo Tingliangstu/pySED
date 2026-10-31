@@ -13,8 +13,8 @@ from unittest.mock import Mock, patch
 
 import numpy as np
 
+from pySED.backends import create_backend
 from pySED.backends.cpu import CPUBackend, _share_numpy_array
-from pySED.backends.gpu import GPUBackend
 from pySED.sed.Phonon import spectral_energy_density
 from pySED.io.schema import POSITIONS, VELOCITIES, TrajectoryBatch
 from pySED.sed.sed_kernel import SEDKernelConfig, calculate_q_batch
@@ -83,7 +83,7 @@ class BackendTests(unittest.TestCase):
             get_default_memory_pool=lambda: device_pool,
             get_default_pinned_memory_pool=lambda: pinned_pool,
         )
-        backend = GPUBackend(self.config, self.config.qpoints)
+        backend = create_backend("gpu", self.config, self.config.qpoints, max_cores=4)
         with patch("pySED.backends.gpu._load_cupy", return_value=cp):
             with self.assertRaisesRegex(RuntimeError, "upload failed"):
                 with backend:
@@ -115,7 +115,7 @@ class BackendTests(unittest.TestCase):
             for cores in (1, 2):
                 params = SimpleNamespace(
                     total_num_steps=16, output_data_stride=1, num_blocks=2,
-                    num_atoms=6, time_step=0.5, backend="numpy", max_cores=cores,
+                    num_atoms=6, time_step=0.5, device="cpu", max_cores=cores,
                     output_partial=partial_output, trajectory_prefetch=False,
                 )
                 with redirect_stdout(StringIO()):

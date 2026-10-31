@@ -1,23 +1,23 @@
-backend
-~~~~~~~
+device
+~~~~~~
 
 **Syntax**
 
 .. code-block:: text
 
-   backend = numpy
+   device = cpu
 
 **Meaning**
-   Selects the SED compute backend. ``numpy`` uses one process when
+   Selects the device for SED computation. ``cpu`` uses NumPy with one process when
    ``max_cores = 1`` and persistent CPU workers when ``max_cores > 1``.
-   ``cupy`` uses one CUDA GPU per pySED process. Plotting, peak detection,
+   ``gpu`` uses CuPy with one CUDA GPU per pySED process. Plotting, peak detection,
    and spectral fitting remain CPU operations.
 
 **Allowed values**
-   ``numpy`` or ``cupy``.
+   ``cpu`` or ``gpu``.
 
 **Default**
-   ``numpy``.
+   ``cpu``.
 
 :doc:`Back to Parameter Index <../input_parameters>`
 

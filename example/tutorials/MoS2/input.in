@@ -1,7 +1,6 @@
 # pySED 3.0 notebook companion: bulk MoS2
 action = compute
-method = sed
-backend = numpy
+device = cpu
 
 trajectory_file = dump.xyz
 trajectory_read_mode = cache
