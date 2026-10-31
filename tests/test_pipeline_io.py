@@ -10,8 +10,12 @@ from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
-import matplotlib.pyplot as plt
+import matplotlib
 import numpy as np
+
+# Plot assertions inspect saved figures and axes; they do not need a GUI.
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 
 from pySED.parser import read_input
 from pySED.parameters import validate_qpoint_slice_index
@@ -1047,7 +1051,8 @@ class ParserTests(unittest.TestCase):
                 Path(params.trajectory_path).name,
                 "dump.xyz.pysed.nc",
             )
-            self.assertEqual(Path(params.trajectory_path).parent, root)
+            # Windows temp paths may use an 8.3 alias before read_input resolves them.
+            self.assertTrue(Path(params.trajectory_path).parent.samefile(root))
             self.assertFalse(
                 (trajectory_directory / "dump.xyz.pysed.nc").exists()
             )
@@ -1085,7 +1090,7 @@ class ParserTests(unittest.TestCase):
             step_prepare_trajectory(params)
 
             self.assertEqual(params.source_format, "gpumd_xyz")
-            self.assertEqual(params.trajectory_path, str(trajectory))
+            self.assertTrue(Path(params.trajectory_path).samefile(trajectory))
             self.assertTrue(params.trajectory_prefetch)
             self.assertFalse((root / "dump.xyz.pysed.nc").exists())
 
@@ -1125,7 +1130,7 @@ class ParserTests(unittest.TestCase):
             step_prepare_trajectory(params)
 
             self.assertEqual(params.source_format, "gpumd_netcdf")
-            self.assertEqual(params.trajectory_path, str(trajectory))
+            self.assertTrue(Path(params.trajectory_path).samefile(trajectory))
             self.assertFalse((root / "movie.nc.pysed.nc").exists())
 
 
