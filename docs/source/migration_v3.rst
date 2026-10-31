@@ -5,6 +5,9 @@ pySED 3.0 is a breaking upgrade. Keep ``input_SED.in`` as the default input
 file, use one trajectory file, and select work through ``action``. Other
 file names, including ``input.in``, must be passed on the command line.
 
+The redundant ``method`` parameter has been removed. Delete any
+``method = sed`` line from the input file; pySED always uses SED.
+
 Parameter replacements
 ----------------------
 

@@ -1,6 +1,5 @@
 # pySED 3.0 migration of the historical PTCDI-C8 example
 action = compute
-method = sed
 backend = numpy
 
 trajectory_file = ../lammps_run/trajectory.dump

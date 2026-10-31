@@ -141,7 +141,6 @@ def read_partial_sed(values):
 PARAMETERS = {
     # Control
     "action": Parameter("thinking", read_lower_text),
-    "method": Parameter("sed", read_lower_text),
     "backend": Parameter("numpy", read_lower_text),
 
     # Trajectory and output
@@ -224,8 +223,6 @@ def validate_common(params):
     units, block/worker counts, and NetCDF tuning values. Invalid settings
     raise ValueError; SED geometry and fitting checks are in validate_sed.
     """
-    if params.method != "sed":
-        raise ValueError("method must be 'sed'")
     if params.action not in supported_actions:
         supported = ", ".join(sorted(supported_actions))
         raise ValueError(

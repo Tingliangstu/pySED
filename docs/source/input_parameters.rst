@@ -68,7 +68,6 @@ meaning, defaults, examples, practical notes, and related parameters.
    (function () {
      var pages = {
        "action": "input_parameters/action.html",
-       "method": "input_parameters/method.html",
        "num-atoms": "input_parameters/num_atoms.html",
        "total-num-steps": "input_parameters/total_num_steps.html",
        "time-step": "input_parameters/time_step.html",
@@ -153,9 +152,6 @@ meaning, defaults, examples, practical notes, and related parameters.
    * - `action <input_parameters/action.html>`_
      - Workflow
      - Select automatic dispatch, compute, plot, or fit.
-   * - `method <input_parameters/method.html>`_
-     - Workflow
-     - Select the SED workflow; ``sed`` is the only accepted value.
    * - `num_atoms <input_parameters/num_atoms.html>`_
      - MD simulation
      - Number of atoms in the MD trajectory.

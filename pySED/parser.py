@@ -27,6 +27,7 @@ LEGACY_PARAMETER_HINTS = {
     "compress": "use trajectory_read_mode = cache or direct",
     "dump_xyz_file": "use trajectory_file with one combined trajectory",
     "file_format": "the trajectory format is detected automatically",
+    "method": "remove the 'method' line; pySED always uses SED",
     "lorentz": "use action = fit",
     "lorentz_fit_cutoff": (
         "use lorentz_fit_freq_min and lorentz_fit_freq_max"

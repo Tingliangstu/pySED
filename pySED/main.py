@@ -71,7 +71,6 @@ def _print_run_summary(input_file, params) -> None:
     print(f"{_BANNER_INDENT}Starting pySED task")
     print(divider)
     print(f"{_BANNER_INDENT}Input   : {input_file}")
-    print(f"{_BANNER_INDENT}Method  : {params.method.upper()}")
     print(f"{_BANNER_INDENT}Action  : {params.action}")
     print(f"{_BANNER_INDENT}Backend : {backend}")
     print(f"{_BANNER_INDENT}Output  : {params.out_files_name}")
@@ -109,7 +108,6 @@ def _show_help() -> None:
     Boolean values accept True/False or 1/0.
 
     Workflow
-      method                   : SED method. Default: sed.
       action                   : thinking, compute, plot, or fit.
                                  Default: thinking (next incomplete stage).
       backend                  : numpy (CPU) or cupy (single GPU).

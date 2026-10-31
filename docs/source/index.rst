@@ -35,7 +35,6 @@ maps, and fit Lorentzian peaks to estimate phonon lifetimes.
    command_line
    sed_workflow
    input_parameters/action
-   input_parameters/method
    input_parameters/backend
    input_parameters/trajectory_file
    input_parameters/trajectory_read_mode

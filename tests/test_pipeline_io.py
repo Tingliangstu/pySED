@@ -63,7 +63,6 @@ class ParserTests(unittest.TestCase):
     def test_fit_failure_propagates_without_a_false_success_message(self):
         with TemporaryDirectory() as directory:
             params = SimpleNamespace(
-                method="sed",
                 action="fit",
                 out_files_name=str(Path(directory) / "missing"),
             )
@@ -114,7 +113,7 @@ class ParserTests(unittest.TestCase):
         """Explicit fitting processes every q point without mutating user input."""
         data = SimpleNamespace(q_distances=np.array([0.0, 0.5]))
         params = SimpleNamespace(
-            method="sed", action="fit", lorentz_fit_all_qpoint=True,
+            action="fit", lorentz_fit_all_qpoint=True,
             qpoint_slice_index=0, if_show_figures=True,
         )
         original_params = vars(params).copy()
@@ -776,7 +775,6 @@ class ParserTests(unittest.TestCase):
         with TemporaryDirectory() as directory:
             input_file = Path(directory) / "input.in"
             input_file.write_text(
-                "method = sed\n"
                 "action = plot\n"
                 "rescale_prim = 0\n"
                 "dump_group_supercell = 4 0 0  0 4 0  0 0 4\n",
@@ -789,7 +787,6 @@ class ParserTests(unittest.TestCase):
             )
 
             input_file.write_text(
-                "method = sed\n"
                 "action = plot\n"
                 "dump_group_supercell = 4 0 0  0 4 0  0 0 4\n",
                 encoding="utf-8",
@@ -815,7 +812,6 @@ class ParserTests(unittest.TestCase):
             input_file = root / "input.in"
             input_file.write_text(
                 "action = compute\n"
-                "method = sed\n"
                 "num_atoms = 6144\n"
                 "total_num_steps = 10\n"
                 "time_step = 1\n"
@@ -956,9 +952,9 @@ class ParserTests(unittest.TestCase):
                 "action = plot\nbackend = unknown\n",
                 "backend 'unknown' is not available",
             ),
-            "unsupported_method": (
-                "action = plot\nmethod = dsf\n",
-                "method must be 'sed'",
+            "removed_method": (
+                "action = plot\nmethod = sed\n",
+                "parameter 'method' was removed.*remove the 'method' line",
             ),
             "removed_parameter": (
                 "action = plot\ncompress = 1\n",

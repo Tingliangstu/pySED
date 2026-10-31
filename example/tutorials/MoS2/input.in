@@ -1,6 +1,5 @@
 # pySED 3.0 notebook companion: bulk MoS2
 action = compute
-method = sed
 backend = numpy
 
 trajectory_file = dump.xyz
