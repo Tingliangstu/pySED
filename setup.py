@@ -35,15 +35,16 @@ setup(
     long_description_content_type="text/markdown",
     author="Liang Ting",
     author_email="liangting.zj@gmail.com",
-    url="https://github.com/Tingliangstu/pySED",
+    url="https://github.com/AI4MD-lab/pySED",
     project_urls={
         "Documentation": "https://pysed.readthedocs.io/",
-        "Source": "https://github.com/Tingliangstu/pySED",
-        "Issues": "https://github.com/Tingliangstu/pySED/issues",
+        "Source": "https://github.com/AI4MD-lab/pySED",
+        "Issues": "https://github.com/AI4MD-lab/pySED/issues",
     },
     license="GPL-3.0-or-later",
     license_files=["LICENSE"],
-    packages=find_packages(exclude=("tests", "tests.*")),
+    packages=find_packages(include=("pySED", "pySED.*")),
+    include_package_data=False,
     python_requires=">=3.10",
     # CuPy remains optional because its wheel must match the user's CUDA
     # runtime; it is intentionally not installed as a generic dependency.

@@ -1,9 +1,0 @@
-# Plot numerical output created by input.in
-action = plot
-method = sed
-out_files_name = synthetic
-plot_cutoff_freq = 15
-plot_interval = 2.5
-plot_slice = 1
-qpoint_slice_index = 1
-if_show_figures = 0

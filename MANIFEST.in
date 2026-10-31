@@ -1,0 +1,4 @@
+# Keep source distributions limited to the installable package and its metadata.
+global-exclude *
+include LICENSE README.md pyproject.toml setup.py MANIFEST.in
+recursive-include pySED *.py

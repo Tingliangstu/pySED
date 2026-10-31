@@ -20,6 +20,7 @@ parts/
 sdist/
 var/
 wheels/
+*.whl
 *.egg-info/
 .installed.cfg
 *.egg
@@ -47,6 +48,23 @@ coverage.xml
 *.cover
 .hypothesis/
 .pytest_cache/
+.ruff_cache/
+
+# pySED trajectory caches (rebuilt from the original trajectory)
+*.pysed.nc
+
+# Editor backups, temporary files, and OS metadata
+*.tmp
+*.temp
+*.bak
+*.orig
+*.rej
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini
 
 # Translations
 *.mo
