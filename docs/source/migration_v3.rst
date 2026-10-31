@@ -1,8 +1,9 @@
 Migrating from pySED 2.4
 ==========================
 
-pySED 3.0 is a breaking upgrade. Rename ``input_SED.in`` to ``input.in``,
-use one trajectory file, and select work through ``action``.
+pySED 3.0 is a breaking upgrade. Keep ``input_SED.in`` as the default input
+file, use one trajectory file, and select work through ``action``. Other
+file names, including ``input.in``, must be passed on the command line.
 
 Parameter replacements
 ----------------------

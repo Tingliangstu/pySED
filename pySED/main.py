@@ -27,36 +27,24 @@ from pySED.pipeline import run as run_pipeline
 
 
 _LOGO_LINES = (
-    r"              ____    _____   ____",
-    " _ __   _   _/ ___|  | ____| |  _ \\",
-    r"| '_ \ | | | \___ \  |  _|   | | | |",
-    r"| |_) || |_| |___) | | |___  | |_| |",
-    r"| .__/  \__, |____/  |_____| |____/",
-    r"|_|     |___/",
+    r" _ __   _   _    _____  ______  _____",
+    "| '_ \\ | | | |  / ____||  ____||  __ \\",
+    r"| |_) || |_| | | (___  | |__   | |  | |",
+    r"| .__/  \__, |  \___ \ |  __|  | |  | |",
+    r"| |      __/ | ____) | | |____ | |__| |",
+    r"|_|     |___/ |_____/  |______||_____/",
 )
 _BANNER_WIDTH = max(len(line) for line in _LOGO_LINES)
-_BANNER_INDENT = "  "
-
-
-def _center_banner_line(text: str) -> str:
-    """Center one line within the command-line banner width."""
-    return f"{_BANNER_INDENT}{text:^{_BANNER_WIDTH}}".rstrip()
+_BANNER_INDENT = "    "
 
 
 LOGO = "\n".join(f"{_BANNER_INDENT}{line}" for line in _LOGO_LINES)
-TAGLINE = "\n".join(
-    _center_banner_line(line)
-    for line in (
-        f"phonon spectral energy density   v{__version__}",
-        "from molecular-dynamics trajectories",
-        "Author: liangting.zj@gmail.com",
-    )
-)
 
 
 def _print_banner() -> None:
-    """Print the program logo, version, and author contact."""
-    print(f"\n{LOGO}\n\n{TAGLINE}\n")
+    """Print the original logo with its version below the right-hand side."""
+    version = f"v-{__version__}"
+    print(f"\n{LOGO}\n{_BANNER_INDENT}{version:>{_BANNER_WIDTH - 5}}\n")
 
 
 def _configure_console_encoding() -> None:
@@ -94,40 +82,121 @@ def _show_help() -> None:
     """Print command-line usage and exit successfully."""
     _print_banner()
     print(
-        """USAGE:
-    pySED [input.in]
-    pySED -h
+        """  Usage
+    pySED [input_file]
+    pysed [input_file]
+    pySED --help
 
-DESCRIPTION:
-    pySED 3 computes phonon spectral energy density, plots reciprocal-space
-    spectra, detects spectral peaks, and fits Lorentz or velocity-DHO line
-    shapes. GPUMD extended XYZ, LAMMPS custom dumps, and NetCDF trajectories
-    are supported.
+  Description
+    Calculate phonon spectral energy density (SED) and phonon
+    lifetimes from molecular dynamics trajectories.
 
-CONTROL:
-    method = sed
-    action = thinking      # run the next incomplete stage
-    action = compute       # calculate SED
-    action = plot          # plot existing SED output
-    action = fit           # fit existing SED output
-    backend = numpy        # CPU, optionally using max_cores
-    backend = cupy         # optional single-GPU backend
-    legacy_unit = False    # True restores the temporary 2.x output scale
+    Supports extended XYZ (.xyz), LAMMPS custom dump, and NetCDF formats.
 
-legacy_unit is for historical comparisons and will be removed in a future
-major release. Saved SED scale metadata controls plot and fit labels.
+    If no input_file is given, defaults to input_SED.in in the current
+    directory. To use another file, pass its path on the command line.
 
-TRAJECTORY:
-    trajectory_file = trajectory.dump
-    trajectory_read_mode = cache   # reusable .pysed.nc cache
-    trajectory_read_mode = direct  # stream supported text formats
+  References
+    [1] Liang et al., J. Appl. Phys. 138, 075101 (2025).
+        https://doi.org/10.1063/5.0278798
+    [2] Thomas et al., Phys. Rev. B 81, 081411 (2010).
+        https://doi.org/10.1103/PhysRevB.81.081411
 
-If no path is supplied, pySED reads input.in, then the legacy filename
-input_SED.in. New projects should use input.in.
+    Please cite these papers when using pySED in your research.
 
-REFERENCE:
-    Liang et al., J. Appl. Phys. 138, 075101 (2025),
-    https://doi.org/10.1063/5.0278798
+  Input parameters (input_SED.in)
+    Write one parameter = value per line. Use # for comments.
+    Boolean values accept True/False or 1/0.
+
+    Workflow
+      method                   : SED method. Default: sed.
+      action                   : thinking, compute, plot, or fit.
+                                 Default: thinking (next incomplete stage).
+      backend                  : numpy (CPU) or cupy (single GPU).
+                                 Default: numpy.
+
+    MD simulation (required for computation)
+      num_atoms                : Number of atoms in the trajectory.
+      total_num_steps          : Number of MD steps.
+      time_step                : MD time step in fs.
+      output_data_stride       : Trajectory output interval in steps.
+      num_blocks               : Number of blocks to average. Default: 5.
+
+    Input and output
+      trajectory_file          : Trajectory path. Default: dump.xyz.
+      basis_lattice_file       : Basis lattice path. Default: basis.in.
+      out_files_name           : Output prefix. Default: pySED.
+      lammps_unit              : metal or real for LAMMPS text. Default: metal.
+      trajectory_read_mode     : cache or direct. Default: cache.
+      trajectory_prefetch      : Prefetch trajectory batches. Default: True.
+      netcdf_batch_size        : Frames per text batch. Default: 64.
+      netcdf_compression_level : Cache compression level (0-9). Default: 1.
+      output_partial           : Save partial SED. Default: False.
+      legacy_unit              : Use the temporary 2.x SED scale. Default:
+                                 False.
+
+      cache reuses a .pysed.nc file; direct streams the text trajectory.
+      Native NetCDF is read directly in either mode.
+      legacy_unit is for historical comparisons and will be removed in a
+      future major release. Saved SED scale metadata controls plot/fit labels.
+
+    Parallelization
+      max_cores                : Maximum CPU processes. Default: 4.
+
+    Crystal structure
+      prim_unitcell            : Primitive cell, nine values in Angstrom.
+      prim_axis                : Optional primitive-cell transformation.
+      supercell_dim            : Replication along three axes. Default: 1 1 1.
+      rescale_prim             : Rescale the primitive cell. Default: True.
+      dump_group_supercell     : Optional local cell for a dumped atom group.
+
+    Q-points and Brillouin zone
+      num_qpaths               : Number of path segments. Default: 1.
+      q_path_name              : Labels for path endpoints. Default: GA.
+      q_path                   : Endpoints in fractional reciprocal coordinates.
+                                 Example: 0 0 0  0.5 0 0.
+
+    Plotting
+      plot_cutoff_freq         : Upper plot frequency in THz. Default: None.
+      plot_interval            : Frequency tick interval in THz. Default: 5.
+      plot_color               : Matplotlib colormap. Default: RdBu_r.
+      colorbar_min             : Lower log color limit. Default: None.
+      colorbar_max             : Upper log color limit. Default: None.
+      use_contourf             : Use filled contours. Default: False.
+      plot_slice               : Plot a single q-point spectrum. Default: False.
+      qpoint_slice_index       : Zero-based q-point index. Default: 0.
+      plot_partial_SED         : Element and optional direction, e.g. Si x.
+      if_show_figures          : Show figures interactively. Default: False.
+
+    Peak detection and fitting
+      fitting_function         : auto, lorentz, or dho. Default: auto.
+      peak_min_significance    : Local-noise significance threshold. Default: 4.
+      initial_guess_hwhm       : Initial peak HWHM in THz. Default: 0.001.
+      peak_max_hwhm            : Maximum peak HWHM in THz. Default: 1e6.
+      lorentz_fit_freq_min     : Lower fit frequency in THz. Default: None.
+      lorentz_fit_freq_max     : Upper fit frequency in THz. Default: None.
+      lorentz_fit_all_qpoint   : Fit all q-points. Default: False.
+      modulate_factor          : Trim samples at each fit-range end. Default: 0.
+      re_output_total_freq_lifetime
+                                 Rebuild lifetime summary after a single-q
+                                 refit. Default: False.
+
+      Tips
+        Use action = plot with plot_slice = True and qpoint_slice_index
+        to inspect a spectrum before fitting.
+
+        Increase peak_min_significance to reject more weak/noisy peaks;
+        decrease it to detect weaker peaks. It is a dimensionless threshold.
+
+        To refit one q-point, use action = fit, set qpoint_slice_index,
+        keep lorentz_fit_all_qpoint = False, and adjust the fitting controls.
+        Set re_output_total_freq_lifetime = True to update the summary.
+
+  Examples
+    pysed                       # Read input_SED.in in the current directory.
+    pysed custom.in             # Read a named input file.
+    pysed input_SED.in           # action = compute, plot, or fit in the file.
+    pysed -h                    # Show this help.
 """
     )
     raise SystemExit(0)
@@ -136,13 +205,7 @@ REFERENCE:
 def _detect_input_file() -> str:
     """Resolve the optional input-file argument or handle a help request."""
     if len(sys.argv) == 1:
-        if os.path.exists("input.in"):
-            return "input.in"
-        if os.path.exists("input_SED.in"):
-            return "input_SED.in"
-        raise FileNotFoundError(
-            "No input.in or input_SED.in was found in the current directory."
-        )
+        return "input_SED.in"
 
     if len(sys.argv) == 2:
         argument = sys.argv[1]

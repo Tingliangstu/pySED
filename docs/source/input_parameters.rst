@@ -1,8 +1,8 @@
 Input Parameters
 ================
 
-pySED reads a plain-text control file. The preferred file name is
-``input.in``, but another file name can be passed on the command line. Each
+pySED reads a plain-text control file. The default file name is
+``input_SED.in``, but another file name can be passed on the command line. Each
 active line has the form
 
 .. code-block:: text
@@ -10,14 +10,13 @@ active line has the form
    parameter_name = value
 
 Blank lines and text after ``#`` are ignored. If no input file is passed on the
-command line, pySED searches for ``input.in`` and then the legacy filename
-``input_SED.in`` in the current directory:
+command line, pySED reads ``input_SED.in`` in the current directory:
 
 .. code-block:: bash
 
    pysed
-   pysed input.in
-   pySED input.in
+   pysed input_SED.in
+   pySED custom.in
 
 Boolean parameters accept ``True``/``False`` (case-insensitive) or ``1``/``0``.
 

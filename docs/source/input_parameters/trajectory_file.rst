@@ -15,7 +15,8 @@ trajectory_file
      information;
    - compatible GPUMD, LAMMPS, or pySED NetCDF.
 
-   Relative paths are resolved from the directory containing ``input.in``.
+   Relative paths are resolved from the directory containing the input file
+   (``input_SED.in`` by default).
    pySED reads exactly the named file; it does not choose a neighboring
    ``.xyz`` or ``.nc`` file automatically.
 
@@ -24,7 +25,7 @@ trajectory_file
 
 **Notes**
    For text input, ``trajectory_read_mode`` selects direct parsing or a
-   reusable ``<source-name>.pysed.nc`` cache beside ``input.in``. A named
+   reusable ``<source-name>.pysed.nc`` cache beside the source trajectory. A named
    native NetCDF file is always read directly.
 
 :doc:`Back to Parameter Index <../input_parameters>`

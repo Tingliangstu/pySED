@@ -11,9 +11,10 @@ Invocation
    pysed [input-file]
    PYSED [input-file]
 
-``pySED`` is the canonical spelling. When no path is supplied, pySED searches
-the current directory for ``input.in`` and then for the legacy filename
-``input_SED.in``. New projects should always use ``input.in``.
+``pySED`` is the canonical spelling. When no path is supplied, pySED reads
+``input_SED.in`` in the current directory. To use another file name, pass it
+explicitly, for example ``pysed input.in``. If ``input_SED.in`` is missing,
+running without a path reports an error; it does not select another file.
 
 Workflow actions
 ----------------

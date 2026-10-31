@@ -93,7 +93,7 @@ def _read_entries(input_file):
     return entries
 
 
-def read_input(input_file="input.in"):
+def read_input(input_file="input_SED.in"):
     """Return validated parameters with defaults and input-relative paths resolved.
 
     Convert each key using PARAMETERS, rejecting unknown keys and reporting
