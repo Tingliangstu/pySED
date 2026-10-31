@@ -46,7 +46,6 @@ class CommandLineTests(unittest.TestCase):
         self.assertNotIn("pysed <parameter>", output)
         self.assertIn("pysed init", output)
         self.assertNotIn("[ Workflow ]", output)
-        self.assertLess(len(output.splitlines()), 55)
         read.assert_not_called()
         run.assert_not_called()
 

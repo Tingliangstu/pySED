@@ -90,20 +90,28 @@ def _print_run_summary(input_file, params) -> None:
 
 def _show_help() -> None:
     """Print command-line usage and exit successfully."""
+    section_rule = "-" * _BANNER_FRAME_WIDTH
     _print_banner()
     print(
         f"""    🚀 USAGE:
+    {section_rule}
+
         pySED [input_file]      or    pysed [input_file]
         pySED -h                or    pysed --help
 
     ℹ DESCRIPTION:
+    {section_rule}
+
         pySED is a tool for calculating Phonon Spectral Energy Density (SED)
         and phonon lifetimes from Molecular Dynamics (MD) simulation trajectories.
+
         It supports GPUMD/LAMMPS trajectories output formats.
 
         If no input_file is given, defaults to `input_SED.in` in the current directory.
 
     ⚙ INPUT PARAMETERS (input_SED.in):
+    {section_rule}
+
         Write one parameter = value per line. Use # for comments.
         Boolean values accept True/False or 1/0.
 
@@ -114,6 +122,8 @@ def _show_help() -> None:
             {_MANUAL_URL}
 
     ▣ REFERENCE:
+    {section_rule}
+
         [1] Liang et al., J. Appl. Phys. 138, 075101 (2025). (For pySED paper)
             https://doi.org/10.1063/5.0278798
 
