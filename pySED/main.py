@@ -60,12 +60,12 @@ def _print_banner() -> None:
 
 
 def _configure_console_encoding() -> None:
-    """Prevent locale-limited Windows terminals from aborting a run."""
+    """Use UTF-8 so status symbols survive Windows terminals and redirected logs."""
 
     for stream in (sys.stdout, sys.stderr):
         reconfigure = getattr(stream, "reconfigure", None)
         if reconfigure is not None:
-            reconfigure(errors="replace")
+            reconfigure(encoding="utf-8", errors="replace")
 
 
 def _print_run_summary(input_file, params) -> None:
@@ -80,7 +80,7 @@ def _print_run_summary(input_file, params) -> None:
     border = f"{_BANNER_INDENT}{'=' * _BANNER_WIDTH}"
     divider = f"{_BANNER_INDENT}{'-' * _BANNER_WIDTH}"
     print(border)
-    print(f"{_BANNER_INDENT}Starting pySED task")
+    print(f"{_BANNER_INDENT}🚀 Starting pySED task")
     print(divider)
     print(f"{_BANNER_INDENT}Input   : {input_file}")
     print(f"{_BANNER_INDENT}Method  : {params.method.upper()}")
@@ -166,10 +166,10 @@ def main() -> int:
         _print_run_summary(input_file, params)
         run_pipeline(params)
     except (EOFError, ImportError, KeyError, OSError, RuntimeError, ValueError) as error:
-        print(f"\nERROR: {error}\n", file=sys.stderr)
+        print(f"\n  ✖  ERROR: {error}\n", file=sys.stderr)
         return 1
     except KeyboardInterrupt:
-        print("\nInterrupted.\n", file=sys.stderr)
+        print("\n  ⚠  Interrupted.\n", file=sys.stderr)
         return 130
     return 0
 

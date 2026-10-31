@@ -233,7 +233,7 @@ class spectral_energy_density:
                 "different directions *******"
             )
             print(
-                "  Element -> mass mapping "
+                "  🚀🚀 Element -> mass mapping "
                 "(mass in amu; used for partial SED filenames):"
             )
             for type_index, mass in enumerate(unique_masses):

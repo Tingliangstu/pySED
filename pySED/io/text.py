@@ -526,7 +526,7 @@ def convert_text_trajectory(
         else f"zlib level {compression_level}"
     )
     print(
-        "\n  Converting text trajectory to NetCDF"
+        "\n  🚀 Converting text trajectory to NetCDF"
         f"\n     Source      : {source}"
         f"\n     Output      : {output}"
         f"\n     Format      : {source_format}"

@@ -130,7 +130,7 @@ class BZ_methods(object):
                     "\n************************** Structural information "
                     "*****************************"
                 )
-                print("\nLocal-group SED mode is active.")
+                print("\n🚀 Local-group SED mode is active.")
                 print(
                     "   The Q-point grid is built from the local cell "
                     "specified by dump_group_supercell in the input file."
@@ -180,12 +180,12 @@ class BZ_methods(object):
             params.prim_unitcell = expected_prim_unitcell
             if self.box_info:
                 print(
-                    "\nNOTE: pySED identified that structural optimization is likely performed using the NVT ensemble.")
+                    "\n⚠️ pySED identified that structural optimization is likely performed using the NVT ensemble.")
 
         else:
             if self.box_info:
                 print(
-                    "\nWARNING: The cell matrix in the trajectory is different from calculated "
+                    "\n⚠️Warning⚠️: The cell matrix in the trajectory is different from calculated "
                     "by the primitive cell and supercell dimensions.")
                 print("This suggests that structural optimization is likely performed using the NPT ensemble.")
 
@@ -270,7 +270,7 @@ class BZ_methods(object):
             qpoints_cart, _ = BZ_Path.build_commensurate_path(q_start, q_end)
 
             if not len(qpoints_cart):
-                print(f'\nWARNING: \nNo commensurate q-points found along path'
+                print(f'\n⚠️Warnings⚠️: \nNo commensurate q-points found along path'
                       f' segment {i}: from {start_label}: {fmt_vec(q_start)} to {end_label}: {fmt_vec(q_end)}')
 
                 if q_labels and prev_end_label is not None and prev_end_distance is not None:

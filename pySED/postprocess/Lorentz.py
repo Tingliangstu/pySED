@@ -28,6 +28,8 @@ import numpy as np
 from scipy.optimize import curve_fit
 from scipy.signal import find_peaks, windows
 
+from pySED.postprocess import output_files
+
 _PEAK_DETECTION_SMOOTH_WINDOW = 7
 _PEAK_DETECTION_NOISE_WINDOW = 31
 _MAD_TO_SIGMA = 1.4826
@@ -617,6 +619,10 @@ class lorentz:
             print("      Line shape           : automatic Lorentz or DHO")
         else:
             print(f"      Line shape           : {self.fitting_function}")
+        print(
+            "      Fit figure           : "
+            f"{output_files.slice_figure(params, fitting=True)}"
+        )
 
         self.peak_fits = []
         for peak_number, peak in enumerate(peaks, start=1):
