@@ -14,5 +14,5 @@ Mandatory requirements
 - scipy (For fast Lorentz fitting)
 - matplotlib (Plotting)
 
-CuPy is optional for GPU computation; see :doc:`input_parameters/backend`.
+CuPy is optional for GPU computation; see :doc:`input_parameters/device`.
 The MoS2 tutorial notebook also uses Jupyter and pandas.

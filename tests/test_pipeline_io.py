@@ -770,6 +770,12 @@ class ParserTests(unittest.TestCase):
             self.assertFalse(hasattr(params, "plot_partial_type"))
             self.assertEqual(params.trajectory_read_mode, "cache")
             self.assertTrue(params.trajectory_prefetch)
+            self.assertEqual(params.device, "cpu")
+            self.assertFalse(hasattr(params, "backend"))
+
+            with input_file.open("a", encoding="utf-8") as stream:
+                stream.write("device = GPU\n")
+            self.assertEqual(read_input(input_file).device, "gpu")
 
     def test_dump_group_supercell_is_parsed_and_requires_fixed_primitive(self) -> None:
         with TemporaryDirectory() as directory:
@@ -948,9 +954,17 @@ class ParserTests(unittest.TestCase):
                 "action = plot\noutput_partial = 2\n",
                 "must be 0 or 1",
             ),
-            "invalid_backend": (
-                "action = plot\nbackend = unknown\n",
-                "backend 'unknown' is not available",
+            "invalid_device": (
+                "action = plot\ndevice = unknown\n",
+                "device 'unknown' is not available",
+            ),
+            "library_name_is_not_a_device": (
+                "action = plot\ndevice = numpy\n",
+                "device 'numpy' is not available",
+            ),
+            "old_backend_name": (
+                "action = plot\nbackend = numpy\n",
+                "parameter 'backend' is not valid",
             ),
             "removed_parameter": (
                 "action = plot\ncompress = 1\n",

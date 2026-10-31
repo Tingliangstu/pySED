@@ -24,7 +24,7 @@ Recommended Workflow
 4. **Edit ``input.in``.**
    Set the trajectory path, number of atoms, MD step information, primitive
    cell, supercell dimensions, and q-path. Choose
-   ``backend = numpy`` or ``cupy``. The complete control file is provided
+   ``device = cpu`` or ``gpu``. The complete control file is provided
    in each example's ``SED/input.in``.
 
 5. **Compute SED.**

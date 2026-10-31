@@ -16,7 +16,7 @@ trajectory_prefetch
 
    The same prefetch layer is used by direct GPUMD/LAMMPS text, converted
    NetCDF caches, and native NetCDF trajectories. It can be most helpful when
-   text parsing or NetCDF reads would otherwise leave the compute backend
+   text parsing or NetCDF reads would otherwise leave the compute device
    waiting.
 
 **Default**
@@ -25,7 +25,7 @@ trajectory_prefetch
 **Memory tradeoff**
    Prefetch retains one additional raw block of positions and velocities in
    CPU memory. Set it to ``0`` when memory is limited. Its speedup depends on
-   the filesystem, block size, and CPU/GPU backend, so compare elapsed times on
+   the filesystem, block size, and CPU/GPU device, so compare elapsed times on
    the actual trajectory.
 
 :doc:`Back to Parameter Index <../input_parameters>`

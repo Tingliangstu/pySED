@@ -11,10 +11,39 @@ Invocation
    pysed [input-file]
    PYSED [input-file]
 
+Parameter help
+--------------
+
+``pysed -h`` prints the program introduction, references, online manual link,
+and a short guide to looking up parameters. Detailed parameter descriptions
+are available directly from the installed version:
+
+.. code-block:: bash
+
+   pysed action -h
+   pysed total_num_steps -h
+   pysed device --help
+   pysed trajectory_file -h
+
+Replace the name with any supported input parameter. Each help page explains
+the syntax, meaning, default or required status, examples, and practical notes.
+The help is bundled with pySED and works offline, without ``input_SED.in`` or
+trajectory data. It does not run a calculation. Unknown parameter names return
+an error and, when possible, suggest the closest valid name.
+
+The `online manual <https://pysed.readthedocs.io/>`_ describes the published
+version. Use ``pysed <parameter> -h`` for the version currently installed.
+
+Input file selection
+--------------------
+
 ``pySED`` is the canonical spelling. When no path is supplied, pySED reads
 ``input_SED.in`` in the current directory. To use another file name, pass it
 explicitly, for example ``pysed input.in``. If ``input_SED.in`` is missing,
 running without a path reports an error; it does not select another file.
+Without a help flag, a single argument is always an input-file path, even if
+it is named like a parameter. For example, ``pysed action`` reads a file named
+``action``; it does not select the workflow stage.
 
 Workflow actions
 ----------------

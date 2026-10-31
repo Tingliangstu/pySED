@@ -37,7 +37,7 @@ LEGACY_PARAMETER_HINTS = {
     "peak_prominence": "use peak_min_significance",
     "plot_SED": "use action = plot",
     "pos_file": "use trajectory_file with positions and velocities together",
-    "use_parallel": "select backend and set max_cores",
+    "use_parallel": "select device and set max_cores",
     "vels_file": "use trajectory_file with positions and velocities together",
     "with_eigs": "this internal option is no longer an input parameter",
 }

@@ -5,11 +5,11 @@
 ### Breaking interface changes
 
 - Replaced the pySED 2.x parser with declarative parameter conversion and
-  validation. The SED-only `method`, `action`, and `backend` workflow is now
+  validation. The SED-only `action` and `device` workflow is now
   the public interface.
 - Replaced split position/velocity inputs with one `trajectory_file` and
-  automatic format detection. The default input filename is now `input.in`;
-  `input_SED.in` remains a filename fallback only.
+  automatic format detection. The default input filename is `input_SED.in`;
+  other names must be passed explicitly on the command line.
 - Removed 14 v2 parameters. Each removed key now fails with a targeted
   migration hint instead of being silently accepted.
 - Changed the cache format/name to `.pysed.nc`, the public SED unit to eV/THz,

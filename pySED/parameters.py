@@ -141,7 +141,7 @@ def read_partial_sed(values):
 PARAMETERS = {
     # Control
     "action": Parameter("thinking", read_lower_text),
-    "backend": Parameter("numpy", read_lower_text),
+    "device": Parameter("cpu", read_lower_text),
 
     # Trajectory and output
     "trajectory_file": Parameter("dump.xyz", read_text),
@@ -209,7 +209,7 @@ PARAMETERS = {
 }
 
 
-supported_backends = {"numpy", "cupy"}
+supported_devices = {"cpu", "gpu"}
 supported_actions = {"thinking", "compute", "plot", "fit"}
 
 
@@ -219,7 +219,7 @@ def validate_common(params):
     """Check workflow choices, trajectory sampling, and resource settings.
 
     Compute/thinking actions require positive time_step and output_data_stride;
-    plot/fit may leave those unset. Validate backend, trajectory mode, LAMMPS
+    plot/fit may leave those unset. Validate device, trajectory mode, LAMMPS
     units, block/worker counts, and NetCDF tuning values. Invalid settings
     raise ValueError; SED geometry and fitting checks are in validate_sed.
     """
@@ -229,11 +229,11 @@ def validate_common(params):
             f"action '{params.action}' is not available; supported actions: "
             f"{supported}"
         )
-    if params.backend not in supported_backends:
-        supported = ", ".join(sorted(supported_backends))
+    if params.device not in supported_devices:
+        supported = ", ".join(sorted(supported_devices))
         raise ValueError(
-            f"backend '{params.backend}' is not available; "
-            f"supported backends: {supported}"
+            f"device '{params.device}' is not available; "
+            f"supported devices: {supported}"
         )
     if params.lammps_unit not in {"metal", "real"}:
         raise ValueError("lammps_unit must be 'metal' or 'real'")

@@ -83,7 +83,7 @@ meaning, defaults, examples, practical notes, and related parameters.
        "netcdf-batch-size": "input_parameters/netcdf_batch_size.html",
        "netcdf-compression-level": "input_parameters/netcdf_compression_level.html",
        "max-cores": "input_parameters/max_cores.html",
-       "backend": "input_parameters/backend.html",
+       "device": "input_parameters/device.html",
        "prim-unitcell": "input_parameters/prim_unitcell.html",
        "prim-axis": "input_parameters/prim_axis.html",
        "supercell-dim": "input_parameters/supercell_dim.html",
@@ -119,7 +119,7 @@ meaning, defaults, examples, practical notes, and related parameters.
        "dump-xyz-file": "input_parameters/trajectory_file.html",
        "pos-file": "input_parameters/trajectory_file.html",
        "vels-file": "input_parameters/trajectory_file.html",
-       "use-parallel": "input_parameters/backend.html",
+       "use-parallel": "input_parameters/device.html",
        "plot-sed": "input_parameters/action.html",
        "lorentz": "input_parameters/fitting_function.html",
        "peak-height": "input_parameters/peak_min_significance.html",
@@ -197,9 +197,9 @@ meaning, defaults, examples, practical notes, and related parameters.
    * - `max_cores <input_parameters/max_cores.html>`_
      - Parallelization
      - Maximum number of worker processes.
-   * - `backend <input_parameters/backend.html>`_
+   * - `device <input_parameters/device.html>`_
      - Parallelization
-     - Select NumPy or the optional CuPy backend.
+     - Select CPU or GPU computation.
    * - `prim_unitcell <input_parameters/prim_unitcell.html>`_
      - Crystal structure
      - Primitive lattice vectors.

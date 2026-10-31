@@ -77,7 +77,7 @@ def _load_cupy():
         import cupy as cp
     except ImportError as error:
         raise ImportError(
-            "backend = cupy requires a CuPy package matching the installed "
+            "device = gpu requires a CuPy package matching the installed "
             "CUDA version"
         ) from error
 
@@ -288,7 +288,7 @@ class GPUBackend:
         if selected_batch is None:
             raise MemoryError(
                 "Estimated SED GPU memory exceeds currently available "
-                "memory. Increase num_blocks or use backend = numpy."
+                "memory. Increase num_blocks or use device = cpu."
             )
 
         self._gpu_q_batch_size = selected_batch
