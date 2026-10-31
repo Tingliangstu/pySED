@@ -401,7 +401,7 @@ _TOPICS = {
         notes=(
             "This limits the plotted range; it does not change the saved spectrum "
             "or the trajectory sampling limit.",
-            "For single-q figures, lorentz_fit_freq_max takes precedence when set. "
+            "For single-q fit figures, lorentz_fit_freq_max takes precedence when set. "
             "Otherwise the figure uses plot_cutoff_freq, or the available FFT range "
             "if neither is set. This display limit does not restrict fitting.",
         ),
@@ -579,7 +579,7 @@ _TOPICS = {
         notes=(
             "If both bounds are supplied, this must be greater than lorentz_fit_freq_min. "
             "Omitting both bounds selects the complete available frequency interval.",
-            "This also sets the upper limit of single-q figures. When omitted, those "
+            "This also sets the upper limit of single-q fit figures. When omitted, those "
             "figures use plot_cutoff_freq or the available FFT range, while fitting "
             "still uses the highest available frequency.",
         ),

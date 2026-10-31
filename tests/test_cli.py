@@ -53,21 +53,26 @@ class CommandLineTests(unittest.TestCase):
         run.assert_not_called()
 
     def test_init_creates_a_valid_basic_template_without_running(self):
-        with TemporaryDirectory(prefix="pysed init ") as directory, working_directory(directory):
-            with patch.object(cli, "read_input") as read, patch.object(cli, "run_pipeline") as run:
-                status, output, error = self.invoke("init")
-            self.assertEqual(status, 0, error)
-            self.assertIn("Created input_SED.in", output)
-            self.assertEqual([path.name for path in Path.cwd().iterdir()], ["input_SED.in"])
-            read.assert_not_called()
-            run.assert_not_called()
-            # Parsing needs the user's mapping file, but generation does not.
-            Path("basis.in").touch()
-            params = cli.read_input()
-            self.assertEqual(params.action, "compute")
-            self.assertEqual(params.device, "cpu")
-            self.assertGreater(params.num_atoms, 0)
-            self.assertEqual(params.q_path.size, (params.num_qpaths + 1) * 3)
+        with TemporaryDirectory(prefix="pysed init ") as directory:
+            calculation = Path(directory) / "SED"
+            calculation.mkdir()
+            with working_directory(calculation):
+                with patch.object(cli, "read_input") as read, patch.object(cli, "run_pipeline") as run:
+                    status, output, error = self.invoke("init")
+                self.assertEqual(status, 0, error)
+                self.assertIn("Created input_SED.in", output)
+                self.assertEqual([path.name for path in Path.cwd().iterdir()], ["input_SED.in"])
+                read.assert_not_called()
+                run.assert_not_called()
+                # Parsing needs the user's mapping file, but generation does not.
+                structure = Path(directory) / "structure"
+                structure.mkdir()
+                (structure / "basis.in").touch()
+                params = cli.read_input()
+                self.assertEqual(params.action, "compute")
+                self.assertEqual(params.device, "cpu")
+                self.assertGreater(params.num_atoms, 0)
+                self.assertEqual(params.q_path.size, (params.num_qpaths + 1) * 3)
 
     def test_init_preserves_an_existing_input_file_byte_for_byte(self):
         with TemporaryDirectory() as directory, working_directory(directory):
