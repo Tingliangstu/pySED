@@ -168,10 +168,15 @@ def _generate_input_file() -> None:
             "input_SED.in already exists; no changes made. "
             "Edit that file or run 'pysed init' in a new directory."
         ) from None
+    rule = _BANNER_INDENT + "-" * _BANNER_FRAME_WIDTH
     print(
-        "Created input_SED.in.\n"
-        "Edit the example values to match your system, then run pysed.\n"
-        f"Online manual: {_MANUAL_URL}"
+        f"\n{rule}\n"
+        f"{_BANNER_INDENT}✓ Created input_SED.in.\n\n"
+        "        Edit the example values to match your system, then run:\n"
+        "            pysed\n\n"
+        "        Online manual:\n"
+        f"            {_MANUAL_URL}\n"
+        f"{rule}\n"
     )
     raise SystemExit(0)
 
