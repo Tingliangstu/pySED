@@ -16,7 +16,7 @@ Parameter help
 
 ``pysed -h`` prints the program introduction, references, online manual link,
 and a short guide to looking up parameters. Detailed parameter descriptions
-are available directly from the installed version:
+are available with ``pysed <parameter> -h``:
 
 .. code-block:: bash
 
@@ -31,8 +31,8 @@ The help is bundled with pySED and works offline, without ``input_SED.in`` or
 trajectory data. It does not run a calculation. Unknown parameter names return
 an error and, when possible, suggest the closest valid name.
 
-The `online manual <https://pysed.readthedocs.io/>`_ describes the published
-version. Use ``pysed <parameter> -h`` for the version currently installed.
+The `online manual <https://pysed.readthedocs.io/>`_ provides the full parameter
+guide, workflow examples, and theory notes.
 
 Input file selection
 --------------------

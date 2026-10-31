@@ -107,10 +107,10 @@ def _show_help() -> None:
         Write one parameter = value per line. Use # for comments.
         Boolean values accept True/False or 1/0.
 
-        Online manual (published version):
+        Online manual:
             https://pysed.readthedocs.io/
 
-        Detailed help for this version:
+        For detailed parameter help, run:
             pysed <parameter> -h
             Available offline; shows help without running a calculation.
 

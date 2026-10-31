@@ -81,7 +81,7 @@ The [example files](https://github.com/AI4MD-lab/pySED/tree/main/example) have s
 If you can successfully reproduce these cases, you are ready to apply `pySED` to your own research systems.  
 
 Use `pysed -h` for a short overview and the manual link. For detailed help on
-any input parameter in the installed version, run `pysed <parameter> -h`:
+an input parameter, run `pysed <parameter> -h`:
 
 ```bash
 pysed action -h
@@ -98,7 +98,7 @@ as it contains a wealth of details that can greatly aid in understanding both th
 and the practical aspects of the SED methods it presents.
 
 
-**Online manual** [https://pysed.readthedocs.io](https://pysed.readthedocs.io/en/latest/) covers the published version, including the parameter guide, quick-start workflow, examples, theory notes, and practical tips. Use `pysed <parameter> -h` for help matching the installed version.
+**Online manual** [https://pysed.readthedocs.io](https://pysed.readthedocs.io/en/latest/) covers the parameter guide, quick-start workflow, examples, theory notes, and practical tips. Use `pysed <parameter> -h` for detailed parameter help.
 
 
 ### 1D Systems
