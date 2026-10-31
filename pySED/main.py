@@ -172,7 +172,7 @@ def _generate_input_file() -> None:
     rule = _BANNER_INDENT + "-" * _BANNER_FRAME_WIDTH
     print(
         f"\n{rule}\n"
-        f"{_BANNER_INDENT}✓ Created input_SED.in.\n\n"
+        f"{_BANNER_INDENT}✓ Created input_SED.in for pySED.\n\n"
         "        Edit the example values to match your system, then run:\n"
         "            pysed\n\n"
         "        Online manual:\n"
