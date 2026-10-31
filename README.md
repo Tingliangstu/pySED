@@ -80,6 +80,16 @@ For the complete list, please visit the [publications page](https://github.com/A
 The [example files](https://github.com/AI4MD-lab/pySED/tree/main/example) have so many case provided to show how to use **pySED**.
 If you can successfully reproduce these cases, you are ready to apply `pySED` to your own research systems.  
 
+Create a basic `input_SED.in` in the current directory with:
+
+```bash
+pysed init
+```
+
+Edit the generated file for your trajectory, structure, and MD sampling, then
+run `pysed`. If `input_SED.in` already exists, `pysed init` preserves it and
+returns an error. Use `pysed init -h` to see command help without creating a file.
+
 Use `pysed -h` for a short overview and the manual link. For detailed help on
 an input parameter, run `pysed <parameter> -h`:
 

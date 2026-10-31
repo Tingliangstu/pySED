@@ -20,6 +20,8 @@ from __future__ import annotations
 
 import os
 import sys
+from importlib.resources import files
+from pathlib import Path
 
 from pySED import __version__
 from pySED.cli_help import format_parameter_help
@@ -107,6 +109,9 @@ def _show_help() -> None:
         Write one parameter = value per line. Use # for comments.
         Boolean values accept True/False or 1/0.
 
+        To create a basic input file, run:
+            pysed init
+
         Online manual:
             https://pysed.readthedocs.io/
 
@@ -129,6 +134,45 @@ def _show_parameter_help(name: str) -> None:
     raise SystemExit(0)
 
 
+def _show_init_help() -> None:
+    """Explain input-file generation without writing a file."""
+    print(
+        """    USAGE:
+        pysed init
+
+    DESCRIPTION:
+        Create a basic input_SED.in in the current directory.
+        Edit the example values to match your system, then run pysed.
+        An existing input_SED.in is never overwritten.
+
+        For detailed parameter help, run: pysed <parameter> -h
+"""
+    )
+    raise SystemExit(0)
+
+
+def _generate_input_file() -> None:
+    """Create the bundled starter input without overwriting an existing path."""
+    template = files("pySED").joinpath("templates", "input_SED.in").read_text(
+        encoding="utf-8"
+    )
+    path = Path("input_SED.in")
+    try:
+        with path.open("x", encoding="utf-8", newline="\n") as stream:
+            stream.write(template)
+    except FileExistsError:
+        raise FileExistsError(
+            "input_SED.in already exists; no changes made. "
+            "Edit that file or run 'pysed init' in a new directory."
+        ) from None
+    print(
+        "Created input_SED.in.\n"
+        "Edit the example values to match your system, then run pysed.\n"
+        "For parameter help: pysed <parameter> -h"
+    )
+    raise SystemExit(0)
+
+
 def _detect_input_file() -> str:
     """Resolve the optional input-file argument or handle a help request."""
     if len(sys.argv) == 1:
@@ -138,13 +182,18 @@ def _detect_input_file() -> str:
         argument = sys.argv[1]
         if argument.lower() in {"h", "help", "-h", "--help", "-help"}:
             _show_help()
+        if argument == "init":
+            _generate_input_file()
         return argument
 
     if len(sys.argv) == 3 and sys.argv[2].lower() in {"-h", "--help"}:
+        if sys.argv[1] == "init":
+            _show_init_help()
         _show_parameter_help(sys.argv[1])
 
     raise ValueError(
-        "Use 'pysed [input_file]' to run or 'pysed <parameter> -h' for parameter help."
+        "Use 'pysed [input_file]' to run, 'pysed init' to create an input file, "
+        "or 'pysed <parameter> -h' for parameter help."
     )
 
 

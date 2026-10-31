@@ -29,6 +29,8 @@
 
 ### Fitting, documentation, and quality
 
+- Added `pysed init` to create a basic, commented `input_SED.in` without
+  overwriting existing input files.
 - Added significance-based peak detection, Lorentz and velocity-DHO line
   shapes, AICc automatic model selection, small-amplitude-safe fitting, and
   combined lifetime outputs.

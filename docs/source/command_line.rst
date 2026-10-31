@@ -11,6 +11,22 @@ Invocation
    pysed [input-file]
    PYSED [input-file]
 
+Create an input file
+--------------------
+
+Run ``pysed init`` in your calculation directory to create a basic
+``input_SED.in`` template:
+
+.. code-block:: bash
+
+   pysed init
+
+Edit the generated file for your trajectory, structure, and MD sampling, then
+run ``pysed`` to start the calculation. If ``input_SED.in`` already exists,
+the command preserves it and returns an error.
+
+``pysed init -h`` explains the command without creating a file.
+
 Parameter help
 --------------
 
@@ -41,9 +57,10 @@ Input file selection
 ``input_SED.in`` in the current directory. To use another file name, pass it
 explicitly, for example ``pysed input.in``. If ``input_SED.in`` is missing,
 running without a path reports an error; it does not select another file.
-Without a help flag, a single argument is always an input-file path, even if
-it is named like a parameter. For example, ``pysed action`` reads a file named
-``action``; it does not select the workflow stage.
+Except for help requests and the ``init`` command, a single argument is an
+input-file path, even if it is named like a parameter. For example,
+``pysed action`` reads a file named ``action``; it does not select the workflow
+stage. To read an input file literally named ``init``, use ``pysed ./init``.
 
 Workflow actions
 ----------------

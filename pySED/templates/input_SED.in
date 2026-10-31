@@ -1,0 +1,28 @@
+# pySED basic input file
+# Example values only: edit these to match your structure and MD run.
+# Parameter help: pysed <parameter> -h
+
+# Task and device
+action = compute                 # compute, plot, or fit
+device = cpu                     # cpu or gpu
+
+# Input files (paths relative to this file)
+trajectory_file = dump.xyz        # Trajectory with positions and velocities
+basis_lattice_file = basis.in     # Atom-to-unit-cell mapping for this trajectory
+
+# MD production run
+num_atoms = 1000
+total_num_steps = 100000          # MD steps, not saved frames
+time_step = 1                    # fs
+output_data_stride = 10          # MD steps between saved frames
+num_blocks = 5                   # Equal blocks for averaging
+max_cores = 4                    # CPU worker processes
+
+# Structure: example cubic cell; replace with your lattice and repeats
+prim_unitcell = 3 0 0  0 3 0  0 0 3   # Three lattice vectors in angstrom
+supercell_dim = 10 10 10
+
+# Q-path: example Gamma to X; replace with your reciprocal-space path
+num_qpaths = 1
+q_path_name = GX
+q_path = 0 0 0  1/2 0 0          # Fractional reciprocal coordinates

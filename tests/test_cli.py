@@ -1,7 +1,8 @@
 """Command-line help routing and input-file selection behavior."""
 
-from contextlib import redirect_stderr, redirect_stdout
+from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from io import StringIO
+import os
 from pathlib import Path
 import sys
 from tempfile import TemporaryDirectory
@@ -10,6 +11,16 @@ from unittest.mock import patch
 
 from pySED import main as cli
 from pySED.parameters import PARAMETERS
+
+
+@contextmanager
+def working_directory(path):
+    previous = Path.cwd()
+    os.chdir(path)
+    try:
+        yield
+    finally:
+        os.chdir(previous)
 
 
 class CommandLineTests(unittest.TestCase):
@@ -35,10 +46,60 @@ class CommandLineTests(unittest.TestCase):
         self.assertIn("https://pysed.readthedocs.io/", output)
         self.assertIn("pysed <parameter> -h", output)
         self.assertIn("pysed total_num_steps -h", output)
+        self.assertIn("pysed init", output)
         self.assertNotIn("[ Workflow ]", output)
         self.assertLess(len(output.splitlines()), 55)
         read.assert_not_called()
         run.assert_not_called()
+
+    def test_init_creates_a_valid_basic_template_without_running(self):
+        with TemporaryDirectory(prefix="pysed init ") as directory, working_directory(directory):
+            with patch.object(cli, "read_input") as read, patch.object(cli, "run_pipeline") as run:
+                status, output, error = self.invoke("init")
+            self.assertEqual(status, 0, error)
+            self.assertIn("Created input_SED.in", output)
+            self.assertEqual([path.name for path in Path.cwd().iterdir()], ["input_SED.in"])
+            read.assert_not_called()
+            run.assert_not_called()
+            # Parsing needs the user's mapping file, but generation does not.
+            Path("basis.in").touch()
+            params = cli.read_input()
+            self.assertEqual(params.action, "compute")
+            self.assertEqual(params.device, "cpu")
+            self.assertGreater(params.num_atoms, 0)
+            self.assertEqual(params.q_path.size, (params.num_qpaths + 1) * 3)
+
+    def test_init_preserves_an_existing_input_file_byte_for_byte(self):
+        with TemporaryDirectory() as directory, working_directory(directory):
+            path = Path("input_SED.in")
+            original = b"# user input\r\n\xff\x00\n"
+            path.write_bytes(original)
+            with patch.object(cli, "run_pipeline") as run:
+                status, output, error = self.invoke("init")
+            self.assertNotEqual(status, 0)
+            self.assertNotIn("Created", output)
+            self.assertIn("already exists", error)
+            self.assertEqual(path.read_bytes(), original)
+            run.assert_not_called()
+
+    def test_init_help_explains_generation_without_writing(self):
+        with TemporaryDirectory() as directory, working_directory(directory):
+            with patch.object(cli, "run_pipeline") as run:
+                for flag in ("-h", "--help"):
+                    with self.subTest(flag=flag):
+                        status, output, error = self.invoke("init", flag)
+                        self.assertEqual(status, 0, error)
+                        self.assertIn("pysed init", output)
+                        self.assertIn("never overwritten", output)
+                        self.assertEqual(list(Path.cwd().iterdir()), [])
+            run.assert_not_called()
+
+    def test_init_extra_arguments_do_not_create_a_file(self):
+        with TemporaryDirectory() as directory, working_directory(directory):
+            status, output, error = self.invoke("init", "custom.in")
+            self.assertNotEqual(status, 0)
+            self.assertIn("pysed init", error)
+            self.assertEqual(list(Path.cwd().iterdir()), [])
 
     def test_every_current_parameter_has_offline_help_without_running(self):
         with (
@@ -86,7 +147,7 @@ class CommandLineTests(unittest.TestCase):
                 self.assertIn(name, error)
 
     def test_single_argument_is_still_an_input_filename(self):
-        for path in ("action", "device", "folder with spaces/custom.in"):
+        for path in ("action", "device", "./init", "folder with spaces/custom.in"):
             with self.subTest(path=path), patch.object(sys, "argv", ["pysed", path]):
                 self.assertEqual(cli._detect_input_file(), path)
         with patch.object(sys, "argv", ["pysed"]):

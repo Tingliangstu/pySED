@@ -45,6 +45,7 @@ setup(
     license_files=["LICENSE"],
     packages=find_packages(include=("pySED", "pySED.*")),
     include_package_data=False,
+    package_data={"pySED": ["templates/*.in"]},
     python_requires=">=3.10",
     # CuPy remains optional because its wheel must match the user's CUDA
     # runtime; it is intentionally not installed as a generic dependency.

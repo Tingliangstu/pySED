@@ -2,3 +2,4 @@
 global-exclude *
 include LICENSE README.md pyproject.toml setup.py MANIFEST.in
 recursive-include pySED *.py
+recursive-include pySED/templates *.in
