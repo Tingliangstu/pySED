@@ -40,16 +40,22 @@ _LOGO_LINES = (
 )
 _BANNER_WIDTH = max(len(line) for line in _LOGO_LINES)
 _BANNER_INDENT = "    "
-_LOGO_INDENT = _BANNER_INDENT
+_BANNER_FRAME_WIDTH = 72
+_LOGO_INDENT = " " * ((_BANNER_FRAME_WIDTH - 2 - _BANNER_WIDTH) // 2)
 
 
 LOGO = "\n".join(f"{_LOGO_INDENT}{line}" for line in _LOGO_LINES)
 
 
 def _print_banner() -> None:
-    """Print the original logo with its version below the right-hand side."""
+    """Center the original logo and its version inside a compact star frame."""
     version = f"v-{__version__}"
-    print(f"\n{LOGO}\n{_LOGO_INDENT}{version:>{_BANNER_WIDTH - 5}}\n")
+    border = _BANNER_INDENT + "*" * _BANNER_FRAME_WIDTH
+    rows = ["", *LOGO.splitlines(), f"{_LOGO_INDENT}{version:>{_BANNER_WIDTH - 5}}", ""]
+    framed_logo = "\n".join(
+        f"{_BANNER_INDENT}*{row:<{_BANNER_FRAME_WIDTH - 2}}*" for row in rows
+    )
+    print(f"\n{border}\n{framed_logo}\n{border}\n")
 
 
 def _configure_console_encoding() -> None:
