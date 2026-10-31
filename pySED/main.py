@@ -24,10 +24,11 @@ from importlib.resources import files
 from pathlib import Path
 
 from pySED import __version__
-from pySED.cli_help import format_parameter_help
 from pySED.parser import read_input
 from pySED.pipeline import run as run_pipeline
 
+
+_MANUAL_URL = "https://pysed.readthedocs.io/"
 
 _LOGO_LINES = (
     r" _ __   _   _    _____  ______  _____",
@@ -85,7 +86,7 @@ def _show_help() -> None:
     """Print command-line usage and exit successfully."""
     _print_banner()
     print(
-        """    USAGE:
+        f"""    USAGE:
         pySED [input_file]      or    pysed [input_file]
         pySED -h                or    pysed --help
 
@@ -113,31 +114,16 @@ def _show_help() -> None:
             pysed init
 
         Online manual:
-            https://pysed.readthedocs.io/
-
-        For detailed parameter help, run:
-            pysed <parameter> -h
-            Available offline; shows help without running a calculation.
-
-        Examples:
-            pysed action -h
-            pysed total_num_steps -h
-            pysed device -h
+            {_MANUAL_URL}
 """
     )
-    raise SystemExit(0)
-
-
-def _show_parameter_help(name: str) -> None:
-    """Print help for one input parameter without reading an input file."""
-    print(format_parameter_help(name))
     raise SystemExit(0)
 
 
 def _show_init_help() -> None:
     """Explain input-file generation without writing a file."""
     print(
-        """    USAGE:
+        f"""    USAGE:
         pysed init
 
     DESCRIPTION:
@@ -145,7 +131,8 @@ def _show_init_help() -> None:
         Edit the example values to match your system, then run pysed.
         An existing input_SED.in is never overwritten.
 
-        For detailed parameter help, run: pysed <parameter> -h
+        Online manual:
+            {_MANUAL_URL}
 """
     )
     raise SystemExit(0)
@@ -168,7 +155,7 @@ def _generate_input_file() -> None:
     print(
         "Created input_SED.in.\n"
         "Edit the example values to match your system, then run pysed.\n"
-        "For parameter help: pysed <parameter> -h"
+        f"Online manual: {_MANUAL_URL}"
     )
     raise SystemExit(0)
 
@@ -186,14 +173,16 @@ def _detect_input_file() -> str:
             _generate_input_file()
         return argument
 
-    if len(sys.argv) == 3 and sys.argv[2].lower() in {"-h", "--help"}:
-        if sys.argv[1] == "init":
-            _show_init_help()
-        _show_parameter_help(sys.argv[1])
+    if (
+        len(sys.argv) == 3
+        and sys.argv[1] == "init"
+        and sys.argv[2].lower() in {"-h", "--help"}
+    ):
+        _show_init_help()
 
     raise ValueError(
         "Use 'pysed [input_file]' to run, 'pysed init' to create an input file, "
-        "or 'pysed <parameter> -h' for parameter help."
+        "or 'pysed -h' for help."
     )
 
 

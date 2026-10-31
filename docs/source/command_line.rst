@@ -15,7 +15,7 @@ Create an input file
 --------------------
 
 Run ``pysed init`` in your calculation directory to create a basic
-``input_SED.in`` template:
+``input_SED.in`` template with setup comments:
 
 .. code-block:: bash
 
@@ -27,28 +27,15 @@ the command preserves it and returns an error.
 
 ``pysed init -h`` explains the command without creating a file.
 
-Parameter help
---------------
+Help and manual
+---------------
 
 ``pysed -h`` prints the program introduction, references, online manual link,
-and a short guide to looking up parameters. Detailed parameter descriptions
-are available with ``pysed <parameter> -h``:
+and the command for creating an input template.
 
-.. code-block:: bash
-
-   pysed action -h
-   pysed total_num_steps -h
-   pysed device --help
-   pysed trajectory_file -h
-
-Replace the name with any supported input parameter. Each help page explains
-the syntax, meaning, default or required status, examples, and practical notes.
-The help is bundled with pySED and works offline, without ``input_SED.in`` or
-trajectory data. It does not run a calculation. Unknown parameter names return
-an error and, when possible, suggest the closest valid name.
-
-The `online manual <https://pysed.readthedocs.io/>`_ provides the full parameter
-guide, workflow examples, and theory notes.
+Use the template comments for initial setup. The
+`online manual <https://pysed.readthedocs.io/>`_ provides detailed parameter
+descriptions, workflow examples, and theory notes.
 
 Input file selection
 --------------------
